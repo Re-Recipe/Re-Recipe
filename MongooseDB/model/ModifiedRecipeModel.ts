@@ -7,7 +7,7 @@ class ModifiedRecipeModel {
 
     /**
      * Constructor to initialize the database connection and set up the schema and model.
-     * @param DB_CONNECTION_STRING - Connection string for MongoDB.
+     * @param DB_CONNECTION_STRING - MongoDB connection string.
      */
     public constructor(DB_CONNECTION_STRING: string) {
         this.dbConnectionString = DB_CONNECTION_STRING;
@@ -62,7 +62,7 @@ class ModifiedRecipeModel {
     /**
      * Adds a new modified recipe.
      * @param modifiedRecipe - Object containing modified recipe details.
-     * @returns Promise with the created modified recipe document.
+     * @returns The saved modified recipe document.
      */
     public async createModifiedRecipe(modifiedRecipe: any) {
         const newRecipe = new this.model(modifiedRecipe);
@@ -71,9 +71,8 @@ class ModifiedRecipeModel {
 
     /**
      * Retrieves a modified recipe by `personal_recipe_id`.
-     * @param response - The response object to send data back to the client.
      * @param personalRecipeId - The unique ID of the modified recipe.
-     * @returns void - Sends the modified recipe document or an error if not found.
+     * @param response - Response object to send data back to the client.
      */
     public async retrieveModifiedRecipe(response: any, personalRecipeId: string) {
         try {
@@ -87,15 +86,14 @@ class ModifiedRecipeModel {
 
     /**
      * Updates the ingredients or directions of a modified recipe by `personal_recipe_id`.
-     * @param response - The response object to send data back to the client.
-     * @param personalRecipeId - The unique ID of the modified recipe.
-     * @param updates - An object containing updated fields, such as ingredients or directions.
-     * @returns void - Sends the updated modified recipe in JSON format.
+     * @param personalRecipeID - The unique ID of the modified recipe.
+     * @param updates - Updated fields for ingredients or directions.
+     * @param response - Response object to send updated data.
      */
-    public async updateModifiedRecipe(response: any, personalRecipeId: string, updates: Partial<any>) {
+    public async updateModifiedRecipe(response: any, personalRecipeID: string, updates: Partial<any>) {
         try {
             const result = await this.model.findOneAndUpdate(
-                { personal_recipe_id: personalRecipeId },
+                { personal_recipe_id: personalRecipeID },
                 { $set: updates },
                 { new: true }
             ).exec();
@@ -108,14 +106,13 @@ class ModifiedRecipeModel {
 
     /**
      * Deletes a modified recipe by its `personal_recipe_id`.
-     * @param response - The response object to send data back to the client.
-     * @param personalRecipeId - The unique ID of the modified recipe.
-     * @returns void - Sends a success message with the deletion result.
+     * @param personalRecipeID - The unique ID of the modified recipe.
+     * @param response - Response object to send deletion result.
      */
-    public async deleteModifiedRecipe(response: any, personalRecipeId: string) {
+    public async deleteModifiedRecipe(response: any, personalRecipeID: string) {
         try {
-            const result = await this.model.deleteOne({ personal_recipe_id: personalRecipeId }).exec();
-            response.json({ message: `Modified recipe ${personalRecipeId} deleted`, result });
+            const result = await this.model.deleteOne({ personal_recipe_id: personalRecipeID }).exec();
+            response.json({ message: `Modified recipe ${personalRecipeID} deleted`, result });
         } catch (e) {
             console.error(e);
             response.status(500).json({ error: "Failed to delete modified recipe" });
@@ -126,7 +123,7 @@ class ModifiedRecipeModel {
      * Saves a new version of the modified recipe.
      * Increments the version number and saves it as a new document.
      * @param modifiedRecipe - Object containing modified recipe details.
-     * @returns Promise with the saved version of the modified recipe.
+     * @returns Saved version of the modified recipe.
      */
     public async saveVersion(modifiedRecipe: any) {
         const newVersion = { ...modifiedRecipe, version_number: modifiedRecipe.version_number + 1 };
@@ -136,15 +133,14 @@ class ModifiedRecipeModel {
 
     /**
      * Adds notes to an existing modified recipe.
-     * @param response - The response object to send data back to the client.
-     * @param personalRecipeId - The unique ID of the modified recipe.
+     * @param personalRecipeID - The unique ID of the modified recipe.
      * @param note - The note to add.
-     * @returns void - Sends the updated modified recipe with the new note in JSON format.
+     * @param response - Response object to send the updated document.
      */
-    public async addNotes(response: any, personalRecipeId: string, note: string) {
+    public async addNotes(response: any, personalRecipeID: string, note: string) {
         try {
             const result = await this.model.findOneAndUpdate(
-                { personal_recipe_id: personalRecipeId },
+                { personal_recipe_id: personalRecipeID },
                 { $set: { notes: note } },
                 { new: true }
             ).exec();
