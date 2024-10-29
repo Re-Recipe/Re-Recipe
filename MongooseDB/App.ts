@@ -1,6 +1,6 @@
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
-import {ListModel} from './model/ListModel';
+import {RecipeModel} from './model/RecipeModel';
 import {TaskModel} from './model/TaskModel';
 import * as crypto from 'crypto';
 
@@ -9,7 +9,7 @@ class App {
 
   // ref to Express instance
   public expressApp: express.Application;
-  public Lists:ListModel;
+  public Lists:RecipeModel;
   public Tasks:TaskModel;
 
   //Run configuration methods on the Express instance.
@@ -18,7 +18,7 @@ class App {
     this.expressApp = express();
     this.middleware();
     this.routes();
-    this.Lists = new ListModel(mongoDBConnection);
+    this.Lists = new RecipeModel(mongoDBConnection);
     this.Tasks = new TaskModel(mongoDBConnection);
   }
 
