@@ -1,7 +1,7 @@
 import * as Mongoose from "mongoose";
 import {ITaskModel} from '../interfaces/ITaskModel';
 
-class TaskModel {
+class CookbookModel {
     public schema:any;
     public innerSchema:any;
     public model:any;
@@ -68,4 +68,4 @@ class TaskModel {
         }
     }
 }
-export {TaskModel};
+export {CookbookModel};

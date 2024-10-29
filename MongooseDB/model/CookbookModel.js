@@ -38,7 +38,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TaskModel = void 0;
 var Mongoose = require("mongoose");
-var TaskModel = /** @class */ (function () {
+var CookbookModel = /** @class */ (function () {
     function TaskModel(DB_CONNECTION_STRING) {
         this.dbConnectionString = DB_CONNECTION_STRING;
         this.createSchema();
@@ -135,4 +135,4 @@ var TaskModel = /** @class */ (function () {
     };
     return TaskModel;
 }());
-exports.TaskModel = TaskModel;
+exports.TaskModel = CookbookModel;
