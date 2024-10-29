@@ -1,7 +1,7 @@
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import {RecipeModel} from './model/RecipeModel';
-import {CookbookModel} from './model/CookbookModel';
+import {ModifiedRecipe} from './model/ModifiedRecipe';
 import * as crypto from 'crypto';
 
 // Creates and configures an ExpressJS web server.
@@ -10,7 +10,7 @@ class App {
   // ref to Express instance
   public expressApp: express.Application;
   public Lists:RecipeModel;
-  public Tasks:CookbookModel;
+  public Tasks:ModifiedRecipe;
 
   //Run configuration methods on the Express instance.
   constructor(mongoDBConnection:string)
@@ -19,7 +19,7 @@ class App {
     this.middleware();
     this.routes();
     this.Lists = new RecipeModel(mongoDBConnection);
-    this.Tasks = new CookbookModel(mongoDBConnection);
+    this.Tasks = new ModifiedRecipe(mongoDBConnection);
   }
 
   // Configure Express middleware.
