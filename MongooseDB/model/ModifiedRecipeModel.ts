@@ -42,7 +42,7 @@ class ModifiedRecipeModel {
             notes: { type: String },
             version_number: { type: Number, default: 1, required: true },
             image_URL: { type: String },
-            cooking_duration: { type: Number },
+            cooking_duration: { type: Number, required: true },
             is_Visible: { type: Boolean, default: false }
         };
 
@@ -154,6 +154,72 @@ class ModifiedRecipeModel {
             response.status(500).json({ error: "Failed to add notes to modified recipe" });
         }
     }
+
+    /**
+     * Updates the `category` of a modified recipe by `personal_recipe_id`.
+     * @param response - The response object to send data back to the client.
+     * @param personalRecipeID - The unique ID of the modified recipe.
+     * @param category - An array of category tags for the recipe.
+     * @returns void - Sends the updated recipe in JSON format.
+     */
+    public async updateCategory(response: any, personalRecipeID: string, category: string[]) {
+        try {
+            const result = await this.model.findOneAndUpdate(
+                { personal_recipe_id: personalRecipeID },
+                { $set: { category } },
+                { new: true }
+            ).exec();
+            response.json(result);
+        } catch (e) {
+            console.error(e);
+            response.status(500).json({ error: "Failed to update category" });
+        }
+    }
+
+    /**
+     * Updates the `image_URL` of a modified recipe by `personal_recipe_id`.
+     * @param response - The response object to send data back to the client.
+     * @param personalRecipeID - The unique ID of the modified recipe.
+     * @param imageURL - The new image URL for the recipe.
+     * @returns void - Sends the updated recipe in JSON format.
+     */
+    public async updateImageURL(response: any, personalRecipeID: string, imageURL: string) {
+        try {
+            const result = await this.model.findOneAndUpdate(
+                { personal_recipe_id: personalRecipeID },
+                { $set: { image_URL: imageURL } },
+                { new: true }
+            ).exec();
+            response.json(result);
+        } catch (e) {
+            console.error(e);
+            response.status(500).json({ error: "Failed to update image URL" });
+        }
+    }
+
+    /**
+     * Updates the `is_Visible` field of a modified recipe by `personal_recipe_id`.
+     * @param response - The response object to send data back to the client.
+     * @param personalRecipeID - The unique ID of the modified recipe.
+     * @param isVisible - Boolean indicating if the recipe should be visible.
+     * @returns void - Sends the updated recipe in JSON format.
+     */
+    public async updateVisibility(response: any, personalRecipeID: string, isVisible: boolean) {
+        try {
+            const result = await this.model.findOneAndUpdate(
+                { personal_recipe_id: personalRecipeID },
+                { $set: { is_Visible: isVisible } },
+                { new: true }
+            ).exec();
+            response.json(result);
+        } catch (e) {
+            console.error(e);
+            response.status(500).json({ error: "Failed to update visibility" });
+        }
+    }
+
+
 }
+
 
 export { ModifiedRecipeModel };
