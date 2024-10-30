@@ -23,15 +23,15 @@ class RecipeModel {
     public createSchema() {
         this.schema = new mongoose.Schema(
             {
-                recipe_ID: {type: String},
-                recipe_name: {type: String, required: true},
-                category: [
+                recipe_ID: {type: String}, // unique identifier for recipe
+                recipe_name: {type: String, required: true}, // title of recipe
+                category: [ // simple category tags
                     {
-                        name: {type: String, required: true},
-                        quantity: {type: Number, required: true},
+                        enum: ['breakfast', 'lunch', 'dinner', 'dessert', 'vegetarian',
+                            'vegan', 'gluten-free'],
                     }
                 ],
-                ingredients: [
+                ingredients: [ // ingredient requirements for recipe
                     {
                         name: {type: String, required: true},
                         quantity: {type: Number, required: true},
@@ -42,13 +42,13 @@ class RecipeModel {
                         }
                     }
                 ],
-                directions: [
+                directions: [ // list of directions for making recipe
                     {
                         step: {type: String, required: true} // allows changing individual steps
                     }
                 ],
-                image_URL: {type: String },
-                is_Visible: {type: Boolean, default: true }
+                image_URL: {type: String }, // image of recipe
+                is_Visible: {type: Boolean, default: true } // published or private recipe
             },
             { collection: 'recipeList' }
         );

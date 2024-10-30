@@ -26,6 +26,12 @@ class ModifiedRecipeModel {
                 original_recipe_id: { type: String, required: true },
                 personal_recipe_id: { type: String, unique: true, required: true },
                 recipe_id: { type: String, required: true },
+                category: [ // simple category tags
+                    {
+                        enum: ['breakfast', 'lunch', 'dinner', 'dessert', 'vegetarian',
+                            'vegan', 'gluten-free'],
+                    }
+                ],
                 ingredients: [
                     {
                         name: { type: String, required: true },
