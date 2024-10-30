@@ -31,6 +31,7 @@ class RecipeModel {
                             'vegan', 'gluten-free'],
                     }
                 ],
+                cooking_duration: {type: String},
                 ingredients: [ // ingredient requirements for recipe
                     {
                         name: {type: String, required: true},

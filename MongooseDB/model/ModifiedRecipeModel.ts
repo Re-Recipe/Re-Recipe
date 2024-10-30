@@ -47,6 +47,7 @@ class ModifiedRecipeModel {
                 notes: { type: String },
                 version_number: { type: Number, default: 1 },
                 image_URL: {type: String},
+                cooking_duration: {type: String},
                 is_Visible: {type: Boolean, default: false }
             },
             { collection: 'modifiedRecipes' }
