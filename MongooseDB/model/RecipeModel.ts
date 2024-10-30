@@ -23,20 +23,32 @@ class RecipeModel {
     public createSchema() {
         this.schema = new mongoose.Schema(
             {
-                recipe_ID: { type: String, required: true },
-                recipe_name: { type: String, required: true },
+                recipe_ID: {type: String},
+                recipe_name: {type: String, required: true},
+                category: [
+                    {
+                        name: {type: String, required: true},
+                        quantity: {type: Number, required: true},
+                    }
+                ],
                 ingredients: [
                     {
-                        name: { type: String, required: true },
-                        quantity: { type: Number, required: true },
-                        unit: { type: String, enum: ['oz', 'cup', 'tbsp', 'tsp', 'g', 'kg', 'lb', 'each'], required: true }
+                        name: {type: String, required: true},
+                        quantity: {type: Number, required: true},
+                        unit: {
+                            type: String,
+                            enum: ['oz', 'cup', 'tbsp', 'tsp', 'g', 'kg', 'lb', 'each'],
+                            required: true
+                        }
                     }
                 ],
                 directions: [
                     {
-                        step: { type: String, required: true } // allows changing individual steps
+                        step: {type: String, required: true} // allows changing individual steps
                     }
-                ]
+                ],
+                image_URL: {type: String },
+                is_Visible: {type: Boolean, default: true }
             },
             { collection: 'recipeList' }
         );

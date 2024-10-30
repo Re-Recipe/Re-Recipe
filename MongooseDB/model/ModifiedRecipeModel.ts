@@ -39,7 +39,9 @@ class ModifiedRecipeModel {
                     }
                 ],
                 notes: { type: String },
-                version_number: { type: Number, default: 1 }
+                version_number: { type: Number, default: 1 },
+                image_URL: {type: String},
+                is_Visible: {type: Boolean, default: false }
             },
             { collection: 'modifiedRecipes' }
         );
