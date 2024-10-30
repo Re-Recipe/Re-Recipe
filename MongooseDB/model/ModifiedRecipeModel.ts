@@ -1,8 +1,9 @@
 import * as mongoose from "mongoose";
+import { IModifiedRecipeModel } from '../interfaces/IModifiedRecipeModel';
 
 class ModifiedRecipeModel {
-    public schema: any;
-    public model: any;
+    public schema: mongoose.Schema<IModifiedRecipeModel>;
+    public model: mongoose.Model<IModifiedRecipeModel>;
     public dbConnectionString: string;
 
     /**
@@ -20,38 +21,32 @@ class ModifiedRecipeModel {
      * Includes fields for user-specific modifications and version control.
      */
     public createSchema() {
-        this.schema = new mongoose.Schema(
-            {
-                user_id: { type: String, required: true },
-                original_recipe_id: { type: String, required: true },
-                personal_recipe_id: { type: String, unique: true, required: true },
-                recipe_id: { type: String, required: true },
-                category: [ // simple category tags
-                    {
-                        enum: ['breakfast', 'lunch', 'dinner', 'dessert', 'vegetarian',
-                            'vegan', 'gluten-free'],
-                    }
-                ],
-                ingredients: [
-                    {
-                        name: { type: String, required: true },
-                        quantity: { type: Number, required: true },
-                        unit: { type: String, enum: ['oz', 'cup', 'tbsp', 'tsp', 'g', 'kg', 'lb', 'each'], required: true }
-                    }
-                ],
-                directions: [
-                    {
-                        step: { type: String, required: true }
-                    }
-                ],
-                notes: { type: String },
-                version_number: { type: Number, default: 1 },
-                image_URL: {type: String},
-                cooking_duration: {type: String},
-                is_Visible: {type: Boolean, default: false }
-            },
-            { collection: 'modifiedRecipes' }
-        );
+        const schemaDefinition: mongoose.SchemaDefinition<IModifiedRecipeModel> = {
+            user_id: { type: String, required: true },
+            original_recipe_id: { type: String, required: true },
+            personal_recipe_id: { type: String, unique: true, required: true },
+            recipe_id: { type: String, required: true },
+            category: [{
+                type: String,
+                enum: ['breakfast', 'lunch', 'dinner', 'dessert', 'vegetarian', 'vegan', 'gluten-free'],
+                required: true,
+            }],
+            ingredients: [{
+                name: { type: String, required: true },
+                quantity: { type: Number, required: true },
+                unit: { type: String, enum: ['oz', 'cup', 'tbsp', 'tsp', 'g', 'kg', 'lb', 'each'], required: true }
+            }],
+            directions: [{
+                step: { type: String, required: true }
+            }],
+            notes: { type: String },
+            version_number: { type: Number, default: 1, required: true },
+            image_URL: { type: String },
+            cooking_duration: { type: Number },
+            is_Visible: { type: Boolean, default: false }
+        };
+
+        this.schema = new mongoose.Schema(schemaDefinition, { collection: 'modifiedRecipes' });
     }
 
     /**
@@ -62,7 +57,7 @@ class ModifiedRecipeModel {
     public async createModel() {
         try {
             await mongoose.connect(this.dbConnectionString, { useNewUrlParser: true, useUnifiedTopology: true });
-            this.model = mongoose.model("ModifiedRecipe", this.schema);
+            this.model = mongoose.model<IModifiedRecipeModel>("ModifiedRecipe", this.schema);
         } catch (e) {
             console.error(e);
         }
@@ -73,7 +68,7 @@ class ModifiedRecipeModel {
      * @param modifiedRecipe - Object containing modified recipe details.
      * @returns The saved modified recipe document.
      */
-    public async createModifiedRecipe(modifiedRecipe: any) {
+    public async createModifiedRecipe(modifiedRecipe: IModifiedRecipeModel) {
         const newRecipe = new this.model(modifiedRecipe);
         return await newRecipe.save();
     }
@@ -99,7 +94,7 @@ class ModifiedRecipeModel {
      * @param updates - Updated fields for ingredients or directions.
      * @param response - Response object to send updated data.
      */
-    public async updateModifiedRecipe(response: any, personalRecipeID: string, updates: Partial<any>) {
+    public async updateModifiedRecipe(response: any, personalRecipeID: string, updates: Partial<IModifiedRecipeModel>) {
         try {
             const result = await this.model.findOneAndUpdate(
                 { personal_recipe_id: personalRecipeID },
@@ -134,7 +129,7 @@ class ModifiedRecipeModel {
      * @param modifiedRecipe - Object containing modified recipe details.
      * @returns Saved version of the modified recipe.
      */
-    public async saveVersion(modifiedRecipe: any) {
+    public async saveVersion(modifiedRecipe: IModifiedRecipeModel) {
         const newVersion = { ...modifiedRecipe, version_number: modifiedRecipe.version_number + 1 };
         const newRecipe = new this.model(newVersion);
         return await newRecipe.save();
