@@ -198,6 +198,27 @@ class RecipeModel {
         }
     }
 
+    /**
+     * Updates the `image_URL` of a recipe by `recipe_ID`.
+     * @param response - The response object to send data back to the client.
+     * @param recipeId - The unique ID of the recipe to update.
+     * @param imageURL - The new image URL for the recipe.
+     * @returns void - Sends the updated recipe in JSON format.
+     */
+    public async updateImageURL(response: any, recipeId: string, imageURL: string) {
+        try {
+            const result = await this.model.findOneAndUpdate(
+                { recipe_ID: recipeId },
+                { $set: { image_URL: imageURL } },
+                { new: true }
+            ).exec();
+            response.json(result);
+        } catch (e) {
+            console.error("Failed to update image URL:", e);
+            response.status(500).json({ error: "Failed to update image URL" });
+        }
+    }
+
 
 }
 
