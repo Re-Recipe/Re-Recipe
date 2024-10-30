@@ -2,6 +2,7 @@ import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import {RecipeModel} from './model/RecipeModel';
 import {ModifiedRecipeModel} from './model/ModifiedRecipeModel';
+import {CookbookModel} from './model/CookbookModel';
 import * as crypto from 'crypto';
 
 // Creates and configures an ExpressJS web server.
@@ -9,8 +10,8 @@ class App {
 
   // ref to Express instance
   public expressApp: express.Application;
-  public Lists:RecipeModel;
-  public Tasks:ModifiedRecipe;
+  public RecipeList:RecipeModel;
+  public Cookbook:CookbookModel;
 
   //Run configuration methods on the Express instance.
   constructor(mongoDBConnection:string)
@@ -18,8 +19,9 @@ class App {
     this.expressApp = express();
     this.middleware();
     this.routes();
-    this.Lists = new RecipeModel(mongoDBConnection);
-    this.Tasks = new ModifiedRecipe(mongoDBConnection);
+    this.RecipeList = new RecipeModel(mongoDBConnection);
+    // this.ModifiedRecipes = new ModifiedRecipeModel(mongoDBConnection);
+    this.Cookbook = new CookbookModel(mongoDBConnection);
   }
 
   // Configure Express middleware.
@@ -36,16 +38,19 @@ class App {
   // Configure API endpoints.
   private routes(): void {
     let router = express.Router();
-    router.get('/app/list/:listId/count', async (req, res) => {
-        var id = req.params.listId;
-        console.log('Query single list with id: ' + id);
-        await this.Tasks.retrieveTasksCount(res, {listId: id});
+
+    // Get one recipe from recipe list by recipeID
+    router.get('/app/recipelist/:recipeID/', async (req, res) => {
+        var id = req.params.recipe_ID;
+        console.log('Query recipe list with id: ' + id);
+        await this.RecipeList.retrieveRecipe(res, id);
     });
 
-    router.get('/app/list/:listId', async (req, res) => {
+    //
+   /* router.get('/app/list/:listId', async (req, res) => {
       var id = req.params.listId;
       console.log('Query single list with id: ' + id);
-      await this.Lists.retrieveLists(res, id);
+      await this.Lists.retrieveRecipe(res, id);
     });
 
     router.post('/app/list/', async (req, res) => {
@@ -94,7 +99,7 @@ class App {
       console.log('Query the number of list elements in db');
       await this.Lists.retrieveListCount(res);
     });
-
+*/
     this.expressApp.use('/', router);
 
     this.expressApp.use('/app/json/', express.static(__dirname+'/app/json'));

@@ -9,8 +9,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
@@ -39,9 +39,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.App = void 0;
 var express = require("express");
 var bodyParser = require("body-parser");
-var ListModel_1 = require("./model/ListModel");
-var TaskModel_1 = require("./model/TaskModel");
-var crypto = require("crypto");
+var RecipeModel_1 = require("./model/RecipeModel");
+var CookbookModel_1 = require("./model/CookbookModel");
 // Creates and configures an ExpressJS web server.
 var App = /** @class */ (function () {
     //Run configuration methods on the Express instance.
@@ -49,8 +48,9 @@ var App = /** @class */ (function () {
         this.expressApp = express();
         this.middleware();
         this.routes();
-        this.Lists = new ListModel_1.ListModel(mongoDBConnection);
-        this.Tasks = new TaskModel_1.TaskModel(mongoDBConnection);
+        this.RecipeList = new RecipeModel_1.RecipeModel(mongoDBConnection);
+        // this.ModifiedRecipes = new ModifiedRecipeModel(mongoDBConnection);
+        this.Cookbook = new CookbookModel_1.CookbookModel(mongoDBConnection);
     }
     // Configure Express middleware.
     App.prototype.middleware = function () {
@@ -66,125 +66,75 @@ var App = /** @class */ (function () {
     App.prototype.routes = function () {
         var _this = this;
         var router = express.Router();
-        router.get('/app/list/:listId/count', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+        // Get one recipe from recipe list by recipeID
+        router.get('/app/recipelist/:recipeID/', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
             var id;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        id = req.params.listId;
-                        console.log('Query single list with id: ' + id);
-                        return [4 /*yield*/, this.Tasks.retrieveTasksCount(res, { listId: id })];
+                        id = req.params.recipe_ID;
+                        console.log('Query recipe list with id: ' + id);
+                        return [4 /*yield*/, this.RecipeList.retrieveRecipe(res, id)];
                     case 1:
                         _a.sent();
                         return [2 /*return*/];
                 }
             });
         }); });
-        router.get('/app/list/:listId', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-            var id;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        id = req.params.listId;
-                        console.log('Query single list with id: ' + id);
-                        return [4 /*yield*/, this.Lists.retrieveLists(res, id)];
-                    case 1:
-                        _a.sent();
-                        return [2 /*return*/];
-                }
-            });
-        }); });
-        router.post('/app/list/', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-            var id, jsonObj, e_1;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        id = crypto.randomBytes(16).toString("hex");
-                        console.log(req.body);
-                        jsonObj = req.body;
-                        jsonObj.listId = id;
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 3, , 4]);
-                        return [4 /*yield*/, this.Lists.model.create([jsonObj])];
-                    case 2:
-                        _a.sent();
-                        res.send('{"id":"' + id + '"}');
-                        return [3 /*break*/, 4];
-                    case 3:
-                        e_1 = _a.sent();
-                        console.error(e_1);
-                        console.log('object creation failed');
-                        return [3 /*break*/, 4];
-                    case 4: return [2 /*return*/];
-                }
-            });
-        }); });
-        router.post('/app/list2/', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-            var id, jsonObj, doc, e_2;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        id = crypto.randomBytes(16).toString("hex");
-                        console.log(req.body);
-                        jsonObj = req.body;
-                        jsonObj.listId = id;
-                        doc = new this.Lists.model(jsonObj);
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 3, , 4]);
-                        return [4 /*yield*/, doc.save()];
-                    case 2:
-                        _a.sent();
-                        res.send('{"id":"' + id + '"}');
-                        return [3 /*break*/, 4];
-                    case 3:
-                        e_2 = _a.sent();
-                        console.log('object creation failed');
-                        console.error(e_2);
-                        return [3 /*break*/, 4];
-                    case 4: return [2 /*return*/];
-                }
-            });
-        }); });
-        router.get('/app/list/:listId/tasks', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-            var id;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        id = req.params.listId;
-                        console.log('Query single list with id: ' + id);
-                        return [4 /*yield*/, this.Tasks.retrieveTasksDetails(res, { listId: id })];
-                    case 1:
-                        _a.sent();
-                        return [2 /*return*/];
-                }
-            });
-        }); });
-        router.get('/app/list/', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        console.log('Query All list');
-                        return [4 /*yield*/, this.Lists.retrieveAllLists(res)];
-                    case 1:
-                        _a.sent();
-                        return [2 /*return*/];
-                }
-            });
-        }); });
-        router.get('/app/listcount', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        console.log('Query the number of list elements in db');
-                        return [4 /*yield*/, this.Lists.retrieveListCount(res)];
-                    case 1:
-                        _a.sent();
-                        return [2 /*return*/];
-                }
-            });
-        }); });
+        //
+        /* router.get('/app/list/:listId', async (req, res) => {
+           var id = req.params.listId;
+           console.log('Query single list with id: ' + id);
+           await this.Lists.retrieveRecipe(res, id);
+         });
+     
+         router.post('/app/list/', async (req, res) => {
+           const id = crypto.randomBytes(16).toString("hex");
+           console.log(req.body);
+             var jsonObj = req.body;
+             jsonObj.listId = id;
+             try {
+               await this.Lists.model.create([jsonObj]);
+               res.send('{"id":"' + id + '"}');
+             }
+             catch (e) {
+               console.error(e);
+               console.log('object creation failed');
+             }
+         });
+     
+         router.post('/app/list2/', async (req, res) => {
+           const id = crypto.randomBytes(16).toString("hex");
+           console.log(req.body);
+             var jsonObj = req.body;
+             jsonObj.listId = id;
+             const doc = new this.Lists.model(jsonObj);
+             try {
+               await doc.save();
+               res.send('{"id":"' + id + '"}');
+             }
+             catch (e) {
+               console.log('object creation failed');
+               console.error(e);
+             }
+         });
+     
+         router.get('/app/list/:listId/tasks', async (req, res) => {
+             var id = req.params.listId;
+             console.log('Query single list with id: ' + id);
+             await this.Tasks.retrieveTasksDetails(res, {listId: id});
+         });
+     
+         router.get('/app/list/', async (req, res) => {
+             console.log('Query All list');
+             await this.Lists.retrieveAllLists(res);
+         });
+     
+         router.get('/app/listcount', async (req, res) => {
+           console.log('Query the number of list elements in db');
+           await this.Lists.retrieveListCount(res);
+         });
+     */
         this.expressApp.use('/', router);
         this.expressApp.use('/app/json/', express.static(__dirname + '/app/json'));
         this.expressApp.use('/images', express.static(__dirname + '/img'));
