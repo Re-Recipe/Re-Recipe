@@ -18,20 +18,21 @@ class RecipeModel {
 
     /**
      * Creates the Mongoose schema for a recipe.
-     * Defines the structure for `recipe_ID`, `recipe_name`, `ingredients`, and `directions`.
+     * Defines the structure for `recipe_ID`, `recipe_name`,
+     * `category`, `image_URL`, `isVisible`, `ingredients`, and `directions`.
      */
     public createSchema() {
         this.schema = new mongoose.Schema(
             {
-                recipe_ID: {type: String}, // unique identifier for recipe
+                recipe_ID: {type: String, required: true}, // unique identifier for recipe
                 recipe_name: {type: String, required: true}, // title of recipe
                 category: [ // simple category tags
                     {
                         enum: ['breakfast', 'lunch', 'dinner', 'dessert', 'vegetarian',
-                            'vegan', 'gluten-free'],
+                            'vegan', 'gluten-free'], required: true
                     }
                 ],
-                cooking_duration: {type: String},
+                cooking_duration: {type: Number, required: true}, // time is takes to cook recipe
                 ingredients: [ // ingredient requirements for recipe
                     {
                         name: {type: String, required: true},
@@ -62,7 +63,7 @@ class RecipeModel {
      */
     public async createModel() {
         try {
-            await mongoose.connect(this.dbConnectionString, { useNewUrlParser: true, useUnifiedTopology: true });
+            await mongoose.connect(this.dbConnectionString, { useNewUrlParser: true, useUnifiedTopology: true }); // connects to MongoDB database
             this.model = mongoose.model<IListModel>("RecipeList", this.schema);
         } catch (e) {
             console.error(e);
@@ -101,7 +102,7 @@ class RecipeModel {
     }
 
     /**
-     * Counts and retrieves the total number of recipes in the database.
+     * Counts and retrieves the total number of recipes in the database. (Could be useful for pagination)
      * @param response - The response object to send data back to the client.
      * @returns void - Sends the total count of recipes in JSON format.
      */
@@ -155,6 +156,28 @@ class RecipeModel {
     }
 
     /**
+     * Updates a specific step in the `directions` of a recipe by `recipe_ID`.
+     * @param response - The response object to send data back to the client.
+     * @param recipeId - The unique ID of the recipe to update.
+     * @param stepIndex - The index of the step to update within the directions array.
+     * @param newStep - The updated text for the specific step.
+     * @returns void - Sends the updated recipe in JSON format.
+     */
+    public async updateDirectionStep(response: any, recipeId: string, stepIndex: number, newStep: string) {
+        try {
+            const result = await this.model.findOneAndUpdate(
+                { recipe_ID: recipeId },
+                { $set: { [`directions.${stepIndex}.step`]: newStep } }, // targets the specific step within directions
+                { new: true }
+            ).exec();
+            response.json(result);
+        } catch (e) {
+            console.error("Failed to update direction step:", e);
+            response.status(500).json({ error: "Failed to update direction step" });
+        }
+    }
+
+    /**
      * Updates the `ingredients` of a recipe by `recipe_ID`.
      * @param response - The response object to send data back to the client.
      * @param recipeId - The unique ID of the recipe to update.
@@ -174,6 +197,8 @@ class RecipeModel {
             response.status(500).json({ error: "Failed to update ingredients" });
         }
     }
+
+
 }
 
 export { RecipeModel };
