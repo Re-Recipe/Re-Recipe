@@ -1,5 +1,5 @@
 import * as mongoose from "mongoose";
-import { IListModel } from '../interfaces/IListModel';
+import { IRecipeModel } from '../interfaces/IRecipeModel';
 
 class RecipeModel {
     public schema: any;
@@ -64,7 +64,7 @@ class RecipeModel {
     public async createModel() {
         try {
             await mongoose.connect(this.dbConnectionString, { useNewUrlParser: true, useUnifiedTopology: true }); // connects to MongoDB database
-            this.model = mongoose.model<IListModel>("RecipeList", this.schema);
+            this.model = mongoose.model<IRecipeModel>("RecipeList", this.schema);
         } catch (e) {
             console.error(e);
         }
