@@ -29,7 +29,7 @@ class CookbookModel {
                         versions: [
                             {
                                 version_number: { type: Number, required: true },
-                                notes: String, // Any additional metadata for the version
+                                notes: String,
                                 last_modified: { type: Date, default: Date.now }
                             }
                         ]
@@ -158,6 +158,21 @@ class CookbookModel {
         } catch (error) {
             console.error("Failed to compare recipe versions:", error);
             response.status(500).json({ error: "Failed to compare recipe versions" });
+        }
+    }
+
+    /**
+     * Lists all recipes in the user's cookbook.
+     * @param userId - ID of the user.
+     * @param response - The response object to send data back to the client.
+     */
+    public async listAllRecipes(response: any, userId: string) {
+        try {
+            const cookbook = await this.model.findOne({ user_id: userId }, { recipes: { recipe_id: 1 } }).exec();
+            response.json(cookbook ? cookbook.recipes : []);
+        } catch (error) {
+            console.error("Failed to list recipes:", error);
+            response.status(500).json({ error: "Failed to list recipes" });
         }
     }
 }
