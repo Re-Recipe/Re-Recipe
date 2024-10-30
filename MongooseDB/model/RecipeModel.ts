@@ -25,6 +25,7 @@ class RecipeModel {
         this.schema = new mongoose.Schema(
             {
                 recipe_ID: {type: String, required: true}, // unique identifier for recipe
+                user_ID: {type: String, required: true}, // author of recipe
                 recipe_name: {type: String, required: true}, // title of recipe
                 category: [ // simple category tags
                     {
