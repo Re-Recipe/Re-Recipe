@@ -27,10 +27,9 @@ class RecipeModel {
                 recipe_ID: {type: String, required: true}, // unique identifier for recipe
                 user_ID: {type: String, required: true}, // author of recipe
                 recipe_name: {type: String, required: true}, // title of recipe
-                category: [ // simple category tags
+                category: [
                     {
-                        enum: ['breakfast', 'lunch', 'dinner', 'dessert', 'vegetarian',
-                            'vegan', 'gluten-free'], required: true
+                        type: String, enum: ['breakfast', 'lunch', 'dinner', 'dessert', 'vegetarian', 'vegan', 'gluten-free'], required: true
                     }
                 ],
                 cooking_duration: {type: Number, required: true}, // time is takes to cook recipe
@@ -72,6 +71,7 @@ class RecipeModel {
     }
 
     /**
+     * Retrieves all recipes from the database.
      * Retrieves all recipes from the database.
      * @param response - The response object to send data back to the client.
      * @returns void - Sends a JSON array of all recipes in the response.

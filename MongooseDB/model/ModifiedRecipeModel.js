@@ -64,26 +64,31 @@ var ModifiedRecipeModel = /** @class */ (function () {
      * Includes fields for user-specific modifications and version control.
      */
     ModifiedRecipeModel.prototype.createSchema = function () {
-        this.schema = new mongoose.Schema({
+        var schemaDefinition = {
             user_id: { type: String, required: true },
             original_recipe_id: { type: String, required: true },
             personal_recipe_id: { type: String, unique: true, required: true },
             recipe_id: { type: String, required: true },
-            ingredients: [
-                {
+            category: [{
+                    type: String,
+                    enum: ['breakfast', 'lunch', 'dinner', 'dessert', 'vegetarian', 'vegan', 'gluten-free'],
+                    required: true,
+                }],
+            ingredients: [{
                     name: { type: String, required: true },
                     quantity: { type: Number, required: true },
                     unit: { type: String, enum: ['oz', 'cup', 'tbsp', 'tsp', 'g', 'kg', 'lb', 'each'], required: true }
-                }
-            ],
-            directions: [
-                {
+                }],
+            directions: [{
                     step: { type: String, required: true }
-                }
-            ],
+                }],
             notes: { type: String },
-            version_number: { type: Number, default: 1 }
-        }, { collection: 'modifiedRecipes' });
+            version_number: { type: Number, default: 1, required: true },
+            image_URL: { type: String },
+            cooking_duration: { type: Number, required: true },
+            is_Visible: { type: Boolean, default: false }
+        };
+        this.schema = new mongoose.Schema(schemaDefinition, { collection: 'modifiedRecipes' });
     };
     /**
      * Connects to the MongoDB database and creates the Mongoose model based on the schema.
@@ -253,6 +258,93 @@ var ModifiedRecipeModel = /** @class */ (function () {
                         e_5 = _a.sent();
                         console.error(e_5);
                         response.status(500).json({ error: "Failed to add notes to modified recipe" });
+                        return [3 /*break*/, 3];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    /**
+     * Updates the `category` of a modified recipe by `personal_recipe_id`.
+     * @param response - The response object to send data back to the client.
+     * @param personalRecipeID - The unique ID of the modified recipe.
+     * @param category - An array of category tags for the recipe.
+     * @returns void - Sends the updated recipe in JSON format.
+     */
+    ModifiedRecipeModel.prototype.updateCategory = function (response, personalRecipeID, category) {
+        return __awaiter(this, void 0, void 0, function () {
+            var result, e_6;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, this.model.findOneAndUpdate({ personal_recipe_id: personalRecipeID }, { $set: { category: category } }, { new: true }).exec()];
+                    case 1:
+                        result = _a.sent();
+                        response.json(result);
+                        return [3 /*break*/, 3];
+                    case 2:
+                        e_6 = _a.sent();
+                        console.error(e_6);
+                        response.status(500).json({ error: "Failed to update category" });
+                        return [3 /*break*/, 3];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    /**
+     * Updates the `image_URL` of a modified recipe by `personal_recipe_id`.
+     * @param response - The response object to send data back to the client.
+     * @param personalRecipeID - The unique ID of the modified recipe.
+     * @param imageURL - The new image URL for the recipe.
+     * @returns void - Sends the updated recipe in JSON format.
+     */
+    ModifiedRecipeModel.prototype.updateImageURL = function (response, personalRecipeID, imageURL) {
+        return __awaiter(this, void 0, void 0, function () {
+            var result, e_7;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, this.model.findOneAndUpdate({ personal_recipe_id: personalRecipeID }, { $set: { image_URL: imageURL } }, { new: true }).exec()];
+                    case 1:
+                        result = _a.sent();
+                        response.json(result);
+                        return [3 /*break*/, 3];
+                    case 2:
+                        e_7 = _a.sent();
+                        console.error(e_7);
+                        response.status(500).json({ error: "Failed to update image URL" });
+                        return [3 /*break*/, 3];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    /**
+     * Updates the `is_Visible` field of a modified recipe by `personal_recipe_id`.
+     * @param response - The response object to send data back to the client.
+     * @param personalRecipeID - The unique ID of the modified recipe.
+     * @param isVisible - Boolean indicating if the recipe should be visible.
+     * @returns void - Sends the updated recipe in JSON format.
+     */
+    ModifiedRecipeModel.prototype.updateVisibility = function (response, personalRecipeID, isVisible) {
+        return __awaiter(this, void 0, void 0, function () {
+            var result, e_8;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, this.model.findOneAndUpdate({ personal_recipe_id: personalRecipeID }, { $set: { is_Visible: isVisible } }, { new: true }).exec()];
+                    case 1:
+                        result = _a.sent();
+                        response.json(result);
+                        return [3 /*break*/, 3];
+                    case 2:
+                        e_8 = _a.sent();
+                        console.error(e_8);
+                        response.status(500).json({ error: "Failed to update visibility" });
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
                 }
