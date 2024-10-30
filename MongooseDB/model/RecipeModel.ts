@@ -219,6 +219,48 @@ class RecipeModel {
         }
     }
 
+    /**
+     * Updates the `is_Visible` field of a recipe by `recipe_ID`.
+     * @param response - The response object to send data back to the client.
+     * @param recipeId - The unique ID of the recipe to update.
+     * @param isVisible - Boolean indicating if the recipe should be visible.
+     * @returns void - Sends the updated recipe in JSON format.
+     */
+    public async updateVisibility(response: any, recipeId: string, isVisible: boolean) {
+        try {
+            const result = await this.model.findOneAndUpdate(
+                { recipe_ID: recipeId },
+                { $set: { is_Visible: isVisible } },
+                { new: true }
+            ).exec();
+            response.json(result);
+        } catch (e) {
+            console.error("Failed to update visibility:", e);
+            response.status(500).json({ error: "Failed to update visibility" });
+        }
+    }
+
+    /**
+     * Updates the `category` of a recipe by `recipe_ID`.
+     * @param response - The response object to send data back to the client.
+     * @param recipeId - The unique ID of the recipe to update.
+     * @param category - An array of categories for the recipe.
+     * @returns void - Sends the updated recipe in JSON format.
+     */
+    public async updateCategory(response: any, recipeId: string, category: string[]) {
+        try {
+            const result = await this.model.findOneAndUpdate(
+                { recipe_ID: recipeId },
+                { $set: { category } },
+                { new: true }
+            ).exec();
+            response.json(result);
+        } catch (e) {
+            console.error("Failed to update category:", e);
+            response.status(500).json({ error: "Failed to update category" });
+        }
+    }
+
 
 }
 
