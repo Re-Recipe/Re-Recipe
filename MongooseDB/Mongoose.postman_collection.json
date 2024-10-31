@@ -1,17 +1,17 @@
 {
 	"info": {
 		"_postman_id": "bd174f1c-4c72-46d4-a15a-a1e9e40cb425",
-		"name": "Mongoose",
+		"name": "Re-Recipe",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
-			"name": "Retrieve all Lists",
+			"name": "Retrieve All Recipes",
 			"request": {
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/app/list/",
+					"raw": "http://localhost:8080/recipes",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -19,50 +19,48 @@
 					"port": "8080",
 					"path": [
 						"app",
-						"list",
-						""
+						"recipes"
 					]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "Retrieve number of Lists",
+			"name": "Retrieve Recipe by ID",
 			"request": {
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/app/list/",
+					"raw": "http://localhost:8080/recipes/:recipeID",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
-						"app",
-						"list",
-						""
+						"app", "recipes", ":recipeID"
+					],
+					"variable": [
+						{
+							"key": "recipeID",
+							"value": "<insert_recipeID_here>"
+						}
 					]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "Add new List",
+			"name": "Add New Recipe",
 			"request": {
 				"method": "POST",
-				"header": [],
+				"header": [{"key": "Content-Type", "value": "application/json"}],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n\t  \"name\": \"Shopping List\",\r\n\t  \"description\": \"Shopping List for home.\",\r\n\t  \"listId\": \"101\",\r\n\t  \"due\": \"04-27-2021\",\r\n\t  \"state\": \"A\",\r\n\t  \"owner\": \"israelh\"\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
+					"raw": "{\n\t\"recipe_name\": \"New Recipe\",\n\t\"ingredients\": [{\"name\": \"Flour\", \"quantity\": 2, \"unit\": \"cup\"}],\n\t\"directions\": [\"Mix ingredients.\"]\n}"
 				},
 				"url": {
-					"raw": "http://localhost:8080/app/list/",
+					"raw": "http://localhost:8080/recipes",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -70,51 +68,7 @@
 					"port": "8080",
 					"path": [
 						"app",
-						"list",
-						""
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Retrieve Tasks for one List",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "http://localhost:8080/app/list/1",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8080",
-					"path": [
-						"app",
-						"list",
-						"1"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Retrieve Tasks count for one List",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "http://localhost:8080/app/list/1/count",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8080",
-					"path": [
-						"app",
-						"list",
-						"1",
-						"count"
+						"recipes"
 					]
 				}
 			},
