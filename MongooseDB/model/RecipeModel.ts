@@ -52,7 +52,7 @@ class RecipeModel {
                 image_URL: {type: String }, // image of recipe
                 is_Visible: {type: Boolean, default: true } // published or private recipe
             },
-            { collection: 'recipeList' }
+            { collection: 'recipes' }
         );
     }
 

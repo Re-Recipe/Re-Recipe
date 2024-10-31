@@ -82,7 +82,7 @@ var RecipeModel = /** @class */ (function () {
             ],
             image_URL: { type: String }, // image of recipe
             is_Visible: { type: Boolean, default: true } // published or private recipe
-        }, { collection: 'recipeList' });
+        }, { collection: 'recipes' });
     };
     /**
      * Connects to the MongoDB database and creates the Mongoose model based on the schema.
@@ -154,6 +154,7 @@ var RecipeModel = /** @class */ (function () {
                         return [4 /*yield*/, this.model.findOne({ recipe_ID: recipeID }).exec()];
                     case 1:
                         result = _a.sent();
+                        console.log("Query result:", result); // for debugging
                         response.json(result);
                         return [3 /*break*/, 3];
                     case 2:

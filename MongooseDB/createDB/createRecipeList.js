@@ -3,7 +3,8 @@ db = db.getSiblingDB('recipeSample');
 
 // Create the 'recipes' collection (only if it doesn't already exist)
 db.createCollection('recipes');
-const recipesCollection = db.getCollection("recipes");
+const recipesCollection = db.getCollection("recipeList");
+
 
 // Clear the collection
 recipesCollection.deleteMany({});
@@ -12,9 +13,9 @@ recipesCollection.deleteMany({});
 recipesCollection.insertMany([
     {
         recipe_ID: "recipe001",
-        user_ID: "user123",
+        user_ID: "user1",
         recipe_name: "Classic Pancakes",
-        category: ["breakfast"],
+        category: [{ name: "Breakfast", quantity: 1 }],
         ingredients: [
             { name: "Flour", quantity: 2, unit: "cup" },
             { name: "Milk", quantity: 1, unit: "cup" },
@@ -31,9 +32,9 @@ recipesCollection.insertMany([
     },
     {
         recipe_ID: "recipe002",
-        user_ID: "user456",
+        user_ID: "user2",
         recipe_name: "Spaghetti Bolognese",
-        category: ["dinner"],
+        category: [{ name: "Dinner", quantity: 1 }],
         ingredients: [
             { name: "Spaghetti", quantity: 500, unit: "g" },
             { name: "Ground Beef", quantity: 1, unit: "lb" },
@@ -50,11 +51,12 @@ recipesCollection.insertMany([
         ],
         image_URL: "http://example.com/spaghetti_bolognese.jpg"
     },
+    // Additional recipes
     {
         recipe_ID: "recipe003",
-        user_ID: "user789",
+        user_ID: "user3",
         recipe_name: "Caesar Salad",
-        category: ["salad"],
+        category: [{ name: "Salad", quantity: 1 }],
         ingredients: [
             { name: "Romaine Lettuce", quantity: 1, unit: "each" },
             { name: "Caesar Dressing", quantity: 0.5, unit: "cup" },
@@ -70,9 +72,9 @@ recipesCollection.insertMany([
     },
     {
         recipe_ID: "recipe004",
-        user_ID: "user321",
+        user_ID: "user4",
         recipe_name: "Chicken Curry",
-        category: ["dinner"],
+        category: [{ name: "Dinner", quantity: 1 }],
         ingredients: [
             { name: "Chicken Breast", quantity: 1, unit: "lb" },
             { name: "Coconut Milk", quantity: 1, unit: "cup" },
@@ -90,9 +92,9 @@ recipesCollection.insertMany([
     },
     {
         recipe_ID: "recipe005",
-        user_ID: "user654",
+        user_ID: "user5",
         recipe_name: "Avocado Toast",
-        category: ["breakfast"],
+        category: [{ name: "Breakfast", quantity: 1 }],
         ingredients: [
             { name: "Bread", quantity: 2, unit: "slice" },
             { name: "Avocado", quantity: 1, unit: "each" },
@@ -109,9 +111,9 @@ recipesCollection.insertMany([
     },
     {
         recipe_ID: "recipe006",
-        user_ID: "user987",
+        user_ID: "user6",
         recipe_name: "Chocolate Chip Cookies",
-        category: ["dessert"],
+        category: [{ name: "Dessert", quantity: 1 }],
         ingredients: [
             { name: "Butter", quantity: 1, unit: "cup" },
             { name: "Sugar", quantity: 0.75, unit: "cup" },
@@ -128,5 +130,41 @@ recipesCollection.insertMany([
             { step: "Drop dough by spoonfuls onto baking sheet and bake for 10-12 minutes." }
         ],
         image_URL: "http://example.com/chocolate_chip_cookies.jpg"
+    },
+    {
+        recipe_ID: "recipe007",
+        user_ID: "user7",
+        recipe_name: "Vegetable Stir Fry",
+        category: [{ name: "Lunch", quantity: 1 }],
+        ingredients: [
+            { name: "Broccoli", quantity: 1, unit: "cup" },
+            { name: "Carrot", quantity: 1, unit: "each" },
+            { name: "Bell Pepper", quantity: 1, unit: "each" },
+            { name: "Soy Sauce", quantity: 2, unit: "tbsp" },
+            { name: "Olive Oil", quantity: 1, unit: "tbsp" }
+        ],
+        directions: [
+            { step: "Heat olive oil in a wok over medium heat." },
+            { step: "Add vegetables and stir fry until tender-crisp." },
+            { step: "Add soy sauce and stir well before serving." }
+        ],
+        image_URL: "http://example.com/vegetable_stir_fry.jpg"
+    },
+    {
+        recipe_ID: "recipe008",
+        user_ID: "user8",
+        recipe_name: "Banana Smoothie",
+        category: [{ name: "Beverage", quantity: 1 }],
+        ingredients: [
+            { name: "Banana", quantity: 1, unit: "each" },
+            { name: "Milk", quantity: 1, unit: "cup" },
+            { name: "Honey", quantity: 1, unit: "tbsp" },
+            { name: "Ice Cubes", quantity: 5, unit: "each" }
+        ],
+        directions: [
+            { step: "Combine all ingredients in a blender." },
+            { step: "Blend until smooth and creamy." }
+        ],
+        image_URL: "http://example.com/banana_smoothie.jpg"
     }
 ]);
