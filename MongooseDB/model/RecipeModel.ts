@@ -71,8 +71,7 @@ class RecipeModel {
     }
 
     /**
-     * Retrieves all recipes from the database.
-     * Retrieves all recipes from the database.
+     * Retrieves all Discover recipes from the database.
      * @param response - The response object to send data back to the client.
      * @returns void - Sends a JSON array of all recipes in the response.
      */
@@ -95,7 +94,6 @@ class RecipeModel {
     public async retrieveRecipe(response: any, recipeID: string) {
         try {
             const result = await this.model.findOne({ recipe_ID: recipeID }).exec();
-            console.log("Query result:", result);  // for debugging
             response.json(result);
         } catch (e) {
             console.error(e);
@@ -104,7 +102,7 @@ class RecipeModel {
     }
 
     /**
-     * Counts and retrieves the total number of recipes in the database. (Could be useful for pagination)
+     * Counts and retrieves the total number of Discover recipes in the database. (Could be useful for pagination)
      * @param response - The response object to send data back to the client.
      * @returns void - Sends the total count of recipes in JSON format.
      */

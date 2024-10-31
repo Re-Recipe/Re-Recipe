@@ -23,9 +23,8 @@ class ModifiedRecipeModel {
     public createSchema() {
         const schemaDefinition: mongoose.SchemaDefinition<IModifiedRecipeModel> = {
             user_id: { type: String, required: true },
-            original_recipe_id: { type: String, required: true },
-            personal_recipe_id: { type: String, unique: true, required: true },
             recipe_id: { type: String, required: true },
+            personal_recipe_id: { type: String, unique: true, required: true },
             category: [{
                 type: String,
                 enum: ['breakfast', 'lunch', 'dinner', 'dessert', 'vegetarian', 'vegan', 'gluten-free'],
@@ -89,22 +88,42 @@ class ModifiedRecipeModel {
     }
 
     /**
-     * Updates the ingredients or directions of a modified recipe by `personal_recipe_id`.
+     * Updates the ingredients of a modified recipe by `personal_recipe_id`.
      * @param personalRecipeID - The unique ID of the modified recipe.
-     * @param updates - Updated fields for ingredients or directions.
+     * @param newIngredients - Updated ingredients array.
      * @param response - Response object to send updated data.
      */
-    public async updateModifiedRecipe(response: any, personalRecipeID: string, updates: Partial<IModifiedRecipeModel>) {
+    public async updateRecipeIngredients(response: any, personalRecipeID: string, newIngredients: string[]) {
         try {
             const result = await this.model.findOneAndUpdate(
                 { personal_recipe_id: personalRecipeID },
-                { $set: updates },
+                { $set: { ingredients: newIngredients } },
                 { new: true }
             ).exec();
             response.json(result);
         } catch (e) {
             console.error(e);
-            response.status(500).json({ error: "Failed to update modified recipe" });
+            response.status(500).json({ error: "Failed to update ingredients" });
+        }
+    }
+
+    /**
+     * Updates the directions of a modified recipe by `personal_recipe_id`.
+     * @param personalRecipeID - The unique ID of the modified recipe.
+     * @param newDirections - Updated directions array.
+     * @param response - Response object to send updated data.
+     */
+    public async updateRecipeDirections(response: any, personalRecipeID: string, newDirections: string[]) {
+        try {
+            const result = await this.model.findOneAndUpdate(
+                { personal_recipe_id: personalRecipeID },
+                { $set: { directions: newDirections } },
+                { new: true }
+            ).exec();
+            response.json(result);
+        } catch (e) {
+            console.error(e);
+            response.status(500).json({ error: "Failed to update directions" });
         }
     }
 

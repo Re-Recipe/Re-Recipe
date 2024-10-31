@@ -95,7 +95,7 @@ class App {
      * @returns {Promise<void>} - Resolves when the response is sent.
      */
     router.post('/app/recipes', async (req: express.Request, res: express.Response): Promise<void> => {
-      const id: string = crypto.randomBytes(16).toString("hex");
+      const id: string = crypto.randomBytes(16).toString("hex"); // generate unique recipe_ID
       const jsonObj: object = { ...req.body, recipe_ID: id };
       await this.RecipeList.model.create(jsonObj);
       res.status(201).json({ id });
@@ -118,7 +118,6 @@ class App {
         return;
       }
       await this.RecipeList.updateDirections(res, recipeID, directions);
-      // No additional response sent here
     });
 
     /**
