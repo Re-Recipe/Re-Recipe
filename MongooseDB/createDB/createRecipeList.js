@@ -4,9 +4,15 @@ db = db.getSiblingDB('recipeSample')
 // Create the 'recipes' collection
 db.createCollection('recipes')
 recipesCollection = db.getCollection("recipes")
+
+// Note: We know `remove` method is depreciated and should use deleteMany({})
 recipesCollection.remove({})
 
 // Insert sample recipes
+
+// Note: We Know the `insert` method is deprecated and it's recommended to use 
+//       `updateMany` for bulk updates or `insertMany` for bulk inserts.
+
 recipesCollection.insert(
 {
     recipe_ID: "recipe001",
