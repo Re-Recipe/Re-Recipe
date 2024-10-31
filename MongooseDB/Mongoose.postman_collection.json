@@ -54,10 +54,12 @@
 			"name": "Add New Recipe",
 			"request": {
 				"method": "POST",
-				"header": [{"key": "Content-Type", "value": "application/json"}],
+				"header": [
+					{ "key": "Content-Type", "value": "application/json" }
+				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"recipe_name\": \"New Recipe\",\n\t\"ingredients\": [{\"name\": \"Flour\", \"quantity\": 2, \"unit\": \"cup\"}],\n\t\"directions\": [\"Mix ingredients.\"]\n}"
+					"raw": "{\n\t\"user_ID\": \"user123\",\n\t\"recipe_name\": \"New Recipe\",\n\t\"category\": [\"dessert\"],\n\t\"cooking_duration\": 30,\n\t\"ingredients\": [{\"name\": \"Flour\", \"quantity\": 2, \"unit\": \"cup\"}],\n\t\"directions\": [{\"step\": \"Mix ingredients.\"}],\n\t\"image_URL\": \"http://example.com/new_recipe.jpg\",\n\t\"is_Visible\": true\n}"
 				},
 				"url": {
 					"raw": "http://localhost:8080/app/recipes",
@@ -74,5 +76,6 @@
 			},
 			"response": []
 		}
+
 	]
 }
