@@ -1,6 +1,7 @@
 import Mongoose = require("mongoose");
 
 interface IRecipeModel extends Mongoose.Document {
+    user_ID: string;
     recipe_ID: string;
     recipe_name: string;
     category: string[];

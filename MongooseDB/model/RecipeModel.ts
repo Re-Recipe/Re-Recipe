@@ -95,6 +95,7 @@ class RecipeModel {
     public async retrieveRecipe(response: any, recipeID: string) {
         try {
             const result = await this.model.findOne({ recipe_ID: recipeID }).exec();
+            console.log("Query result:", result);  // for debugging
             response.json(result);
         } catch (e) {
             console.error(e);

@@ -1,4 +1,15 @@
 "use strict";
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -40,19 +51,18 @@ exports.App = void 0;
 var express = require("express");
 var bodyParser = require("body-parser");
 var RecipeModel_1 = require("./model/RecipeModel");
+var ModifiedRecipeModel_1 = require("./model/ModifiedRecipeModel");
 var CookbookModel_1 = require("./model/CookbookModel");
-// Creates and configures an ExpressJS web server.
+var crypto = require("crypto");
 var App = /** @class */ (function () {
-    //Run configuration methods on the Express instance.
     function App(mongoDBConnection) {
         this.expressApp = express();
         this.middleware();
         this.routes();
         this.RecipeList = new RecipeModel_1.RecipeModel(mongoDBConnection);
-        // this.ModifiedRecipes = new ModifiedRecipeModel(mongoDBConnection);
+        this.ModifiedRecipes = new ModifiedRecipeModel_1.ModifiedRecipeModel(mongoDBConnection);
         this.Cookbook = new CookbookModel_1.CookbookModel(mongoDBConnection);
     }
-    // Configure Express middleware.
     App.prototype.middleware = function () {
         this.expressApp.use(bodyParser.json());
         this.expressApp.use(bodyParser.urlencoded({ extended: false }));
@@ -62,79 +72,121 @@ var App = /** @class */ (function () {
             next();
         });
     };
-    // Configure API endpoints.
     App.prototype.routes = function () {
         var _this = this;
         var router = express.Router();
-        // Get one recipe from recipe list by recipeID
-        router.get('/app/recipelist/:recipeID/', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-            var id;
+        // Retrieve all recipes
+        router.get('/app/recipes', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0:
-                        id = req.params.recipe_ID;
-                        console.log('Query recipe list with id: ' + id);
-                        return [4 /*yield*/, this.RecipeList.retrieveRecipe(res, id)];
+                    case 0: return [4 /*yield*/, this.RecipeList.retrieveAllRecipes(res)];
                     case 1:
                         _a.sent();
                         return [2 /*return*/];
                 }
             });
         }); });
-        //
-        /* router.get('/app/list/:listId', async (req, res) => {
-           var id = req.params.listId;
-           console.log('Query single list with id: ' + id);
-           await this.Lists.retrieveRecipe(res, id);
-         });
-     
-         router.post('/app/list/', async (req, res) => {
-           const id = crypto.randomBytes(16).toString("hex");
-           console.log(req.body);
-             var jsonObj = req.body;
-             jsonObj.listId = id;
-             try {
-               await this.Lists.model.create([jsonObj]);
-               res.send('{"id":"' + id + '"}');
-             }
-             catch (e) {
-               console.error(e);
-               console.log('object creation failed');
-             }
-         });
-     
-         router.post('/app/list2/', async (req, res) => {
-           const id = crypto.randomBytes(16).toString("hex");
-           console.log(req.body);
-             var jsonObj = req.body;
-             jsonObj.listId = id;
-             const doc = new this.Lists.model(jsonObj);
-             try {
-               await doc.save();
-               res.send('{"id":"' + id + '"}');
-             }
-             catch (e) {
-               console.log('object creation failed');
-               console.error(e);
-             }
-         });
-     
-         router.get('/app/list/:listId/tasks', async (req, res) => {
-             var id = req.params.listId;
-             console.log('Query single list with id: ' + id);
-             await this.Tasks.retrieveTasksDetails(res, {listId: id});
-         });
-     
-         router.get('/app/list/', async (req, res) => {
-             console.log('Query All list');
-             await this.Lists.retrieveAllLists(res);
-         });
-     
-         router.get('/app/listcount', async (req, res) => {
-           console.log('Query the number of list elements in db');
-           await this.Lists.retrieveListCount(res);
-         });
-     */
+        // Retrieve a specific recipe by recipe_ID
+        router.get('/app/recipes/:recipeID', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+            var recipeID;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        recipeID = req.params.recipeID;
+                        console.log('Query recipe list with id: ' + recipeID);
+                        return [4 /*yield*/, this.RecipeList.retrieveRecipe(res, recipeID)];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        }); });
+        // Add a new recipe
+        router.post('/app/recipes', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+            var id, jsonObj, e_1;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        id = crypto.randomBytes(16).toString("hex");
+                        jsonObj = __assign(__assign({}, req.body), { recipe_ID: id });
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 3, , 4]);
+                        return [4 /*yield*/, this.RecipeList.model.create(jsonObj)];
+                    case 2:
+                        _a.sent();
+                        res.json({ id: id });
+                        return [3 /*break*/, 4];
+                    case 3:
+                        e_1 = _a.sent();
+                        console.error('Failed to create recipe:', e_1);
+                        res.status(500).json({ error: "Failed to create recipe" });
+                        return [3 /*break*/, 4];
+                    case 4: return [2 /*return*/];
+                }
+            });
+        }); });
+        // Update the directions of a recipe
+        router.put('/app/recipes/:recipeID/directions', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+            var recipeID, directions;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        recipeID = req.params.recipeID;
+                        directions = req.body.directions;
+                        return [4 /*yield*/, this.RecipeList.updateDirections(res, recipeID, directions)];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        }); });
+        // Update a specific direction step of a recipe
+        router.put('/app/recipes/:recipeID/directions/:stepIndex', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+            var recipeID, stepIndex, newStep;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        recipeID = req.params.recipeID;
+                        stepIndex = parseInt(req.params.stepIndex);
+                        newStep = req.body.newStep;
+                        return [4 /*yield*/, this.RecipeList.updateDirectionStep(res, recipeID, stepIndex, newStep)];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        }); });
+        // Update the ingredients of a recipe
+        router.put('/app/recipes/:recipeID/ingredients', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+            var recipeID, ingredients;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        recipeID = req.params.recipeID;
+                        ingredients = req.body.ingredients;
+                        return [4 /*yield*/, this.RecipeList.updateIngredients(res, recipeID, ingredients)];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        }); });
+        // Delete a recipe by recipe_ID
+        router.delete('/app/recipes/:recipeID', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+            var recipeID;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        recipeID = req.params.recipeID;
+                        return [4 /*yield*/, this.RecipeList.deleteRecipe(res, recipeID)];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        }); });
+        // Serve static files
         this.expressApp.use('/', router);
         this.expressApp.use('/app/json/', express.static(__dirname + '/app/json'));
         this.expressApp.use('/images', express.static(__dirname + '/img'));
