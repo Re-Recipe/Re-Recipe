@@ -11,7 +11,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/recipes",
+					"raw": "http://localhost:8080/app/recipes",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -31,7 +31,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/recipes/:recipeID",
+					"raw": "http://localhost:8080/app/recipes/:recipeID",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -60,7 +60,7 @@
 					"raw": "{\n\t\"recipe_name\": \"New Recipe\",\n\t\"ingredients\": [{\"name\": \"Flour\", \"quantity\": 2, \"unit\": \"cup\"}],\n\t\"directions\": [\"Mix ingredients.\"]\n}"
 				},
 				"url": {
-					"raw": "http://localhost:8080/recipes",
+					"raw": "http://localhost:8080/app/recipes",
 					"protocol": "http",
 					"host": [
 						"localhost"
