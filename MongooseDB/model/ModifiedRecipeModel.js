@@ -66,9 +66,8 @@ var ModifiedRecipeModel = /** @class */ (function () {
     ModifiedRecipeModel.prototype.createSchema = function () {
         var schemaDefinition = {
             user_id: { type: String, required: true },
-            original_recipe_id: { type: String, required: true },
-            personal_recipe_id: { type: String, unique: true, required: true },
             recipe_id: { type: String, required: true },
+            personal_recipe_id: { type: String, unique: true, required: true },
             category: [{
                     type: String,
                     enum: ['breakfast', 'lunch', 'dinner', 'dessert', 'vegetarian', 'vegan', 'gluten-free'],
@@ -162,19 +161,19 @@ var ModifiedRecipeModel = /** @class */ (function () {
         });
     };
     /**
-     * Updates the ingredients or directions of a modified recipe by `personal_recipe_id`.
+     * Updates the ingredients of a modified recipe by `personal_recipe_id`.
      * @param personalRecipeID - The unique ID of the modified recipe.
-     * @param updates - Updated fields for ingredients or directions.
+     * @param newIngredients - Updated ingredients array.
      * @param response - Response object to send updated data.
      */
-    ModifiedRecipeModel.prototype.updateModifiedRecipe = function (response, personalRecipeID, updates) {
+    ModifiedRecipeModel.prototype.updateRecipeIngredients = function (response, personalRecipeID, newIngredients) {
         return __awaiter(this, void 0, void 0, function () {
             var result, e_3;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, this.model.findOneAndUpdate({ personal_recipe_id: personalRecipeID }, { $set: updates }, { new: true }).exec()];
+                        return [4 /*yield*/, this.model.findOneAndUpdate({ personal_recipe_id: personalRecipeID }, { $set: { ingredients: newIngredients } }, { new: true }).exec()];
                     case 1:
                         result = _a.sent();
                         response.json(result);
@@ -182,7 +181,35 @@ var ModifiedRecipeModel = /** @class */ (function () {
                     case 2:
                         e_3 = _a.sent();
                         console.error(e_3);
-                        response.status(500).json({ error: "Failed to update modified recipe" });
+                        response.status(500).json({ error: "Failed to update ingredients" });
+                        return [3 /*break*/, 3];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    /**
+     * Updates the directions of a modified recipe by `personal_recipe_id`.
+     * @param personalRecipeID - The unique ID of the modified recipe.
+     * @param newDirections - Updated directions array.
+     * @param response - Response object to send updated data.
+     */
+    ModifiedRecipeModel.prototype.updateRecipeDirections = function (response, personalRecipeID, newDirections) {
+        return __awaiter(this, void 0, void 0, function () {
+            var result, e_4;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, this.model.findOneAndUpdate({ personal_recipe_id: personalRecipeID }, { $set: { directions: newDirections } }, { new: true }).exec()];
+                    case 1:
+                        result = _a.sent();
+                        response.json(result);
+                        return [3 /*break*/, 3];
+                    case 2:
+                        e_4 = _a.sent();
+                        console.error(e_4);
+                        response.status(500).json({ error: "Failed to update directions" });
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
                 }
@@ -196,7 +223,7 @@ var ModifiedRecipeModel = /** @class */ (function () {
      */
     ModifiedRecipeModel.prototype.deleteModifiedRecipe = function (response, personalRecipeID) {
         return __awaiter(this, void 0, void 0, function () {
-            var result, e_4;
+            var result, e_5;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -207,8 +234,8 @@ var ModifiedRecipeModel = /** @class */ (function () {
                         response.json({ message: "Modified recipe ".concat(personalRecipeID, " deleted"), result: result });
                         return [3 /*break*/, 3];
                     case 2:
-                        e_4 = _a.sent();
-                        console.error(e_4);
+                        e_5 = _a.sent();
+                        console.error(e_5);
                         response.status(500).json({ error: "Failed to delete modified recipe" });
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
@@ -244,7 +271,7 @@ var ModifiedRecipeModel = /** @class */ (function () {
      */
     ModifiedRecipeModel.prototype.addNotes = function (response, personalRecipeID, note) {
         return __awaiter(this, void 0, void 0, function () {
-            var result, e_5;
+            var result, e_6;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -255,8 +282,8 @@ var ModifiedRecipeModel = /** @class */ (function () {
                         response.json(result);
                         return [3 /*break*/, 3];
                     case 2:
-                        e_5 = _a.sent();
-                        console.error(e_5);
+                        e_6 = _a.sent();
+                        console.error(e_6);
                         response.status(500).json({ error: "Failed to add notes to modified recipe" });
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
@@ -273,7 +300,7 @@ var ModifiedRecipeModel = /** @class */ (function () {
      */
     ModifiedRecipeModel.prototype.updateCategory = function (response, personalRecipeID, category) {
         return __awaiter(this, void 0, void 0, function () {
-            var result, e_6;
+            var result, e_7;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -284,8 +311,8 @@ var ModifiedRecipeModel = /** @class */ (function () {
                         response.json(result);
                         return [3 /*break*/, 3];
                     case 2:
-                        e_6 = _a.sent();
-                        console.error(e_6);
+                        e_7 = _a.sent();
+                        console.error(e_7);
                         response.status(500).json({ error: "Failed to update category" });
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
@@ -302,7 +329,7 @@ var ModifiedRecipeModel = /** @class */ (function () {
      */
     ModifiedRecipeModel.prototype.updateImageURL = function (response, personalRecipeID, imageURL) {
         return __awaiter(this, void 0, void 0, function () {
-            var result, e_7;
+            var result, e_8;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -313,8 +340,8 @@ var ModifiedRecipeModel = /** @class */ (function () {
                         response.json(result);
                         return [3 /*break*/, 3];
                     case 2:
-                        e_7 = _a.sent();
-                        console.error(e_7);
+                        e_8 = _a.sent();
+                        console.error(e_8);
                         response.status(500).json({ error: "Failed to update image URL" });
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
@@ -331,7 +358,7 @@ var ModifiedRecipeModel = /** @class */ (function () {
      */
     ModifiedRecipeModel.prototype.updateVisibility = function (response, personalRecipeID, isVisible) {
         return __awaiter(this, void 0, void 0, function () {
-            var result, e_8;
+            var result, e_9;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -342,8 +369,8 @@ var ModifiedRecipeModel = /** @class */ (function () {
                         response.json(result);
                         return [3 /*break*/, 3];
                     case 2:
-                        e_8 = _a.sent();
-                        console.error(e_8);
+                        e_9 = _a.sent();
+                        console.error(e_9);
                         response.status(500).json({ error: "Failed to update visibility" });
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];

@@ -111,8 +111,7 @@ var RecipeModel = /** @class */ (function () {
         });
     };
     /**
-     * Retrieves all recipes from the database.
-     * Retrieves all recipes from the database.
+     * Retrieves all Discover recipes from the database.
      * @param response - The response object to send data back to the client.
      * @returns void - Sends a JSON array of all recipes in the response.
      */
@@ -154,7 +153,6 @@ var RecipeModel = /** @class */ (function () {
                         return [4 /*yield*/, this.model.findOne({ recipe_ID: recipeID }).exec()];
                     case 1:
                         result = _a.sent();
-                        console.log("Query result:", result); // for debugging
                         response.json(result);
                         return [3 /*break*/, 3];
                     case 2:
@@ -168,7 +166,7 @@ var RecipeModel = /** @class */ (function () {
         });
     };
     /**
-     * Counts and retrieves the total number of recipes in the database. (Could be useful for pagination)
+     * Counts and retrieves the total number of Discover recipes in the database. (Could be useful for pagination)
      * @param response - The response object to send data back to the client.
      * @returns void - Sends the total count of recipes in JSON format.
      */
