@@ -33,7 +33,7 @@ class UserModel {
                 email: { type: String, required: true, unique: true }, // email address of the user
                 password: { type: String, required: true }, // hashed password
                 createdAt: { type: Date, default: Date.now }, // account creation date
-                recipes: [ // array of recipe IDs associated with the user
+                recipeIds: [ // array of recipe IDs associated with the user
                     { type: mongoose.Schema.Types.ObjectId, ref: "RecipeList" }
                 ]
             },
