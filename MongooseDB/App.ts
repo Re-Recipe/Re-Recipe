@@ -1,5 +1,5 @@
 import * as express from 'express';
-import * as bodyParser from 'body-parser';
+import * as bodyParser from 'body-parser'; // for parsing url requests and json
 import { RecipeModel } from './model/RecipeModel';
 import { ModifiedRecipeModel } from './model/ModifiedRecipeModel';
 import { CookbookModel } from './model/CookbookModel';
@@ -7,7 +7,7 @@ import * as crypto from 'crypto'; // import crypto library for unique ID generat
 
 
 /**
- * The main application class that sets up the Express server,
+ * The main application class that sets up the Express server (main server to handle HTTP requests),
  * middleware, routes, and database models.
  */
 class App {
@@ -33,6 +33,8 @@ class App {
   /**
    * Sets up middleware for the Express application, including
    * body parsing and CORS headers.
+   * CORS - security feature implemented by web browsers to control how resources on one domain
+   * can be requested by a web page from a different domain
    *
    * @private
    * @returns {void}

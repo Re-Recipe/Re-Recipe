@@ -1,12 +1,11 @@
-// Switch to the appropriate database
+// Select database
 db = db.getSiblingDB('recipeSample');
 
-// Create the 'recipes' collection (only if it doesn't already exist)
-db.createCollection('recipes');
+// Select collection
 const recipesCollection = db.getCollection("recipeList");
 
 
-// Clear the collection
+// Clear the collection (for tes
 recipesCollection.deleteMany({});
 
 // Insert sample recipes using `insertMany`
