@@ -48,6 +48,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ModifiedRecipeModel = void 0;
+// models/ModifiedRecipeModel.ts
 var mongoose = require("mongoose");
 var ModifiedRecipeModel = /** @class */ (function () {
     /**
@@ -65,27 +66,32 @@ var ModifiedRecipeModel = /** @class */ (function () {
      */
     ModifiedRecipeModel.prototype.createSchema = function () {
         var schemaDefinition = {
-            user_id: { type: String, required: true },
-            recipe_id: { type: String, required: true },
-            personal_recipe_id: { type: String, unique: true, required: true },
+            user_ID: { type: String, required: true },
+            recipe_ID: { type: String, required: true },
+            personal_recipe_ID: { type: String, unique: true, required: true },
+            recipe_name: { type: String, required: true },
             category: [{
                     type: String,
                     enum: ['breakfast', 'lunch', 'dinner', 'dessert', 'vegetarian', 'vegan', 'gluten-free'],
                     required: true,
                 }],
+            cooking_duration: { type: Number, required: true },
             ingredients: [{
                     name: { type: String, required: true },
                     quantity: { type: Number, required: true },
-                    unit: { type: String, enum: ['oz', 'cup', 'tbsp', 'tsp', 'g', 'kg', 'lb', 'each'], required: true }
+                    unit: {
+                        type: String,
+                        enum: ['oz', 'cup', 'tbsp', 'tsp', 'g', 'kg', 'lb', 'each'],
+                        required: true
+                    }
                 }],
             directions: [{
                     step: { type: String, required: true }
                 }],
             notes: { type: String },
             version_number: { type: Number, default: 1, required: true },
-            image_URL: { type: String },
-            cooking_duration: { type: Number, required: true },
-            is_Visible: { type: Boolean, default: false }
+            image_url: { type: String },
+            is_visible: { type: Boolean, default: false }
         };
         this.schema = new mongoose.Schema(schemaDefinition, { collection: 'modifiedRecipes' });
     };
@@ -105,10 +111,11 @@ var ModifiedRecipeModel = /** @class */ (function () {
                     case 1:
                         _a.sent();
                         this.model = mongoose.model("ModifiedRecipe", this.schema);
+                        console.log("Connected to MongoDB and Initialized ModifiedRecipe model.");
                         return [3 /*break*/, 3];
                     case 2:
                         e_1 = _a.sent();
-                        console.error(e_1);
+                        console.error("Error connecting to MongoDB or initializing ModifiedRecipe model:", e_1);
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
                 }
@@ -122,37 +129,48 @@ var ModifiedRecipeModel = /** @class */ (function () {
      */
     ModifiedRecipeModel.prototype.createModifiedRecipe = function (modifiedRecipe) {
         return __awaiter(this, void 0, void 0, function () {
-            var newRecipe;
+            var newRecipe, e_2;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
+                        _a.trys.push([0, 2, , 3]);
                         newRecipe = new this.model(modifiedRecipe);
                         return [4 /*yield*/, newRecipe.save()];
                     case 1: return [2 /*return*/, _a.sent()];
+                    case 2:
+                        e_2 = _a.sent();
+                        console.error("Error creating modified recipe:", e_2);
+                        throw e_2;
+                    case 3: return [2 /*return*/];
                 }
             });
         });
     };
     /**
-     * Retrieves a modified recipe by `personal_recipe_id`.
-     * @param personalRecipeId - The unique ID of the modified recipe.
+     * Retrieves a modified recipe by `personal_recipe_ID`.
+     * @param personal_recipe_ID - The unique ID of the modified recipe.
      * @param response - Response object to send data back to the client.
      */
-    ModifiedRecipeModel.prototype.retrieveModifiedRecipe = function (response, personalRecipeId) {
+    ModifiedRecipeModel.prototype.retrieveModifiedRecipe = function (response, personal_recipe_ID) {
         return __awaiter(this, void 0, void 0, function () {
-            var result, e_2;
+            var result, e_3;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, this.model.findOne({ personal_recipe_id: personalRecipeId }).exec()];
+                        return [4 /*yield*/, this.model.findOne({ personal_recipe_ID: personal_recipe_ID }).exec()];
                     case 1:
                         result = _a.sent();
-                        response.json(result);
+                        if (result) {
+                            response.json(result);
+                        }
+                        else {
+                            response.status(404).json({ error: "Modified recipe not found" });
+                        }
                         return [3 /*break*/, 3];
                     case 2:
-                        e_2 = _a.sent();
-                        console.error(e_2);
+                        e_3 = _a.sent();
+                        console.error("Failed to retrieve modified recipe:", e_3);
                         response.status(500).json({ error: "Failed to retrieve modified recipe" });
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
@@ -161,26 +179,31 @@ var ModifiedRecipeModel = /** @class */ (function () {
         });
     };
     /**
-     * Updates the ingredients of a modified recipe by `personal_recipe_id`.
-     * @param personalRecipeID - The unique ID of the modified recipe.
+     * Updates the ingredients of a modified recipe by `personal_recipe_ID`.
+     * @param personal_recipe_ID - The unique ID of the modified recipe.
      * @param newIngredients - Updated ingredients array.
      * @param response - Response object to send updated data.
      */
-    ModifiedRecipeModel.prototype.updateRecipeIngredients = function (response, personalRecipeID, newIngredients) {
+    ModifiedRecipeModel.prototype.updateRecipeIngredients = function (response, personal_recipe_ID, newIngredients) {
         return __awaiter(this, void 0, void 0, function () {
-            var result, e_3;
+            var result, e_4;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, this.model.findOneAndUpdate({ personal_recipe_id: personalRecipeID }, { $set: { ingredients: newIngredients } }, { new: true }).exec()];
+                        return [4 /*yield*/, this.model.findOneAndUpdate({ personal_recipe_ID: personal_recipe_ID }, { $set: { ingredients: newIngredients } }, { new: true, runValidators: true }).exec()];
                     case 1:
                         result = _a.sent();
-                        response.json(result);
+                        if (result) {
+                            response.json(result);
+                        }
+                        else {
+                            response.status(404).json({ error: "Modified recipe not found" });
+                        }
                         return [3 /*break*/, 3];
                     case 2:
-                        e_3 = _a.sent();
-                        console.error(e_3);
+                        e_4 = _a.sent();
+                        console.error("Failed to update ingredients:", e_4);
                         response.status(500).json({ error: "Failed to update ingredients" });
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
@@ -189,26 +212,31 @@ var ModifiedRecipeModel = /** @class */ (function () {
         });
     };
     /**
-     * Updates the directions of a modified recipe by `personal_recipe_id`.
-     * @param personalRecipeID - The unique ID of the modified recipe.
+     * Updates the directions of a modified recipe by `personal_recipe_ID`.
+     * @param personal_recipe_ID - The unique ID of the modified recipe.
      * @param newDirections - Updated directions array.
      * @param response - Response object to send updated data.
      */
-    ModifiedRecipeModel.prototype.updateRecipeDirections = function (response, personalRecipeID, newDirections) {
+    ModifiedRecipeModel.prototype.updateRecipeDirections = function (response, personal_recipe_ID, newDirections) {
         return __awaiter(this, void 0, void 0, function () {
-            var result, e_4;
+            var result, e_5;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, this.model.findOneAndUpdate({ personal_recipe_id: personalRecipeID }, { $set: { directions: newDirections } }, { new: true }).exec()];
+                        return [4 /*yield*/, this.model.findOneAndUpdate({ personal_recipe_ID: personal_recipe_ID }, { $set: { directions: newDirections } }, { new: true, runValidators: true }).exec()];
                     case 1:
                         result = _a.sent();
-                        response.json(result);
+                        if (result) {
+                            response.json(result);
+                        }
+                        else {
+                            response.status(404).json({ error: "Modified recipe not found" });
+                        }
                         return [3 /*break*/, 3];
                     case 2:
-                        e_4 = _a.sent();
-                        console.error(e_4);
+                        e_5 = _a.sent();
+                        console.error("Failed to update directions:", e_5);
                         response.status(500).json({ error: "Failed to update directions" });
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
@@ -217,25 +245,30 @@ var ModifiedRecipeModel = /** @class */ (function () {
         });
     };
     /**
-     * Deletes a modified recipe by its `personal_recipe_id`.
-     * @param personalRecipeID - The unique ID of the modified recipe.
+     * Deletes a modified recipe by its `personal_recipe_ID`.
+     * @param personal_recipe_ID - The unique ID of the modified recipe.
      * @param response - Response object to send deletion result.
      */
-    ModifiedRecipeModel.prototype.deleteModifiedRecipe = function (response, personalRecipeID) {
+    ModifiedRecipeModel.prototype.deleteModifiedRecipe = function (response, personal_recipe_ID) {
         return __awaiter(this, void 0, void 0, function () {
-            var result, e_5;
+            var result, e_6;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, this.model.deleteOne({ personal_recipe_id: personalRecipeID }).exec()];
+                        return [4 /*yield*/, this.model.deleteOne({ personal_recipe_ID: personal_recipe_ID }).exec()];
                     case 1:
                         result = _a.sent();
-                        response.json({ message: "Modified recipe ".concat(personalRecipeID, " deleted"), result: result });
+                        if (result.deletedCount && result.deletedCount > 0) {
+                            response.json({ message: "Modified recipe ".concat(personal_recipe_ID, " deleted successfully."), result: result });
+                        }
+                        else {
+                            response.status(404).json({ error: "Modified recipe not found" });
+                        }
                         return [3 /*break*/, 3];
                     case 2:
-                        e_5 = _a.sent();
-                        console.error(e_5);
+                        e_6 = _a.sent();
+                        console.error("Failed to delete modified recipe:", e_6);
                         response.status(500).json({ error: "Failed to delete modified recipe" });
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
@@ -246,44 +279,56 @@ var ModifiedRecipeModel = /** @class */ (function () {
     /**
      * Saves a new version of the modified recipe.
      * Increments the version number and saves it as a new document.
-     * @param modifiedRecipe - Object containing modified recipe details.
+     * @param modified_recipe - Object containing modified recipe details.
      * @returns Saved version of the modified recipe.
      */
-    ModifiedRecipeModel.prototype.saveVersion = function (modifiedRecipe) {
+    ModifiedRecipeModel.prototype.saveVersion = function (modified_recipe) {
         return __awaiter(this, void 0, void 0, function () {
-            var newVersion, newRecipe;
+            var currentVersion, newVersion, newRecipe, e_7;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        newVersion = __assign(__assign({}, modifiedRecipe), { version_number: modifiedRecipe.version_number + 1 });
+                        _a.trys.push([0, 2, , 3]);
+                        currentVersion = modified_recipe.version_number || 1;
+                        newVersion = __assign(__assign({}, modified_recipe), { version_number: currentVersion + 1 });
                         newRecipe = new this.model(newVersion);
                         return [4 /*yield*/, newRecipe.save()];
                     case 1: return [2 /*return*/, _a.sent()];
+                    case 2:
+                        e_7 = _a.sent();
+                        console.error("Failed to save version of modified recipe:", e_7);
+                        throw e_7;
+                    case 3: return [2 /*return*/];
                 }
             });
         });
     };
     /**
      * Adds notes to an existing modified recipe.
-     * @param personalRecipeID - The unique ID of the modified recipe.
+     * @param personal_recipe_ID - The unique ID of the modified recipe.
      * @param note - The note to add.
      * @param response - Response object to send the updated document.
      */
-    ModifiedRecipeModel.prototype.addNotes = function (response, personalRecipeID, note) {
+    ModifiedRecipeModel.prototype.addNotes = function (response, personal_recipe_ID, note) {
         return __awaiter(this, void 0, void 0, function () {
-            var result, e_6;
+            var result, e_8;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, this.model.findOneAndUpdate({ personal_recipe_id: personalRecipeID }, { $set: { notes: note } }, { new: true }).exec()];
+                        return [4 /*yield*/, this.model.findOneAndUpdate({ personal_recipe_ID: personal_recipe_ID }, { $set: { notes: note } }, { new: true, runValidators: true }).exec()];
                     case 1:
                         result = _a.sent();
-                        response.json(result);
+                        if (result) {
+                            response.json(result);
+                        }
+                        else {
+                            response.status(404).json({ error: "Modified recipe not found" });
+                        }
                         return [3 /*break*/, 3];
                     case 2:
-                        e_6 = _a.sent();
-                        console.error(e_6);
+                        e_8 = _a.sent();
+                        console.error("Failed to add notes to modified recipe:", e_8);
                         response.status(500).json({ error: "Failed to add notes to modified recipe" });
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
@@ -292,27 +337,32 @@ var ModifiedRecipeModel = /** @class */ (function () {
         });
     };
     /**
-     * Updates the `category` of a modified recipe by `personal_recipe_id`.
+     * Updates the `category` of a modified recipe by `personal_recipe_ID`.
      * @param response - The response object to send data back to the client.
-     * @param personalRecipeID - The unique ID of the modified recipe.
+     * @param personal_recipe_ID
      * @param category - An array of category tags for the recipe.
      * @returns void - Sends the updated recipe in JSON format.
      */
-    ModifiedRecipeModel.prototype.updateCategory = function (response, personalRecipeID, category) {
+    ModifiedRecipeModel.prototype.updateCategory = function (response, personal_recipe_ID, category) {
         return __awaiter(this, void 0, void 0, function () {
-            var result, e_7;
+            var result, e_9;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, this.model.findOneAndUpdate({ personal_recipe_id: personalRecipeID }, { $set: { category: category } }, { new: true }).exec()];
+                        return [4 /*yield*/, this.model.findOneAndUpdate({ personal_recipe_ID: personal_recipe_ID }, { $set: { category: category } }, { new: true, runValidators: true }).exec()];
                     case 1:
                         result = _a.sent();
-                        response.json(result);
+                        if (result) {
+                            response.json(result);
+                        }
+                        else {
+                            response.status(404).json({ error: "Modified recipe not found" });
+                        }
                         return [3 /*break*/, 3];
                     case 2:
-                        e_7 = _a.sent();
-                        console.error(e_7);
+                        e_9 = _a.sent();
+                        console.error("Failed to update category:", e_9);
                         response.status(500).json({ error: "Failed to update category" });
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
@@ -321,27 +371,32 @@ var ModifiedRecipeModel = /** @class */ (function () {
         });
     };
     /**
-     * Updates the `image_URL` of a modified recipe by `personal_recipe_id`.
+     * Updates the `imageUrl` of a modified recipe by `personal_recipe_ID`.
      * @param response - The response object to send data back to the client.
-     * @param personalRecipeID - The unique ID of the modified recipe.
-     * @param imageURL - The new image URL for the recipe.
+     * @param personal_recipe_ID
+     * @param image_url
      * @returns void - Sends the updated recipe in JSON format.
      */
-    ModifiedRecipeModel.prototype.updateImageURL = function (response, personalRecipeID, imageURL) {
+    ModifiedRecipeModel.prototype.updateImageURL = function (response, personal_recipe_ID, image_url) {
         return __awaiter(this, void 0, void 0, function () {
-            var result, e_8;
+            var result, e_10;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, this.model.findOneAndUpdate({ personal_recipe_id: personalRecipeID }, { $set: { image_URL: imageURL } }, { new: true }).exec()];
+                        return [4 /*yield*/, this.model.findOneAndUpdate({ personal_recipe_ID: personal_recipe_ID }, { $set: { image_url: image_url } }, { new: true, runValidators: true }).exec()];
                     case 1:
                         result = _a.sent();
-                        response.json(result);
+                        if (result) {
+                            response.json(result);
+                        }
+                        else {
+                            response.status(404).json({ error: "Modified recipe not found" });
+                        }
                         return [3 /*break*/, 3];
                     case 2:
-                        e_8 = _a.sent();
-                        console.error(e_8);
+                        e_10 = _a.sent();
+                        console.error("Failed to update image URL:", e_10);
                         response.status(500).json({ error: "Failed to update image URL" });
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
@@ -350,27 +405,32 @@ var ModifiedRecipeModel = /** @class */ (function () {
         });
     };
     /**
-     * Updates the `is_Visible` field of a modified recipe by `personal_recipe_id`.
+     * Updates the `isVisible` field of a modified recipe by `personal_recipe_ID`.
      * @param response - The response object to send data back to the client.
-     * @param personalRecipeID - The unique ID of the modified recipe.
-     * @param isVisible - Boolean indicating if the recipe should be visible.
+     * @param personal_recipe_ID
+     * @param is_visible
      * @returns void - Sends the updated recipe in JSON format.
      */
-    ModifiedRecipeModel.prototype.updateVisibility = function (response, personalRecipeID, isVisible) {
+    ModifiedRecipeModel.prototype.updateVisibility = function (response, personal_recipe_ID, is_visible) {
         return __awaiter(this, void 0, void 0, function () {
-            var result, e_9;
+            var result, e_11;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, this.model.findOneAndUpdate({ personal_recipe_id: personalRecipeID }, { $set: { is_Visible: isVisible } }, { new: true }).exec()];
+                        return [4 /*yield*/, this.model.findOneAndUpdate({ personal_recipe_ID: personal_recipe_ID }, { $set: { isVisible: is_visible } }, { new: true, runValidators: true }).exec()];
                     case 1:
                         result = _a.sent();
-                        response.json(result);
+                        if (result) {
+                            response.json(result);
+                        }
+                        else {
+                            response.status(404).json({ error: "Modified recipe not found" });
+                        }
                         return [3 /*break*/, 3];
                     case 2:
-                        e_9 = _a.sent();
-                        console.error(e_9);
+                        e_11 = _a.sent();
+                        console.error("Failed to update visibility:", e_11);
                         response.status(500).json({ error: "Failed to update visibility" });
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];

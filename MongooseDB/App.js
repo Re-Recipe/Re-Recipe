@@ -176,18 +176,22 @@ var App = /** @class */ (function () {
          * @returns {Promise<void>} - Resolves when the response is sent.
          */
         router.put('/app/recipes/:recipeID/directions', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-            var recipeID, directions;
+            var recipeID, directions, formattedDirections;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         recipeID = req.params.recipeID;
                         directions = req.body.directions;
-                        if (!Array.isArray(directions)) {
-                            res.status(400).json({ error: "Directions must be an array." });
+                        // Validate that directions is an array of non-empty strings
+                        if (!Array.isArray(directions) || directions.some(function (step) { return typeof step !== "string" || step.trim() === ""; })) {
+                            res.status(400).json({ error: "Directions must be an array of non-empty strings." });
                             return [2 /*return*/];
                         }
-                        return [4 /*yield*/, this.RecipeList.updateDirections(res, recipeID, directions)];
+                        formattedDirections = directions.map(function (step) { return ({ step: step }); });
+                        // Call the updateDirections method with the formatted data
+                        return [4 /*yield*/, this.RecipeList.updateDirections(res, recipeID, formattedDirections)];
                     case 1:
+                        // Call the updateDirections method with the formatted data
                         _a.sent();
                         return [2 /*return*/];
                 }
@@ -202,23 +206,19 @@ var App = /** @class */ (function () {
          * @param {express.Response} res - The response object.
          * @returns {Promise<void>} - Resolves when the response is sent.
          */
-        router.put('/app/recipes/:recipeID/directions/:stepIndex', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-            var recipeID, stepIndex, newStep;
+        router.put('/app/recipes/:recipeID/directions', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+            var recipeID, directions, formattedDirections;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         recipeID = req.params.recipeID;
-                        stepIndex = parseInt(req.params.stepIndex, 10);
-                        newStep = req.body.newStep;
-                        if (isNaN(stepIndex) || stepIndex < 0) {
-                            res.status(400).json({ error: "Invalid step index." });
+                        directions = req.body.directions;
+                        if (!Array.isArray(directions) || directions.some(function (step) { return typeof step !== 'string'; })) {
+                            res.status(400).json({ error: "Directions must be an array of strings." });
                             return [2 /*return*/];
                         }
-                        if (typeof newStep !== 'string' || newStep.trim() === '') {
-                            res.status(400).json({ error: "New step must be a non-empty string." });
-                            return [2 /*return*/];
-                        }
-                        return [4 /*yield*/, this.RecipeList.updateDirectionStep(res, recipeID, stepIndex, newStep)];
+                        formattedDirections = directions.map(function (step) { return ({ step: step }); });
+                        return [4 /*yield*/, this.RecipeList.updateDirections(res, recipeID, formattedDirections)];
                     case 1:
                         _a.sent();
                         return [2 /*return*/];

@@ -50,20 +50,21 @@ var RecipeModel = /** @class */ (function () {
     }
     /**
      * Creates the Mongoose schema for a recipe.
-     * Defines the structure for `recipe_ID`, `recipe_name`,
-     * `category`, `image_URL`, `isVisible`, `ingredients`, and `directions`.
+     * Defines the structure for `recipe_ID`, `recipeName`, `category`, etc.
      */
     RecipeModel.prototype.createSchema = function () {
         this.schema = new mongoose.Schema({
-            recipe_ID: { type: String, required: true }, // unique identifier for recipe
-            user_ID: { type: String, required: true }, // author of recipe
-            recipe_name: { type: String, required: true }, // title of recipe
+            recipe_ID: { type: String, required: true }, // Unique identifier for recipe
+            user_ID: { type: String, required: true }, // Author of recipe
+            recipe_name: { type: String, required: true }, // Title of recipe
             category: [
                 {
-                    type: String, enum: ['breakfast', 'lunch', 'dinner', 'dessert', 'vegetarian', 'vegan', 'gluten-free'], required: true
+                    type: String,
+                    enum: ['breakfast', 'lunch', 'dinner', 'dessert', 'vegetarian', 'vegan', 'gluten-free'],
+                    required: true,
                 }
             ],
-            cooking_duration: { type: Number, required: true }, // time is takes to cook recipe
+            cooking_duration: { type: Number, required: true }, // Time it takes to cook recipe
             ingredients: [
                 {
                     name: { type: String, required: true },
@@ -71,23 +72,23 @@ var RecipeModel = /** @class */ (function () {
                     unit: {
                         type: String,
                         enum: ['oz', 'cup', 'tbsp', 'tsp', 'g', 'kg', 'lb', 'each'],
-                        required: true
-                    }
+                        required: true,
+                    },
+                    ingredient_id: { type: String }, // Optional
                 }
             ],
             directions: [
                 {
-                    step: { type: String, required: true } // allows changing individual steps
+                    step: { type: String, required: true }, // Allows changing individual steps
                 }
             ],
-            image_URL: { type: String }, // image of recipe
-            is_Visible: { type: Boolean, default: true } // published or private recipe
-        }, { collection: 'recipes' });
+            image_url: { type: String }, // Image of recipe
+            is_visible: { type: Boolean, default: true }, // Published or private recipe
+        }, { collection: "recipes", timestamps: true });
     };
     /**
      * Connects to the MongoDB database and creates the Mongoose model based on the schema.
      * The model is stored in `this.model`.
-     * @returns void
      */
     RecipeModel.prototype.createModel = function () {
         return __awaiter(this, void 0, void 0, function () {
@@ -98,12 +99,13 @@ var RecipeModel = /** @class */ (function () {
                         _a.trys.push([0, 2, , 3]);
                         return [4 /*yield*/, mongoose.connect(this.dbConnectionString, { useNewUrlParser: true, useUnifiedTopology: true })];
                     case 1:
-                        _a.sent(); // connects to MongoDB database
-                        this.model = mongoose.model("RecipeList", this.schema);
+                        _a.sent(); // Connects to MongoDB database
+                        this.model = mongoose.model("Recipe", this.schema);
+                        console.log("Connected to MongoDB and initialized Recipe model.");
                         return [3 /*break*/, 3];
                     case 2:
                         e_1 = _a.sent();
-                        console.error(e_1);
+                        console.error("Error connecting to MongoDB or initializing Recipe model:", e_1);
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
                 }
@@ -111,9 +113,8 @@ var RecipeModel = /** @class */ (function () {
         });
     };
     /**
-     * Retrieves all Discover recipes from the database.
+     * Retrieves all recipes from the database.
      * @param response - The response object to send data back to the client.
-     * @returns void - Sends a JSON array of all recipes in the response.
      */
     RecipeModel.prototype.retrieveAllRecipes = function (response) {
         return __awaiter(this, void 0, void 0, function () {
@@ -129,7 +130,7 @@ var RecipeModel = /** @class */ (function () {
                         return [3 /*break*/, 3];
                     case 2:
                         e_2 = _a.sent();
-                        console.error(e_2);
+                        console.error("Failed to retrieve recipes:", e_2);
                         response.status(500).json({ error: "Failed to retrieve recipes" });
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
@@ -140,24 +141,28 @@ var RecipeModel = /** @class */ (function () {
     /**
      * Retrieves a single recipe by `recipe_ID`.
      * @param response - The response object to send data back to the client.
-     * @param recipeID - The unique ID of the recipe to retrieve.
-     * @returns void - Sends a JSON object of the found recipe or an error if not found.
+     * @param recipe_ID - The unique ID of the recipe to retrieve.
      */
-    RecipeModel.prototype.retrieveRecipe = function (response, recipeID) {
+    RecipeModel.prototype.retrieveRecipe = function (response, recipe_ID) {
         return __awaiter(this, void 0, void 0, function () {
             var result, e_3;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, this.model.findOne({ recipe_ID: recipeID }).exec()];
+                        return [4 /*yield*/, this.model.findOne({ recipe_ID: recipe_ID }).exec()];
                     case 1:
                         result = _a.sent();
-                        response.json(result);
+                        if (result) {
+                            response.json(result);
+                        }
+                        else {
+                            response.status(404).json({ error: "Recipe not found" });
+                        }
                         return [3 /*break*/, 3];
                     case 2:
                         e_3 = _a.sent();
-                        console.error(e_3);
+                        console.error("Failed to retrieve recipe:", e_3);
                         response.status(500).json({ error: "Failed to retrieve recipe" });
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
@@ -166,9 +171,8 @@ var RecipeModel = /** @class */ (function () {
         });
     };
     /**
-     * Counts and retrieves the total number of Discover recipes in the database. (Could be useful for pagination)
+     * Counts and retrieves the total number of recipes in the database.
      * @param response - The response object to send data back to the client.
-     * @returns void - Sends the total count of recipes in JSON format.
      */
     RecipeModel.prototype.retrieveRecipeListCount = function (response) {
         return __awaiter(this, void 0, void 0, function () {
@@ -176,22 +180,18 @@ var RecipeModel = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        console.log("retrieve Recipe List Count ...");
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 3, , 4]);
+                        _a.trys.push([0, 2, , 3]);
                         return [4 /*yield*/, this.model.estimatedDocumentCount().exec()];
-                    case 2:
+                    case 1:
                         numberOfRecipes = _a.sent();
-                        console.log("numberOfRecipes: " + numberOfRecipes);
-                        response.json(numberOfRecipes);
-                        return [3 /*break*/, 4];
-                    case 3:
+                        response.json({ count: numberOfRecipes });
+                        return [3 /*break*/, 3];
+                    case 2:
                         e_4 = _a.sent();
-                        console.error(e_4);
+                        console.error("Failed to retrieve recipe count:", e_4);
                         response.status(500).json({ error: "Failed to retrieve recipe count" });
-                        return [3 /*break*/, 4];
-                    case 4: return [2 /*return*/];
+                        return [3 /*break*/, 3];
+                    case 3: return [2 /*return*/];
                 }
             });
         });
@@ -199,24 +199,28 @@ var RecipeModel = /** @class */ (function () {
     /**
      * Deletes a recipe by its `recipe_ID`.
      * @param response - The response object to send data back to the client.
-     * @param recipeId - The unique ID of the recipe to delete.
-     * @returns void - Sends a success message with the deletion result.
+     * @param recipe_ID - The unique ID of the recipe to delete.
      */
-    RecipeModel.prototype.deleteRecipe = function (response, recipeId) {
+    RecipeModel.prototype.deleteRecipe = function (response, recipe_ID) {
         return __awaiter(this, void 0, void 0, function () {
             var result, e_5;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, this.model.deleteOne({ recipe_ID: recipeId }).exec()];
+                        return [4 /*yield*/, this.model.deleteOne({ recipe_ID: recipe_ID }).exec()];
                     case 1:
                         result = _a.sent();
-                        response.json({ message: "Recipe ".concat(recipeId, " deleted"), result: result });
+                        if (result.deletedCount && result.deletedCount > 0) {
+                            response.json({ message: "Recipe ".concat(recipe_ID, " deleted successfully."), result: result });
+                        }
+                        else {
+                            response.status(404).json({ error: "Recipe not found" });
+                        }
                         return [3 /*break*/, 3];
                     case 2:
                         e_5 = _a.sent();
-                        console.error(e_5);
+                        console.error("Failed to delete recipe:", e_5);
                         response.status(500).json({ error: "Failed to delete recipe" });
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
@@ -227,60 +231,30 @@ var RecipeModel = /** @class */ (function () {
     /**
      * Updates the `directions` of a recipe by `recipe_ID`.
      * @param response - The response object to send data back to the client.
-     * @param recipeId - The unique ID of the recipe to update.
-     * @param directions - An array of strings representing the new steps for directions.
-     * @returns void - Sends the updated recipe in JSON format.
+     * @param recipe_ID - The unique ID of the recipe to update.
+     * @param directions - An array of objects containing the new steps for directions.
      */
-    RecipeModel.prototype.updateDirections = function (response, recipeId, directions) {
+    RecipeModel.prototype.updateDirections = function (response, recipe_ID, directions) {
         return __awaiter(this, void 0, void 0, function () {
             var result, e_6;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, this.model.findOneAndUpdate({ recipe_ID: recipeId }, { $set: { directions: directions.map(function (step) { return ({ step: step }); }) } }, // mapping each string in the directions array to an object with a 'step'
-                            { new: true } // return updated document after the update
-                            ).exec()];
+                        return [4 /*yield*/, this.model.findOneAndUpdate({ recipe_ID: recipe_ID }, { $set: { directions: directions } }, { new: true, runValidators: true }).exec()];
                     case 1:
                         result = _a.sent();
-                        response.json(result);
+                        if (result) {
+                            response.json(result);
+                        }
+                        else {
+                            response.status(404).json({ error: "Recipe not found" });
+                        }
                         return [3 /*break*/, 3];
                     case 2:
                         e_6 = _a.sent();
-                        console.error(e_6);
+                        console.error("Failed to update directions:", e_6);
                         response.status(500).json({ error: "Failed to update directions" });
-                        return [3 /*break*/, 3];
-                    case 3: return [2 /*return*/];
-                }
-            });
-        });
-    };
-    /**
-     * Updates a specific step in the `directions` of a recipe by `recipe_ID`.
-     * @param response - The response object to send data back to the client.
-     * @param recipeId - The unique ID of the recipe to update.
-     * @param stepIndex - The index of the step to update within the directions array.
-     * @param newStep - The updated text for the specific step.
-     * @returns void - Sends the updated recipe in JSON format.
-     */
-    RecipeModel.prototype.updateDirectionStep = function (response, recipeId, stepIndex, newStep) {
-        return __awaiter(this, void 0, void 0, function () {
-            var result, e_7;
-            var _a;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        _b.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, this.model.findOneAndUpdate({ recipe_ID: recipeId }, { $set: (_a = {}, _a["directions.".concat(stepIndex, ".step")] = newStep, _a) }, // targets the specific step within directions
-                            { new: true }).exec()];
-                    case 1:
-                        result = _b.sent();
-                        response.json(result);
-                        return [3 /*break*/, 3];
-                    case 2:
-                        e_7 = _b.sent();
-                        console.error("Failed to update direction step:", e_7);
-                        response.status(500).json({ error: "Failed to update direction step" });
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
                 }
@@ -290,25 +264,29 @@ var RecipeModel = /** @class */ (function () {
     /**
      * Updates the `ingredients` of a recipe by `recipe_ID`.
      * @param response - The response object to send data back to the client.
-     * @param recipeId - The unique ID of the recipe to update.
+     * @param recipe_ID - The unique ID of the recipe to update.
      * @param ingredients - An array of objects containing `name`, `quantity`, and `unit` for each ingredient.
-     * @returns void - Sends the updated recipe in JSON format.
      */
-    RecipeModel.prototype.updateIngredients = function (response, recipeId, ingredients) {
+    RecipeModel.prototype.updateIngredients = function (response, recipe_ID, ingredients) {
         return __awaiter(this, void 0, void 0, function () {
-            var result, e_8;
+            var result, e_7;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, this.model.findOneAndUpdate({ recipe_ID: recipeId }, { $set: { ingredients: ingredients } }, { new: true }).exec()];
+                        return [4 /*yield*/, this.model.findOneAndUpdate({ recipe_ID: recipe_ID }, { $set: { ingredients: ingredients } }, { new: true, runValidators: true }).exec()];
                     case 1:
                         result = _a.sent();
-                        response.json(result);
+                        if (result) {
+                            response.json(result);
+                        }
+                        else {
+                            response.status(404).json({ error: "Recipe not found" });
+                        }
                         return [3 /*break*/, 3];
                     case 2:
-                        e_8 = _a.sent();
-                        console.error(e_8);
+                        e_7 = _a.sent();
+                        console.error("Failed to update ingredients:", e_7);
                         response.status(500).json({ error: "Failed to update ingredients" });
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
@@ -317,27 +295,31 @@ var RecipeModel = /** @class */ (function () {
         });
     };
     /**
-     * Updates the `image_URL` of a recipe by `recipe_ID`.
+     * Updates the `image_url` of a recipe by `recipe_ID`.
      * @param response - The response object to send data back to the client.
-     * @param recipeId - The unique ID of the recipe to update.
-     * @param imageURL - The new image URL for the recipe.
-     * @returns void - Sends the updated recipe in JSON format.
+     * @param recipe_ID - The unique ID of the recipe to update.
+     * @param image_url - The new image URL for the recipe.
      */
-    RecipeModel.prototype.updateImageURL = function (response, recipeId, imageURL) {
+    RecipeModel.prototype.updateImageUrl = function (response, recipe_ID, image_url) {
         return __awaiter(this, void 0, void 0, function () {
-            var result, e_9;
+            var result, e_8;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, this.model.findOneAndUpdate({ recipe_ID: recipeId }, { $set: { image_URL: imageURL } }, { new: true }).exec()];
+                        return [4 /*yield*/, this.model.findOneAndUpdate({ recipe_ID: recipe_ID }, { $set: { image_url: image_url } }, { new: true, runValidators: true }).exec()];
                     case 1:
                         result = _a.sent();
-                        response.json(result);
+                        if (result) {
+                            response.json(result);
+                        }
+                        else {
+                            response.status(404).json({ error: "Recipe not found" });
+                        }
                         return [3 /*break*/, 3];
                     case 2:
-                        e_9 = _a.sent();
-                        console.error("Failed to update image URL:", e_9);
+                        e_8 = _a.sent();
+                        console.error("Failed to update image URL:", e_8);
                         response.status(500).json({ error: "Failed to update image URL" });
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
@@ -346,57 +328,32 @@ var RecipeModel = /** @class */ (function () {
         });
     };
     /**
-     * Updates the `is_Visible` field of a recipe by `recipe_ID`.
+     * Updates the `isVisible` field of a recipe by `recipe_ID`.
      * @param response - The response object to send data back to the client.
-     * @param recipeId - The unique ID of the recipe to update.
-     * @param isVisible - Boolean indicating if the recipe should be visible.
-     * @returns void - Sends the updated recipe in JSON format.
+     * @param recipe_ID - The unique ID of the recipe to update.
+     * @param is_visible
      */
-    RecipeModel.prototype.updateVisibility = function (response, recipeId, isVisible) {
+    RecipeModel.prototype.updateVisibility = function (response, recipe_ID, is_visible) {
         return __awaiter(this, void 0, void 0, function () {
-            var result, e_10;
+            var result, e_9;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, this.model.findOneAndUpdate({ recipe_ID: recipeId }, { $set: { is_Visible: isVisible } }, { new: true }).exec()];
+                        return [4 /*yield*/, this.model.findOneAndUpdate({ recipe_ID: recipe_ID }, { $set: { is_visible: is_visible } }, { new: true, runValidators: true }).exec()];
                     case 1:
                         result = _a.sent();
-                        response.json(result);
+                        if (result) {
+                            response.json(result);
+                        }
+                        else {
+                            response.status(404).json({ error: "Recipe not found" });
+                        }
                         return [3 /*break*/, 3];
                     case 2:
-                        e_10 = _a.sent();
-                        console.error("Failed to update visibility:", e_10);
+                        e_9 = _a.sent();
+                        console.error("Failed to update visibility:", e_9);
                         response.status(500).json({ error: "Failed to update visibility" });
-                        return [3 /*break*/, 3];
-                    case 3: return [2 /*return*/];
-                }
-            });
-        });
-    };
-    /**
-     * Updates the `category` of a recipe by `recipe_ID`.
-     * @param response - The response object to send data back to the client.
-     * @param recipeId - The unique ID of the recipe to update.
-     * @param category - An array of categories for the recipe.
-     * @returns void - Sends the updated recipe in JSON format.
-     */
-    RecipeModel.prototype.updateCategory = function (response, recipeId, category) {
-        return __awaiter(this, void 0, void 0, function () {
-            var result, e_11;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        _a.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, this.model.findOneAndUpdate({ recipe_ID: recipeId }, { $set: { category: category } }, { new: true }).exec()];
-                    case 1:
-                        result = _a.sent();
-                        response.json(result);
-                        return [3 /*break*/, 3];
-                    case 2:
-                        e_11 = _a.sent();
-                        console.error("Failed to update category:", e_11);
-                        response.status(500).json({ error: "Failed to update category" });
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
                 }
