@@ -49,13 +49,13 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.App = void 0;
 var express = require("express");
-var bodyParser = require("body-parser");
+var bodyParser = require("body-parser"); // for parsing url requests and json
 var RecipeModel_1 = require("./model/RecipeModel");
 var ModifiedRecipeModel_1 = require("./model/ModifiedRecipeModel");
 var CookbookModel_1 = require("./model/CookbookModel");
 var crypto = require("crypto"); // import crypto library for unique ID generation
 /**
- * The main application class that sets up the Express server,
+ * The main application class that sets up the Express server (main server to handle HTTP requests),
  * middleware, routes, and database models.
  */
 var App = /** @class */ (function () {
@@ -75,6 +75,8 @@ var App = /** @class */ (function () {
     /**
      * Sets up middleware for the Express application, including
      * body parsing and CORS headers.
+     * CORS - security feature implemented by web browsers to control how resources on one domain
+     * can be requested by a web page from a different domain
      *
      * @private
      * @returns {void}

@@ -1,9 +1,9 @@
 import * as mongoose from "mongoose";
-import { IRecipeModel } from '../interfaces/IRecipeModel';
+import { IRecipe } from "../interfaces/IRecipe";
 
 class RecipeModel {
-    public schema: any;
-    public model: any;
+    public schema: mongoose.Schema<IRecipe>;
+    public model: mongoose.Model<IRecipe>;
     public dbConnectionString: string;
 
     /**
@@ -18,201 +18,192 @@ class RecipeModel {
 
     /**
      * Creates the Mongoose schema for a recipe.
-     * Defines the structure for `recipe_ID`, `recipe_name`,
-     * `category`, `image_URL`, `isVisible`, `ingredients`, and `directions`.
+     * Defines the structure for `recipeID`, `recipeName`, `category`, etc.
      */
     public createSchema() {
         this.schema = new mongoose.Schema(
             {
-                recipe_ID: {type: String, required: true}, // unique identifier for recipe
-                user_ID: {type: String, required: true}, // author of recipe
-                recipe_name: {type: String, required: true}, // title of recipe
+                recipeID: { type: String, required: true }, // Unique identifier for recipe
+                userID: { type: String, required: true }, // Author of recipe
+                recipeName: { type: String, required: true }, // Title of recipe
                 category: [
                     {
-                        type: String, enum: ['breakfast', 'lunch', 'dinner', 'dessert', 'vegetarian', 'vegan', 'gluten-free'], required: true
+                        type: String,
+                        enum: ['breakfast', 'lunch', 'dinner', 'dessert', 'vegetarian', 'vegan', 'gluten-free'],
+                        required: true,
                     }
                 ],
-                cooking_duration: {type: Number, required: true}, // time is takes to cook recipe
-                ingredients: [ // ingredient requirements for recipe
+                cookingDuration: { type: Number, required: true }, // Time it takes to cook recipe
+                ingredients: [ // Ingredient requirements for recipe
                     {
-                        name: {type: String, required: true},
-                        quantity: {type: Number, required: true},
+                        name: { type: String, required: true },
+                        quantity: { type: Number, required: true },
                         unit: {
                             type: String,
                             enum: ['oz', 'cup', 'tbsp', 'tsp', 'g', 'kg', 'lb', 'each'],
-                            required: true
-                        }
+                            required: true,
+                        },
+                        ingredientID: { type: String }, // Optional
                     }
                 ],
-                directions: [ // list of directions for making recipe
+                directions: [ // List of directions for making recipe
                     {
-                        step: {type: String, required: true} // allows changing individual steps
+                        step: { type: String, required: true }, // Allows changing individual steps
                     }
                 ],
-                image_URL: {type: String }, // image of recipe
-                is_Visible: {type: Boolean, default: true } // published or private recipe
+                imageUrl: { type: String }, // Image of recipe
+                isVisible: { type: Boolean, default: true }, // Published or private recipe
             },
-            { collection: 'recipes' }
+            { collection: "recipes", timestamps: true }
         );
     }
 
     /**
      * Connects to the MongoDB database and creates the Mongoose model based on the schema.
      * The model is stored in `this.model`.
-     * @returns void
      */
     public async createModel() {
         try {
-            await mongoose.connect(this.dbConnectionString, { useNewUrlParser: true, useUnifiedTopology: true }); // connects to MongoDB database
-            this.model = mongoose.model<IRecipeModel>("RecipeList", this.schema);
+            await mongoose.connect(this.dbConnectionString, { useNewUrlParser: true, useUnifiedTopology: true }); // Connects to MongoDB database
+            this.model = mongoose.model<IRecipe>("Recipe", this.schema);
+            console.log("Connected to MongoDB and initialized Recipe model.");
         } catch (e) {
-            console.error(e);
+            console.error("Error connecting to MongoDB or initializing Recipe model:", e);
         }
     }
 
     /**
-     * Retrieves all Discover recipes from the database.
+     * Retrieves all recipes from the database.
      * @param response - The response object to send data back to the client.
-     * @returns void - Sends a JSON array of all recipes in the response.
      */
     public async retrieveAllRecipes(response: any) {
         try {
             const itemArray = await this.model.find({}).exec();
             response.json(itemArray);
         } catch (e) {
-            console.error(e);
+            console.error("Failed to retrieve recipes:", e);
             response.status(500).json({ error: "Failed to retrieve recipes" });
         }
     }
 
     /**
-     * Retrieves a single recipe by `recipe_ID`.
+     * Retrieves a single recipe by `recipeID`.
      * @param response - The response object to send data back to the client.
      * @param recipeID - The unique ID of the recipe to retrieve.
-     * @returns void - Sends a JSON object of the found recipe or an error if not found.
      */
     public async retrieveRecipe(response: any, recipeID: string) {
         try {
-            const result = await this.model.findOne({ recipe_ID: recipeID }).exec();
-            response.json(result);
+            const result = await this.model.findOne({ recipeID }).exec();
+            if (result) {
+                response.json(result);
+            } else {
+                response.status(404).json({ error: "Recipe not found" });
+            }
         } catch (e) {
-            console.error(e);
+            console.error("Failed to retrieve recipe:", e);
             response.status(500).json({ error: "Failed to retrieve recipe" });
         }
     }
 
     /**
-     * Counts and retrieves the total number of Discover recipes in the database. (Could be useful for pagination)
+     * Counts and retrieves the total number of recipes in the database.
      * @param response - The response object to send data back to the client.
-     * @returns void - Sends the total count of recipes in JSON format.
      */
     public async retrieveRecipeListCount(response: any) {
-        console.log("retrieve Recipe List Count ...");
         try {
             const numberOfRecipes = await this.model.estimatedDocumentCount().exec();
-            console.log("numberOfRecipes: " + numberOfRecipes);
-            response.json(numberOfRecipes);
+            response.json({ count: numberOfRecipes });
         } catch (e) {
-            console.error(e);
+            console.error("Failed to retrieve recipe count:", e);
             response.status(500).json({ error: "Failed to retrieve recipe count" });
         }
     }
 
     /**
-     * Deletes a recipe by its `recipe_ID`.
+     * Deletes a recipe by its `recipeID`.
      * @param response - The response object to send data back to the client.
-     * @param recipeId - The unique ID of the recipe to delete.
-     * @returns void - Sends a success message with the deletion result.
+     * @param recipeID - The unique ID of the recipe to delete.
      */
-    public async deleteRecipe(response: any, recipeId: string) {
+    public async deleteRecipe(response: any, recipeID: string) {
         try {
-            const result = await this.model.deleteOne({ recipe_ID: recipeId }).exec();
-            response.json({ message: `Recipe ${recipeId} deleted`, result });
+            const result = await this.model.deleteOne({ recipeID }).exec();
+            if (result.deletedCount && result.deletedCount > 0) {
+                response.json({ message: `Recipe ${recipeID} deleted successfully.`, result });
+            } else {
+                response.status(404).json({ error: "Recipe not found" });
+            }
         } catch (e) {
-            console.error(e);
+            console.error("Failed to delete recipe:", e);
             response.status(500).json({ error: "Failed to delete recipe" });
         }
     }
 
     /**
-     * Updates the `directions` of a recipe by `recipe_ID`.
+     * Updates the `directions` of a recipe by `recipeID`.
      * @param response - The response object to send data back to the client.
-     * @param recipeId - The unique ID of the recipe to update.
-     * @param directions - An array of strings representing the new steps for directions.
-     * @returns void - Sends the updated recipe in JSON format.
+     * @param recipeID - The unique ID of the recipe to update.
+     * @param directions - An array of objects containing the new steps for directions.
      */
-    public async updateDirections(response: any, recipeId: string, directions: string[]) {
+    public async updateDirections(response: any, recipeID: string, directions: { step: string }[]) {
         try {
             const result = await this.model.findOneAndUpdate(
-                { recipe_ID: recipeId },
-                { $set: { directions: directions.map((step) => ({ step })) } }, // mapping each string in the directions array to an object with a 'step'
-                { new: true } // return updated document after the update
+                { recipeID },
+                { $set: { directions } },
+                { new: true, runValidators: true }
             ).exec();
-            response.json(result);
+            if (result) {
+                response.json(result);
+            } else {
+                response.status(404).json({ error: "Recipe not found" });
+            }
         } catch (e) {
-            console.error(e);
+            console.error("Failed to update directions:", e);
             response.status(500).json({ error: "Failed to update directions" });
         }
     }
 
     /**
-     * Updates a specific step in the `directions` of a recipe by `recipe_ID`.
+     * Updates the `ingredients` of a recipe by `recipeID`.
      * @param response - The response object to send data back to the client.
-     * @param recipeId - The unique ID of the recipe to update.
-     * @param stepIndex - The index of the step to update within the directions array.
-     * @param newStep - The updated text for the specific step.
-     * @returns void - Sends the updated recipe in JSON format.
-     */
-    public async updateDirectionStep(response: any, recipeId: string, stepIndex: number, newStep: string) {
-        try {
-            const result = await this.model.findOneAndUpdate(
-                { recipe_ID: recipeId },
-                { $set: { [`directions.${stepIndex}.step`]: newStep } }, // targets the specific step within directions
-                { new: true }
-            ).exec();
-            response.json(result);
-        } catch (e) {
-            console.error("Failed to update direction step:", e);
-            response.status(500).json({ error: "Failed to update direction step" });
-        }
-    }
-
-    /**
-     * Updates the `ingredients` of a recipe by `recipe_ID`.
-     * @param response - The response object to send data back to the client.
-     * @param recipeId - The unique ID of the recipe to update.
+     * @param recipeID - The unique ID of the recipe to update.
      * @param ingredients - An array of objects containing `name`, `quantity`, and `unit` for each ingredient.
-     * @returns void - Sends the updated recipe in JSON format.
      */
-    public async updateIngredients(response: any, recipeId: string, ingredients: { name: string, quantity: number, unit: string }[]) {
+    public async updateIngredients(response: any, recipeID: string, ingredients: { name: string; quantity: number; unit: string }[]) {
         try {
             const result = await this.model.findOneAndUpdate(
-                { recipe_ID: recipeId },
+                { recipeID },
                 { $set: { ingredients } },
-                { new: true }
+                { new: true, runValidators: true }
             ).exec();
-            response.json(result);
+            if (result) {
+                response.json(result);
+            } else {
+                response.status(404).json({ error: "Recipe not found" });
+            }
         } catch (e) {
-            console.error(e);
+            console.error("Failed to update ingredients:", e);
             response.status(500).json({ error: "Failed to update ingredients" });
         }
     }
 
     /**
-     * Updates the `image_URL` of a recipe by `recipe_ID`.
+     * Updates the `imageUrl` of a recipe by `recipeID`.
      * @param response - The response object to send data back to the client.
-     * @param recipeId - The unique ID of the recipe to update.
-     * @param imageURL - The new image URL for the recipe.
-     * @returns void - Sends the updated recipe in JSON format.
+     * @param recipeID - The unique ID of the recipe to update.
+     * @param imageUrl - The new image URL for the recipe.
      */
-    public async updateImageURL(response: any, recipeId: string, imageURL: string) {
+    public async updateImageUrl(response: any, recipeID: string, imageUrl: string) {
         try {
             const result = await this.model.findOneAndUpdate(
-                { recipe_ID: recipeId },
-                { $set: { image_URL: imageURL } },
-                { new: true }
+                { recipeID },
+                { $set: { imageUrl } },
+                { new: true, runValidators: true }
             ).exec();
-            response.json(result);
+            if (result) {
+                response.json(result);
+            } else {
+                response.status(404).json({ error: "Recipe not found" });
+            }
         } catch (e) {
             console.error("Failed to update image URL:", e);
             response.status(500).json({ error: "Failed to update image URL" });
@@ -220,48 +211,28 @@ class RecipeModel {
     }
 
     /**
-     * Updates the `is_Visible` field of a recipe by `recipe_ID`.
+     * Updates the `isVisible` field of a recipe by `recipeID`.
      * @param response - The response object to send data back to the client.
-     * @param recipeId - The unique ID of the recipe to update.
+     * @param recipeID - The unique ID of the recipe to update.
      * @param isVisible - Boolean indicating if the recipe should be visible.
-     * @returns void - Sends the updated recipe in JSON format.
      */
-    public async updateVisibility(response: any, recipeId: string, isVisible: boolean) {
+    public async updateVisibility(response: any, recipeID: string, isVisible: boolean) {
         try {
             const result = await this.model.findOneAndUpdate(
-                { recipe_ID: recipeId },
-                { $set: { is_Visible: isVisible } },
-                { new: true }
+                { recipeID },
+                { $set: { isVisible } },
+                { new: true, runValidators: true }
             ).exec();
-            response.json(result);
+            if (result) {
+                response.json(result);
+            } else {
+                response.status(404).json({ error: "Recipe not found" });
+            }
         } catch (e) {
             console.error("Failed to update visibility:", e);
             response.status(500).json({ error: "Failed to update visibility" });
         }
     }
-
-    /**
-     * Updates the `category` of a recipe by `recipe_ID`.
-     * @param response - The response object to send data back to the client.
-     * @param recipeId - The unique ID of the recipe to update.
-     * @param category - An array of categories for the recipe.
-     * @returns void - Sends the updated recipe in JSON format.
-     */
-    public async updateCategory(response: any, recipeId: string, category: string[]) {
-        try {
-            const result = await this.model.findOneAndUpdate(
-                { recipe_ID: recipeId },
-                { $set: { category } },
-                { new: true }
-            ).exec();
-            response.json(result);
-        } catch (e) {
-            console.error("Failed to update category:", e);
-            response.status(500).json({ error: "Failed to update category" });
-        }
-    }
-
-
 }
 
 export { RecipeModel };

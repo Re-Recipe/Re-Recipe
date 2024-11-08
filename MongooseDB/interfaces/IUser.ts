@@ -2,7 +2,7 @@
 
 import Mongoose = require("mongoose");
 
-interface IUserModel extends Mongoose.Document {
+interface IUser extends Mongoose.Document {
     user_ID: string; 
     username: string; 
     email: string; 
@@ -11,4 +11,4 @@ interface IUserModel extends Mongoose.Document {
     recipeIDs: Mongoose.Types.ObjectId[]; // array of recipe IDs associated with the user?
 }
 
-export { IUserModel };
+export { IUser };

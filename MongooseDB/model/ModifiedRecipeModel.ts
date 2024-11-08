@@ -1,9 +1,10 @@
+// models/ModifiedRecipeModel.ts
 import * as mongoose from "mongoose";
-import { IModifiedRecipeModel } from '../interfaces/IModifiedRecipeModel';
+import {IRecipe} from '../interfaces/IRecipe';
 
 class ModifiedRecipeModel {
-    public schema: mongoose.Schema<IModifiedRecipeModel>;
-    public model: mongoose.Model<IModifiedRecipeModel>;
+    public schema: mongoose.Schema<IRecipe>;
+    public model: mongoose.Model<IRecipe>;
     public dbConnectionString: string;
 
     /**
@@ -21,28 +22,33 @@ class ModifiedRecipeModel {
      * Includes fields for user-specific modifications and version control.
      */
     public createSchema() {
-        const schemaDefinition: mongoose.SchemaDefinition<IModifiedRecipeModel> = {
-            user_id: { type: String, required: true },
-            recipe_id: { type: String, required: true },
-            personal_recipe_id: { type: String, unique: true, required: true },
+        const schemaDefinition: mongoose.SchemaDefinition<IRecipe> = {
+            userID: { type: String, required: true },
+            recipeID: { type: String, required: true },
+            personalRecipeID: { type: String, unique: true, required: true },
+            recipeName: { type: String, required: true },
             category: [{
                 type: String,
                 enum: ['breakfast', 'lunch', 'dinner', 'dessert', 'vegetarian', 'vegan', 'gluten-free'],
                 required: true,
             }],
+            cookingDuration: { type: Number, required: true },
             ingredients: [{
                 name: { type: String, required: true },
                 quantity: { type: Number, required: true },
-                unit: { type: String, enum: ['oz', 'cup', 'tbsp', 'tsp', 'g', 'kg', 'lb', 'each'], required: true }
+                unit: {
+                    type: String,
+                    enum: ['oz', 'cup', 'tbsp', 'tsp', 'g', 'kg', 'lb', 'each'],
+                    required: true
+                }
             }],
             directions: [{
                 step: { type: String, required: true }
             }],
             notes: { type: String },
-            version_number: { type: Number, default: 1, required: true },
-            image_URL: { type: String },
-            cooking_duration: { type: Number, required: true },
-            is_Visible: { type: Boolean, default: false }
+            versionNumber: { type: Number, default: 1, required: true },
+            imageUrl: { type: String },
+            isVisible: { type: Boolean, default: false }
         };
 
         this.schema = new mongoose.Schema(schemaDefinition, { collection: 'modifiedRecipes' });
@@ -56,9 +62,10 @@ class ModifiedRecipeModel {
     public async createModel() {
         try {
             await mongoose.connect(this.dbConnectionString, { useNewUrlParser: true, useUnifiedTopology: true });
-            this.model = mongoose.model<IModifiedRecipeModel>("ModifiedRecipe", this.schema);
+            this.model = mongoose.model<IRecipe>("ModifiedRecipe", this.schema);
+            console.log("Connected to MongoDB and Initialized ModifiedRecipe model.");
         } catch (e) {
-            console.error(e);
+            console.error("Error connecting to MongoDB or initializing ModifiedRecipe model:", e);
         }
     }
 
@@ -67,77 +74,98 @@ class ModifiedRecipeModel {
      * @param modifiedRecipe - Object containing modified recipe details.
      * @returns The saved modified recipe document.
      */
-    public async createModifiedRecipe(modifiedRecipe: IModifiedRecipeModel) {
-        const newRecipe = new this.model(modifiedRecipe);
-        return await newRecipe.save();
+    public async createModifiedRecipe(modifiedRecipe: IRecipe) {
+        try {
+            const newRecipe = new this.model(modifiedRecipe);
+            return await newRecipe.save();
+        } catch (e) {
+            console.error("Error creating modified recipe:", e);
+            throw e;
+        }
     }
 
     /**
-     * Retrieves a modified recipe by `personal_recipe_id`.
+     * Retrieves a modified recipe by `personalRecipeId`.
      * @param personalRecipeId - The unique ID of the modified recipe.
      * @param response - Response object to send data back to the client.
      */
     public async retrieveModifiedRecipe(response: any, personalRecipeId: string) {
         try {
-            const result = await this.model.findOne({ personal_recipe_id: personalRecipeId }).exec();
-            response.json(result);
+            const result = await this.model.findOne({ personalRecipeId }).exec();
+            if (result) {
+                response.json(result);
+            } else {
+                response.status(404).json({ error: "Modified recipe not found" });
+            }
         } catch (e) {
-            console.error(e);
+            console.error("Failed to retrieve modified recipe:", e);
             response.status(500).json({ error: "Failed to retrieve modified recipe" });
         }
     }
 
     /**
-     * Updates the ingredients of a modified recipe by `personal_recipe_id`.
+     * Updates the ingredients of a modified recipe by `personalRecipeId`.
      * @param personalRecipeID - The unique ID of the modified recipe.
      * @param newIngredients - Updated ingredients array.
      * @param response - Response object to send updated data.
      */
-    public async updateRecipeIngredients(response: any, personalRecipeID: string, newIngredients: string[]) {
+    public async updateRecipeIngredients(response: any, personalRecipeID: string, newIngredients: { name: string; quantity: number; unit: string; }[]) {
         try {
             const result = await this.model.findOneAndUpdate(
-                { personal_recipe_id: personalRecipeID },
+                { personalRecipeId: personalRecipeID },
                 { $set: { ingredients: newIngredients } },
-                { new: true }
+                { new: true, runValidators: true }
             ).exec();
-            response.json(result);
+            if (result) {
+                response.json(result);
+            } else {
+                response.status(404).json({ error: "Modified recipe not found" });
+            }
         } catch (e) {
-            console.error(e);
+            console.error("Failed to update ingredients:", e);
             response.status(500).json({ error: "Failed to update ingredients" });
         }
     }
 
     /**
-     * Updates the directions of a modified recipe by `personal_recipe_id`.
+     * Updates the directions of a modified recipe by `personalRecipeId`.
      * @param personalRecipeID - The unique ID of the modified recipe.
      * @param newDirections - Updated directions array.
      * @param response - Response object to send updated data.
      */
-    public async updateRecipeDirections(response: any, personalRecipeID: string, newDirections: string[]) {
+    public async updateRecipeDirections(response: any, personalRecipeID: string, newDirections: { step: string; }[]) {
         try {
             const result = await this.model.findOneAndUpdate(
-                { personal_recipe_id: personalRecipeID },
+                { personalRecipeId: personalRecipeID },
                 { $set: { directions: newDirections } },
-                { new: true }
+                { new: true, runValidators: true }
             ).exec();
-            response.json(result);
+            if (result) {
+                response.json(result);
+            } else {
+                response.status(404).json({ error: "Modified recipe not found" });
+            }
         } catch (e) {
-            console.error(e);
+            console.error("Failed to update directions:", e);
             response.status(500).json({ error: "Failed to update directions" });
         }
     }
 
     /**
-     * Deletes a modified recipe by its `personal_recipe_id`.
+     * Deletes a modified recipe by its `personalRecipeId`.
      * @param personalRecipeID - The unique ID of the modified recipe.
      * @param response - Response object to send deletion result.
      */
     public async deleteModifiedRecipe(response: any, personalRecipeID: string) {
         try {
-            const result = await this.model.deleteOne({ personal_recipe_id: personalRecipeID }).exec();
-            response.json({ message: `Modified recipe ${personalRecipeID} deleted`, result });
+            const result = await this.model.deleteOne({ personalRecipeID }).exec();
+            if (result.deletedCount && result.deletedCount > 0) {
+                response.json({ message: `Modified recipe ${personalRecipeID} deleted successfully.`, result });
+            } else {
+                response.status(404).json({ error: "Modified recipe not found" });
+            }
         } catch (e) {
-            console.error(e);
+            console.error("Failed to delete modified recipe:", e);
             response.status(500).json({ error: "Failed to delete modified recipe" });
         }
     }
@@ -148,10 +176,16 @@ class ModifiedRecipeModel {
      * @param modifiedRecipe - Object containing modified recipe details.
      * @returns Saved version of the modified recipe.
      */
-    public async saveVersion(modifiedRecipe: IModifiedRecipeModel) {
-        const newVersion = { ...modifiedRecipe, version_number: modifiedRecipe.version_number + 1 };
-        const newRecipe = new this.model(newVersion);
-        return await newRecipe.save();
+    public async saveVersion(modifiedRecipe: IRecipe) {
+        try {
+            const currentVersion = modifiedRecipe.versionNumber || 1;
+            const newVersion = { ...modifiedRecipe, versionNumber: currentVersion + 1 };
+            const newRecipe = new this.model(newVersion);
+            return await newRecipe.save();
+        } catch (e) {
+            console.error("Failed to save version of modified recipe:", e);
+            throw e;
+        }
     }
 
     /**
@@ -163,19 +197,23 @@ class ModifiedRecipeModel {
     public async addNotes(response: any, personalRecipeID: string, note: string) {
         try {
             const result = await this.model.findOneAndUpdate(
-                { personal_recipe_id: personalRecipeID },
+                { personalRecipeId: personalRecipeID },
                 { $set: { notes: note } },
-                { new: true }
+                { new: true, runValidators: true }
             ).exec();
-            response.json(result);
+            if (result) {
+                response.json(result);
+            } else {
+                response.status(404).json({ error: "Modified recipe not found" });
+            }
         } catch (e) {
-            console.error(e);
+            console.error("Failed to add notes to modified recipe:", e);
             response.status(500).json({ error: "Failed to add notes to modified recipe" });
         }
     }
 
     /**
-     * Updates the `category` of a modified recipe by `personal_recipe_id`.
+     * Updates the `category` of a modified recipe by `personalRecipeId`.
      * @param response - The response object to send data back to the client.
      * @param personalRecipeID - The unique ID of the modified recipe.
      * @param category - An array of category tags for the recipe.
@@ -184,19 +222,23 @@ class ModifiedRecipeModel {
     public async updateCategory(response: any, personalRecipeID: string, category: string[]) {
         try {
             const result = await this.model.findOneAndUpdate(
-                { personal_recipe_id: personalRecipeID },
+                { personalRecipeId: personalRecipeID },
                 { $set: { category } },
-                { new: true }
+                { new: true, runValidators: true }
             ).exec();
-            response.json(result);
+            if (result) {
+                response.json(result);
+            } else {
+                response.status(404).json({ error: "Modified recipe not found" });
+            }
         } catch (e) {
-            console.error(e);
+            console.error("Failed to update category:", e);
             response.status(500).json({ error: "Failed to update category" });
         }
     }
 
     /**
-     * Updates the `image_URL` of a modified recipe by `personal_recipe_id`.
+     * Updates the `imageUrl` of a modified recipe by `personalRecipeId`.
      * @param response - The response object to send data back to the client.
      * @param personalRecipeID - The unique ID of the modified recipe.
      * @param imageURL - The new image URL for the recipe.
@@ -205,19 +247,23 @@ class ModifiedRecipeModel {
     public async updateImageURL(response: any, personalRecipeID: string, imageURL: string) {
         try {
             const result = await this.model.findOneAndUpdate(
-                { personal_recipe_id: personalRecipeID },
-                { $set: { image_URL: imageURL } },
-                { new: true }
+                { personalRecipeId: personalRecipeID },
+                { $set: { imageUrl: imageURL } },
+                { new: true, runValidators: true }
             ).exec();
-            response.json(result);
+            if (result) {
+                response.json(result);
+            } else {
+                response.status(404).json({ error: "Modified recipe not found" });
+            }
         } catch (e) {
-            console.error(e);
+            console.error("Failed to update image URL:", e);
             response.status(500).json({ error: "Failed to update image URL" });
         }
     }
 
     /**
-     * Updates the `is_Visible` field of a modified recipe by `personal_recipe_id`.
+     * Updates the `isVisible` field of a modified recipe by `personalRecipeId`.
      * @param response - The response object to send data back to the client.
      * @param personalRecipeID - The unique ID of the modified recipe.
      * @param isVisible - Boolean indicating if the recipe should be visible.
@@ -226,19 +272,20 @@ class ModifiedRecipeModel {
     public async updateVisibility(response: any, personalRecipeID: string, isVisible: boolean) {
         try {
             const result = await this.model.findOneAndUpdate(
-                { personal_recipe_id: personalRecipeID },
-                { $set: { is_Visible: isVisible } },
-                { new: true }
+                { personalRecipeId: personalRecipeID },
+                { $set: { isVisible: isVisible } },
+                { new: true, runValidators: true }
             ).exec();
-            response.json(result);
+            if (result) {
+                response.json(result);
+            } else {
+                response.status(404).json({ error: "Modified recipe not found" });
+            }
         } catch (e) {
-            console.error(e);
+            console.error("Failed to update visibility:", e);
             response.status(500).json({ error: "Failed to update visibility" });
         }
     }
-
-
 }
-
 
 export { ModifiedRecipeModel };

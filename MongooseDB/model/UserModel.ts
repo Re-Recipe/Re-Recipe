@@ -4,7 +4,7 @@
 */
 
 import * as mongoose from "mongoose";
-import { IUserModel } from '../interfaces/IUserModel';
+import { IUser } from '../interfaces/IUser';
 
 class UserModel {
     public schema: any;
@@ -49,7 +49,7 @@ class UserModel {
     public async createModel() {
         try {
             await mongoose.connect(this.dbConnectionString, { useNewUrlParser: true, useUnifiedTopology: true });
-            this.model = mongoose.model<IUserModel>("User", this.schema);
+            this.model = mongoose.model<IUser>("User", this.schema);
         } catch (e) {
             console.error("Failed to connect to the database:", e);
         }
