@@ -1,0 +1,28 @@
+<div class="container my-4">
+    <div class="row">
+      <div class="col-md-4 mb-4" *ngFor="let recipe of recipeList">
+        <div class="card recipe-card position-relative">
+          <input type="checkbox" class="top-right-checkbox form-check-input">
+          <img [src]="recipe.image_URL" class="card-img-top" alt="{{ recipe.recipe_name }}">
+          <div class="card-body text-center">
+            <h5 class="card-title">RecipeName: {{ recipe.recipe_name }}</h5>
+            <p class="card-text"><small>{{ recipe.category[0] }}</small></p>
+  
+            <ul class="ingredients">
+              <li *ngFor="let ingredient of recipe.ingredients">
+                 {{ ingredient.quantity }} {{ ingredient.unit }} {{ ingredient.name }}
+              </li>
+            </ul>
+  
+            <p><strong>Directions:</strong></p>
+            <ul>
+              <li *ngFor="let direction of recipe.directions">
+                {{ direction.step }}
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
