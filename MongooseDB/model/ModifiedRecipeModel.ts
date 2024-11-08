@@ -23,16 +23,16 @@ class ModifiedRecipeModel {
      */
     public createSchema() {
         const schemaDefinition: mongoose.SchemaDefinition<IRecipe> = {
-            userID: { type: String, required: true },
-            recipeID: { type: String, required: true },
-            personalRecipeID: { type: String, unique: true, required: true },
-            recipeName: { type: String, required: true },
+            user_ID: { type: String, required: true },
+            recipe_ID: { type: String, required: true },
+            personal_recipe_ID: { type: String, unique: true, required: true },
+            recipe_name: { type: String, required: true },
             category: [{
                 type: String,
                 enum: ['breakfast', 'lunch', 'dinner', 'dessert', 'vegetarian', 'vegan', 'gluten-free'],
                 required: true,
             }],
-            cookingDuration: { type: Number, required: true },
+            cooking_duration: { type: Number, required: true },
             ingredients: [{
                 name: { type: String, required: true },
                 quantity: { type: Number, required: true },
@@ -46,9 +46,9 @@ class ModifiedRecipeModel {
                 step: { type: String, required: true }
             }],
             notes: { type: String },
-            versionNumber: { type: Number, default: 1, required: true },
-            imageUrl: { type: String },
-            isVisible: { type: Boolean, default: false }
+            version_number: { type: Number, default: 1, required: true },
+            image_url: { type: String },
+            is_visible: { type: Boolean, default: false }
         };
 
         this.schema = new mongoose.Schema(schemaDefinition, { collection: 'modifiedRecipes' });
@@ -85,13 +85,13 @@ class ModifiedRecipeModel {
     }
 
     /**
-     * Retrieves a modified recipe by `personalRecipeId`.
-     * @param personalRecipeId - The unique ID of the modified recipe.
+     * Retrieves a modified recipe by `personal_recipe_ID`.
+     * @param personal_recipe_ID - The unique ID of the modified recipe.
      * @param response - Response object to send data back to the client.
      */
-    public async retrieveModifiedRecipe(response: any, personalRecipeId: string) {
+    public async retrieveModifiedRecipe(response: any, personal_recipe_ID: string) {
         try {
-            const result = await this.model.findOne({ personalRecipeId }).exec();
+            const result = await this.model.findOne({ personal_recipe_ID }).exec();
             if (result) {
                 response.json(result);
             } else {
@@ -104,15 +104,15 @@ class ModifiedRecipeModel {
     }
 
     /**
-     * Updates the ingredients of a modified recipe by `personalRecipeId`.
-     * @param personalRecipeID - The unique ID of the modified recipe.
+     * Updates the ingredients of a modified recipe by `personal_recipe_ID`.
+     * @param personal_recipe_ID - The unique ID of the modified recipe.
      * @param newIngredients - Updated ingredients array.
      * @param response - Response object to send updated data.
      */
-    public async updateRecipeIngredients(response: any, personalRecipeID: string, newIngredients: { name: string; quantity: number; unit: string; }[]) {
+    public async updateRecipeIngredients(response: any, personal_recipe_ID: string, newIngredients: { name: string; quantity: number; unit: string }[]) {
         try {
             const result = await this.model.findOneAndUpdate(
-                { personalRecipeId: personalRecipeID },
+                { personal_recipe_ID },
                 { $set: { ingredients: newIngredients } },
                 { new: true, runValidators: true }
             ).exec();
@@ -128,15 +128,15 @@ class ModifiedRecipeModel {
     }
 
     /**
-     * Updates the directions of a modified recipe by `personalRecipeId`.
-     * @param personalRecipeID - The unique ID of the modified recipe.
+     * Updates the directions of a modified recipe by `personal_recipe_ID`.
+     * @param personal_recipe_ID - The unique ID of the modified recipe.
      * @param newDirections - Updated directions array.
      * @param response - Response object to send updated data.
      */
-    public async updateRecipeDirections(response: any, personalRecipeID: string, newDirections: { step: string; }[]) {
+    public async updateRecipeDirections(response: any, personal_recipe_ID: string, newDirections: { step: string }[]) {
         try {
             const result = await this.model.findOneAndUpdate(
-                { personalRecipeId: personalRecipeID },
+                { personal_recipe_ID },
                 { $set: { directions: newDirections } },
                 { new: true, runValidators: true }
             ).exec();
@@ -152,15 +152,15 @@ class ModifiedRecipeModel {
     }
 
     /**
-     * Deletes a modified recipe by its `personalRecipeId`.
-     * @param personalRecipeID - The unique ID of the modified recipe.
+     * Deletes a modified recipe by its `personal_recipe_ID`.
+     * @param personal_recipe_ID - The unique ID of the modified recipe.
      * @param response - Response object to send deletion result.
      */
-    public async deleteModifiedRecipe(response: any, personalRecipeID: string) {
+    public async deleteModifiedRecipe(response: any, personal_recipe_ID: string) {
         try {
-            const result = await this.model.deleteOne({ personalRecipeID }).exec();
+            const result = await this.model.deleteOne({ personal_recipe_ID }).exec();
             if (result.deletedCount && result.deletedCount > 0) {
-                response.json({ message: `Modified recipe ${personalRecipeID} deleted successfully.`, result });
+                response.json({ message: `Modified recipe ${personal_recipe_ID} deleted successfully.`, result });
             } else {
                 response.status(404).json({ error: "Modified recipe not found" });
             }
@@ -173,13 +173,13 @@ class ModifiedRecipeModel {
     /**
      * Saves a new version of the modified recipe.
      * Increments the version number and saves it as a new document.
-     * @param modifiedRecipe - Object containing modified recipe details.
+     * @param modified_recipe - Object containing modified recipe details.
      * @returns Saved version of the modified recipe.
      */
-    public async saveVersion(modifiedRecipe: IRecipe) {
+    public async saveVersion(modified_recipe: IRecipe) {
         try {
-            const currentVersion = modifiedRecipe.versionNumber || 1;
-            const newVersion = { ...modifiedRecipe, versionNumber: currentVersion + 1 };
+            const currentVersion = modified_recipe.version_number || 1;
+            const newVersion = { ...modified_recipe, version_number: currentVersion + 1 };
             const newRecipe = new this.model(newVersion);
             return await newRecipe.save();
         } catch (e) {
@@ -190,14 +190,14 @@ class ModifiedRecipeModel {
 
     /**
      * Adds notes to an existing modified recipe.
-     * @param personalRecipeID - The unique ID of the modified recipe.
+     * @param personal_recipe_ID - The unique ID of the modified recipe.
      * @param note - The note to add.
      * @param response - Response object to send the updated document.
      */
-    public async addNotes(response: any, personalRecipeID: string, note: string) {
+    public async addNotes(response: any, personal_recipe_ID: string, note: string) {
         try {
             const result = await this.model.findOneAndUpdate(
-                { personalRecipeId: personalRecipeID },
+                { personal_recipe_ID: personal_recipe_ID },
                 { $set: { notes: note } },
                 { new: true, runValidators: true }
             ).exec();
@@ -213,16 +213,16 @@ class ModifiedRecipeModel {
     }
 
     /**
-     * Updates the `category` of a modified recipe by `personalRecipeId`.
+     * Updates the `category` of a modified recipe by `personal_recipe_ID`.
      * @param response - The response object to send data back to the client.
-     * @param personalRecipeID - The unique ID of the modified recipe.
+     * @param personal_recipe_ID
      * @param category - An array of category tags for the recipe.
      * @returns void - Sends the updated recipe in JSON format.
      */
-    public async updateCategory(response: any, personalRecipeID: string, category: string[]) {
+    public async updateCategory(response: any, personal_recipe_ID: string, category: string[]) {
         try {
             const result = await this.model.findOneAndUpdate(
-                { personalRecipeId: personalRecipeID },
+                { personal_recipe_ID: personal_recipe_ID },
                 { $set: { category } },
                 { new: true, runValidators: true }
             ).exec();
@@ -238,17 +238,17 @@ class ModifiedRecipeModel {
     }
 
     /**
-     * Updates the `imageUrl` of a modified recipe by `personalRecipeId`.
+     * Updates the `imageUrl` of a modified recipe by `personal_recipe_ID`.
      * @param response - The response object to send data back to the client.
-     * @param personalRecipeID - The unique ID of the modified recipe.
-     * @param imageURL - The new image URL for the recipe.
+     * @param personal_recipe_ID
+     * @param image_url
      * @returns void - Sends the updated recipe in JSON format.
      */
-    public async updateImageURL(response: any, personalRecipeID: string, imageURL: string) {
+    public async updateImageURL(response: any, personal_recipe_ID: string, image_url: string) {
         try {
             const result = await this.model.findOneAndUpdate(
-                { personalRecipeId: personalRecipeID },
-                { $set: { imageUrl: imageURL } },
+                { personal_recipe_ID: personal_recipe_ID },
+                { $set: { image_url: image_url } },
                 { new: true, runValidators: true }
             ).exec();
             if (result) {
@@ -263,17 +263,17 @@ class ModifiedRecipeModel {
     }
 
     /**
-     * Updates the `isVisible` field of a modified recipe by `personalRecipeId`.
+     * Updates the `isVisible` field of a modified recipe by `personal_recipe_ID`.
      * @param response - The response object to send data back to the client.
-     * @param personalRecipeID - The unique ID of the modified recipe.
-     * @param isVisible - Boolean indicating if the recipe should be visible.
+     * @param personal_recipe_ID
+     * @param is_visible
      * @returns void - Sends the updated recipe in JSON format.
      */
-    public async updateVisibility(response: any, personalRecipeID: string, isVisible: boolean) {
+    public async updateVisibility(response: any, personal_recipe_ID: string, is_visible: boolean) {
         try {
             const result = await this.model.findOneAndUpdate(
-                { personalRecipeId: personalRecipeID },
-                { $set: { isVisible: isVisible } },
+                { personal_recipe_ID: personal_recipe_ID },
+                { $set: { isVisible: is_visible } },
                 { new: true, runValidators: true }
             ).exec();
             if (result) {

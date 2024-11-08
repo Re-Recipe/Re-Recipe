@@ -18,14 +18,14 @@ class RecipeModel {
 
     /**
      * Creates the Mongoose schema for a recipe.
-     * Defines the structure for `recipeID`, `recipeName`, `category`, etc.
+     * Defines the structure for `recipe_ID`, `recipeName`, `category`, etc.
      */
     public createSchema() {
         this.schema = new mongoose.Schema(
             {
-                recipeID: { type: String, required: true }, // Unique identifier for recipe
-                userID: { type: String, required: true }, // Author of recipe
-                recipeName: { type: String, required: true }, // Title of recipe
+                recipe_ID: { type: String, required: true }, // Unique identifier for recipe
+                user_ID: { type: String, required: true }, // Author of recipe
+                recipe_name: { type: String, required: true }, // Title of recipe
                 category: [
                     {
                         type: String,
@@ -33,7 +33,7 @@ class RecipeModel {
                         required: true,
                     }
                 ],
-                cookingDuration: { type: Number, required: true }, // Time it takes to cook recipe
+                cooking_duration: { type: Number, required: true }, // Time it takes to cook recipe
                 ingredients: [ // Ingredient requirements for recipe
                     {
                         name: { type: String, required: true },
@@ -43,7 +43,7 @@ class RecipeModel {
                             enum: ['oz', 'cup', 'tbsp', 'tsp', 'g', 'kg', 'lb', 'each'],
                             required: true,
                         },
-                        ingredientID: { type: String }, // Optional
+                        ingredient_id: { type: String }, // Optional
                     }
                 ],
                 directions: [ // List of directions for making recipe
@@ -51,8 +51,8 @@ class RecipeModel {
                         step: { type: String, required: true }, // Allows changing individual steps
                     }
                 ],
-                imageUrl: { type: String }, // Image of recipe
-                isVisible: { type: Boolean, default: true }, // Published or private recipe
+                image_url: { type: String }, // Image of recipe
+                is_visible: { type: Boolean, default: true }, // Published or private recipe
             },
             { collection: "recipes", timestamps: true }
         );
@@ -87,13 +87,13 @@ class RecipeModel {
     }
 
     /**
-     * Retrieves a single recipe by `recipeID`.
+     * Retrieves a single recipe by `recipe_ID`.
      * @param response - The response object to send data back to the client.
-     * @param recipeID - The unique ID of the recipe to retrieve.
+     * @param recipe_ID - The unique ID of the recipe to retrieve.
      */
-    public async retrieveRecipe(response: any, recipeID: string) {
+    public async retrieveRecipe(response: any, recipe_ID: string) {
         try {
-            const result = await this.model.findOne({ recipeID }).exec();
+            const result = await this.model.findOne({ recipe_ID }).exec();
             if (result) {
                 response.json(result);
             } else {
@@ -120,15 +120,15 @@ class RecipeModel {
     }
 
     /**
-     * Deletes a recipe by its `recipeID`.
+     * Deletes a recipe by its `recipe_ID`.
      * @param response - The response object to send data back to the client.
-     * @param recipeID - The unique ID of the recipe to delete.
+     * @param recipe_ID - The unique ID of the recipe to delete.
      */
-    public async deleteRecipe(response: any, recipeID: string) {
+    public async deleteRecipe(response: any, recipe_ID: string) {
         try {
-            const result = await this.model.deleteOne({ recipeID }).exec();
+            const result = await this.model.deleteOne({ recipe_ID }).exec();
             if (result.deletedCount && result.deletedCount > 0) {
-                response.json({ message: `Recipe ${recipeID} deleted successfully.`, result });
+                response.json({ message: `Recipe ${recipe_ID} deleted successfully.`, result });
             } else {
                 response.status(404).json({ error: "Recipe not found" });
             }
@@ -139,15 +139,15 @@ class RecipeModel {
     }
 
     /**
-     * Updates the `directions` of a recipe by `recipeID`.
+     * Updates the `directions` of a recipe by `recipe_ID`.
      * @param response - The response object to send data back to the client.
-     * @param recipeID - The unique ID of the recipe to update.
+     * @param recipe_ID - The unique ID of the recipe to update.
      * @param directions - An array of objects containing the new steps for directions.
      */
-    public async updateDirections(response: any, recipeID: string, directions: { step: string }[]) {
+    public async updateDirections(response: any, recipe_ID: string, directions: { step: string }[]) {
         try {
             const result = await this.model.findOneAndUpdate(
-                { recipeID },
+                { recipe_ID },
                 { $set: { directions } },
                 { new: true, runValidators: true }
             ).exec();
@@ -163,15 +163,15 @@ class RecipeModel {
     }
 
     /**
-     * Updates the `ingredients` of a recipe by `recipeID`.
+     * Updates the `ingredients` of a recipe by `recipe_ID`.
      * @param response - The response object to send data back to the client.
-     * @param recipeID - The unique ID of the recipe to update.
+     * @param recipe_ID - The unique ID of the recipe to update.
      * @param ingredients - An array of objects containing `name`, `quantity`, and `unit` for each ingredient.
      */
-    public async updateIngredients(response: any, recipeID: string, ingredients: { name: string; quantity: number; unit: string }[]) {
+    public async updateIngredients(response: any, recipe_ID: string, ingredients: { name: string; quantity: number; unit: string }[]) {
         try {
             const result = await this.model.findOneAndUpdate(
-                { recipeID },
+                { recipe_ID },
                 { $set: { ingredients } },
                 { new: true, runValidators: true }
             ).exec();
@@ -187,16 +187,16 @@ class RecipeModel {
     }
 
     /**
-     * Updates the `imageUrl` of a recipe by `recipeID`.
+     * Updates the `image_url` of a recipe by `recipe_ID`.
      * @param response - The response object to send data back to the client.
-     * @param recipeID - The unique ID of the recipe to update.
-     * @param imageUrl - The new image URL for the recipe.
+     * @param recipe_ID - The unique ID of the recipe to update.
+     * @param image_url - The new image URL for the recipe.
      */
-    public async updateImageUrl(response: any, recipeID: string, imageUrl: string) {
+    public async updateImageUrl(response: any, recipe_ID: string, image_url: string) {
         try {
             const result = await this.model.findOneAndUpdate(
-                { recipeID },
-                { $set: { imageUrl } },
+                { recipe_ID },
+                { $set: { image_url } },
                 { new: true, runValidators: true }
             ).exec();
             if (result) {
@@ -211,16 +211,16 @@ class RecipeModel {
     }
 
     /**
-     * Updates the `isVisible` field of a recipe by `recipeID`.
+     * Updates the `isVisible` field of a recipe by `recipe_ID`.
      * @param response - The response object to send data back to the client.
-     * @param recipeID - The unique ID of the recipe to update.
-     * @param isVisible - Boolean indicating if the recipe should be visible.
+     * @param recipe_ID - The unique ID of the recipe to update.
+     * @param is_visible
      */
-    public async updateVisibility(response: any, recipeID: string, isVisible: boolean) {
+    public async updateVisibility(response: any, recipe_ID: string, is_visible: boolean) {
         try {
             const result = await this.model.findOneAndUpdate(
-                { recipeID },
-                { $set: { isVisible } },
+                { recipe_ID },
+                { $set: { is_visible } },
                 { new: true, runValidators: true }
             ).exec();
             if (result) {

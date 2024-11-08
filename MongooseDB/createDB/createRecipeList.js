@@ -10,11 +10,11 @@ recipesCollection.deleteMany({});
 // Insert sample recipes using `insertMany`
 recipesCollection.insertMany([
     {
-        recipeID: "recipe001",
-        userID: "user1",
-        recipeName: "Classic Pancakes",
+        recipe_ID: "recipe001",
+        user_ID: "user1",
+        recipe_name: "Classic Pancakes",
         category: ["Breakfast"],
-        cookingDuration: 20,
+        cooking_duration: 20,
         ingredients: [
             { name: "Flour", quantity: 2, unit: "cup" },
             { name: "Milk", quantity: 1, unit: "cup" },
@@ -27,15 +27,15 @@ recipesCollection.insertMany([
             { step: "Add wet ingredients and stir until smooth." },
             { step: "Pour batter onto hot griddle and cook until golden brown." }
         ],
-        imageUrl: "http://example.com/classic_pancakes.jpg",
-        isVisible: true
+        image_url: "http://example.com/classic_pancakes.jpg",
+        is_visible: true
     },
     {
-        recipeID: "recipe002",
-        userID: "user2",
-        recipeName: "Spaghetti Bolognese",
+        recipe_ID: "recipe002",
+        user_ID: "user2",
+        recipe_name: "Spaghetti Bolognese",
         category: ["Dinner"],
-        cookingDuration: 40,
+        cooking_duration: 40,
         ingredients: [
             { name: "Spaghetti", quantity: 500, unit: "g" },
             { name: "Ground Beef", quantity: 1, unit: "lb" },
@@ -50,15 +50,15 @@ recipesCollection.insertMany([
             { step: "Stir in tomato sauce and simmer for 10 minutes." },
             { step: "Serve sauce over spaghetti." }
         ],
-        imageUrl: "http://example.com/spaghetti_bolognese.jpg",
-        isVisible: true
+        image_url: "http://example.com/spaghetti_bolognese.jpg",
+        is_visible: true
     },
     {
-        recipeID: "recipe003",
-        userID: "user3",
-        recipeName: "Caesar Salad",
+        recipe_ID: "recipe003",
+        user_ID: "user3",
+        recipe_name: "Caesar Salad",
         category: ["Salad"],
-        cookingDuration: 15,
+        cooking_duration: 15,
         ingredients: [
             { name: "Romaine Lettuce", quantity: 1, unit: "each" },
             { name: "Caesar Dressing", quantity: 0.5, unit: "cup" },
@@ -70,15 +70,15 @@ recipesCollection.insertMany([
             { step: "Add Caesar dressing and toss to coat evenly." },
             { step: "Top with croutons and grated Parmesan cheese." }
         ],
-        imageUrl: "http://example.com/caesar_salad.jpg",
-        isVisible: true
+        image_url: "http://example.com/caesar_salad.jpg",
+        is_visible: true
     },
     {
-        recipeID: "recipe004",
-        userID: "user4",
-        recipeName: "Chicken Curry",
+        recipe_ID: "recipe004",
+        user_ID: "user4",
+        recipe_name: "Chicken Curry",
         category: ["Dinner"],
-        cookingDuration: 30,
+        cooking_duration: 30,
         ingredients: [
             { name: "Chicken Breast", quantity: 1, unit: "lb" },
             { name: "Coconut Milk", quantity: 1, unit: "cup" },
@@ -92,15 +92,15 @@ recipesCollection.insertMany([
             { step: "Add chicken and cook until browned." },
             { step: "Stir in coconut milk and simmer for 20 minutes." }
         ],
-        imageUrl: "http://example.com/chicken_curry.jpg",
-        isVisible: true
+        image_url: "http://example.com/chicken_curry.jpg",
+        is_visible: true
     },
     {
-        recipeID: "recipe005",
-        userID: "user5",
-        recipeName: "Avocado Toast",
+        recipe_ID: "recipe005",
+        user_ID: "user5",
+        recipe_name: "Avocado Toast",
         category: ["Breakfast"],
-        cookingDuration: 10,
+        cooking_duration: 10,
         ingredients: [
             { name: "Bread", quantity: 2, unit: "slice" },
             { name: "Avocado", quantity: 1, unit: "each" },
@@ -113,15 +113,15 @@ recipesCollection.insertMany([
             { step: "Mash avocado with salt, pepper, and lemon juice." },
             { step: "Spread avocado mixture on toasted bread." }
         ],
-        imageUrl: "http://example.com/avocado_toast.jpg",
-        isVisible: true
+        image_url: "http://example.com/avocado_toast.jpg",
+        is_visible: true
     },
     {
-        recipeID: "recipe006",
-        userID: "user6",
-        recipeName: "Chocolate Chip Cookies",
+        recipe_ID: "recipe006",
+        user_ID: "user6",
+        recipe_name: "Chocolate Chip Cookies",
         category: ["Dessert"],
-        cookingDuration: 25,
+        cooking_duration: 25,
         ingredients: [
             { name: "Butter", quantity: 1, unit: "cup" },
             { name: "Sugar", quantity: 0.75, unit: "cup" },
@@ -137,15 +137,15 @@ recipesCollection.insertMany([
             { step: "Mix in flour, then fold in chocolate chips." },
             { step: "Drop dough by spoonfuls onto baking sheet and bake for 10-12 minutes." }
         ],
-        imageUrl: "http://example.com/chocolate_chip_cookies.jpg",
-        isVisible: true
+        image_url: "http://example.com/chocolate_chip_cookies.jpg",
+        is_visible: true
     },
     {
-        recipeID: "recipe007",
-        userID: "user7",
-        recipeName: "Vegetable Stir Fry",
+        recipe_ID: "recipe007",
+        user_ID: "user7",
+        recipe_name: "Vegetable Stir Fry",
         category: ["Lunch"],
-        cookingDuration: 15,
+        cooking_duration: 15,
         ingredients: [
             { name: "Broccoli", quantity: 1, unit: "cup" },
             { name: "Carrot", quantity: 1, unit: "each" },
@@ -158,15 +158,15 @@ recipesCollection.insertMany([
             { step: "Add vegetables and stir fry until tender-crisp." },
             { step: "Add soy sauce and stir well before serving." }
         ],
-        imageUrl: "http://example.com/vegetable_stir_fry.jpg",
-        isVisible: true
+        image_url: "http://example.com/vegetable_stir_fry.jpg",
+        is_visible: true
     },
     {
-        recipeID: "recipe008",
-        userID: "user8",
-        recipeName: "Banana Smoothie",
+        recipe_ID: "recipe008",
+        user_ID: "user8",
+        recipe_name: "Banana Smoothie",
         category: ["Beverage"],
-        cookingDuration: 5,
+        cooking_duration: 5,
         ingredients: [
             { name: "Banana", quantity: 1, unit: "each" },
             { name: "Milk", quantity: 1, unit: "cup" },
@@ -177,7 +177,7 @@ recipesCollection.insertMany([
             { step: "Combine all ingredients in a blender." },
             { step: "Blend until smooth and creamy." }
         ],
-        imageUrl: "http://example.com/banana_smoothie.jpg",
-        isVisible: true
+        image_url: "http://example.com/banana_smoothie.jpg",
+        is_visible: true
     }
 ]);

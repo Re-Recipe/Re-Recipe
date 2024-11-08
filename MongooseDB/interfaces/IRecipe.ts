@@ -1,14 +1,13 @@
-// interfaces/Recipe.ts
 import { Document } from "mongoose";
 
 export interface IRecipe extends Document {
-    userID: string;
-    recipeID: string;
-    recipeName: string;
+    user_ID: string;
+    recipe_ID: string;
+    recipe_name: string;
     category: string[];
-    cookingDuration: number;
+    cooking_duration: number;
     ingredients: {
-        ingredientId?: string;
+        ingredient_id?: string;
         name: string;
         quantity: number;
         unit: string;
@@ -16,11 +15,11 @@ export interface IRecipe extends Document {
     directions: {
         step: string;
     }[];
-    imageUrl?: string;
-    isVisible?: boolean;
+    image_url?: string;
+    is_visible?: boolean;
 
     // Fields specific to ModifiedRecipeModel
-    personalRecipeID?: string;
+    personal_recipe_ID?: string;
     notes?: string;
-    versionNumber?: number;
+    version_number?: number;
 }
