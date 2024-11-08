@@ -114,13 +114,21 @@ class App {
      */
     router.put('/app/recipes/:recipeID/directions', async (req: express.Request, res: express.Response): Promise<void> => {
       const recipeID: string = req.params.recipeID;
-      const { directions }: { directions: string[] } = req.body;
-      if (!Array.isArray(directions)) {
-        res.status(400).json({ error: "Directions must be an array." });
+      const { directions }: { directions: string[] } = req.body; // Expecting string[] from the client
+
+      // Validate that directions is an array of non-empty strings
+      if (!Array.isArray(directions) || directions.some(step => typeof step !== "string" || step.trim() === "")) {
+        res.status(400).json({ error: "Directions must be an array of non-empty strings." });
         return;
       }
-      await this.RecipeList.updateDirections(res, recipeID, directions);
+
+      // Transform string[] to { step: string }[]
+      const formattedDirections = directions.map(step => ({ step }));
+
+      // Call the updateDirections method with the formatted data
+      await this.RecipeList.updateDirections(res, recipeID, formattedDirections);
     });
+
 
     /**
      * PUT /app/recipes/:recipeID/directions/:stepIndex
@@ -131,20 +139,19 @@ class App {
      * @param {express.Response} res - The response object.
      * @returns {Promise<void>} - Resolves when the response is sent.
      */
-    router.put('/app/recipes/:recipeID/directions/:stepIndex', async (req: express.Request, res: express.Response): Promise<void> => {
+    router.put('/app/recipes/:recipeID/directions', async (req: express.Request, res: express.Response): Promise<void> => {
       const recipeID: string = req.params.recipeID;
-      const stepIndex: number = parseInt(req.params.stepIndex, 10);
-      const { newStep }: { newStep: string } = req.body;
-      if (isNaN(stepIndex) || stepIndex < 0) {
-        res.status(400).json({ error: "Invalid step index." });
+      const { directions }: { directions: string[] } = req.body;
+
+      if (!Array.isArray(directions) || directions.some(step => typeof step !== 'string')) {
+        res.status(400).json({ error: "Directions must be an array of strings." });
         return;
       }
 
-      if (typeof newStep !== 'string' || newStep.trim() === '') {
-        res.status(400).json({ error: "New step must be a non-empty string." });
-        return;
-      }
-      await this.RecipeList.updateDirectionStep(res, recipeID, stepIndex, newStep);
+      // Transform into the required format
+      const formattedDirections = directions.map(step => ({ step }));
+
+      await this.RecipeList.updateDirections(res, recipeID, formattedDirections);
     });
 
     /**
