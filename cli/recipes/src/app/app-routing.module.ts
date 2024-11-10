@@ -4,11 +4,13 @@ import { RouterModule, Routes } from '@angular/router';
 import { DiscoverComponent } from './discover/discover.component';
 import { CreaterecipeComponent } from './createrecipe/createrecipe.component';
 import { CookbookComponent } from './cookbook/cookbook.component';
+import { SinglerecipeviewComponent } from './singlerecipeview/singlerecipeview.component';
 const routes: Routes = [
   { path: '', component:  DiscoverComponent},
   { path: 'recipes', component:  DiscoverComponent},
   { path: 'createrecipe', component: CreaterecipeComponent},
-  {path: 'cookbook',component:CookbookComponent}
+  { path: 'cookbook',component:CookbookComponent},
+  { path: 'recipes/:recipeID', component: SinglerecipeviewComponent },
 ]; 
 
 @NgModule({

@@ -6,6 +6,7 @@ import { AppComponent } from './app.component';
 import { DiscoverComponent } from './discover/discover.component';
 import { CookbookComponent } from './cookbook/cookbook.component';
 import { CreaterecipeComponent } from './createrecipe/createrecipe.component';
+import { SinglerecipeviewComponent } from './singlerecipeview/singlerecipeview.component';
 
 
 @NgModule({
@@ -14,6 +15,7 @@ import { CreaterecipeComponent } from './createrecipe/createrecipe.component';
     DiscoverComponent,
     CookbookComponent,
     CreaterecipeComponent,
+    SinglerecipeviewComponent,
   ],
   imports: [
     BrowserModule,

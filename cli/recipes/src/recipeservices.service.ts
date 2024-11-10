@@ -10,4 +10,9 @@ export class RecipeservicesService {
   getRecipes(): Observable<any> {
     return this.http.get(`${this.hostUrl}` + 'recipes');
   }
+
+  getRecipeByID(recipeID: string): Observable<any> {
+    return this.http.get(`${this.hostUrl}`+ `recipes/`+`${recipeID}`);
+}
+
 }

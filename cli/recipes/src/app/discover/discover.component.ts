@@ -17,9 +17,9 @@ export class DiscoverComponent {
     this.recipeService.getRecipes().subscribe(data=>{
       this.recipeList = data;
 
-    })
+    }) 
   }
-ngOnInit(){
+ngOnInit(){ 
   this.getRecipes();
 }
 }
