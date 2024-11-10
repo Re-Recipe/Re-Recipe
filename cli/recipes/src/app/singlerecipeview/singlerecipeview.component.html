@@ -1,0 +1,23 @@
+<!-- singlerecipe.html -->
+<div *ngIf="recipe">
+    <h1>{{ recipe.recipe_name }}</h1>
+    <img [src]="recipe.image_URL" alt="{{ recipe.recipe_name }}" class="img-fluid">
+  
+    <h3>Category:</h3>
+    <p>{{ recipe.category[0] }}</p>
+  
+    <h3>Ingredients:</h3>
+    <ul>
+      <li *ngFor="let ingredient of recipe.ingredients">
+        {{ ingredient.quantity }} {{ ingredient.unit }} {{ ingredient.name }}
+      </li>
+    </ul>
+  
+    <h3>Directions:</h3>
+    <ol>
+      <li *ngFor="let direction of recipe.directions">
+        {{ direction.step }}
+      </li>
+    </ol>
+  </div>
+  
