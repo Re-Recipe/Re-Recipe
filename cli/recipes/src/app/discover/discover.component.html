@@ -1,3 +1,4 @@
+
 <div class="container my-4">
   <div class="row">
     <div class="col-md-4 mb-4" *ngFor="let recipe of recipeList">
@@ -6,12 +7,13 @@
         <a [routerLink]="['/recipes', recipe.recipe_ID]">
           <img [src]="recipe.image_url" class="card-img-top" alt="{{ recipe.recipe_name }}">
         </a>
-        
         <div class="card-body text-center flex-grow-1">
-          <h5 class="card-title">{{ recipe.recipe_name }}</h5>
+          <h5 class="text-success">{{ recipe.recipe_name }}</h5>
           <div class="d-flex justify-content-between">
-            <h4 class="text-primary mb-0">Category:</h4>
-            <p class="card-text mb-0">{{ recipe.category[0] }}</p>
+            <h4 class="text-primary mb-0">
+              Category: <b class="text-dark" >{{ recipe.category[0] }}</b>
+            </h4>
+            
           </div>
         </div>
       </div>
