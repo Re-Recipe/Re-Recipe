@@ -4,7 +4,7 @@ export interface IRecipe extends Document {
     user_ID: string;
     recipe_ID: string;
     recipe_name: string;
-    category: string[];
+    category: string[]; 
     cooking_duration: number;
     ingredients: {
         ingredient_id?: string;

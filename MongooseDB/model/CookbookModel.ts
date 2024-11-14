@@ -18,7 +18,7 @@ class CookbookModel {
     /**
      * Defines the schema for a cookbook with a user reference and an array of recipes.
      * Each recipe entry tracks its ID and multiple version numbers independently.
-     */
+     */ 
     public createSchema() {
         this.schema = new mongoose.Schema(
             {

@@ -56,7 +56,7 @@ class RecipeModel {
             },
             { collection: "recipes", timestamps: true }
         );
-    }
+    } 
 
     /**
      * Connects to the MongoDB database and creates the Mongoose model based on the schema.
