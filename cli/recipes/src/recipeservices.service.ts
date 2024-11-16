@@ -17,10 +17,6 @@ export class RecipeservicesService {
    * ============================
    * These methods handle the main CRUD operations for recipe data,
    * including creating, reading, updating, and deleting recipes.
-   * 
-   * TODO: Missing granular recipe updates (directions, ingredients, 
-   *       image URL, visibility).
-   * TODO: Add a method to retrieve the total count of recipes in the database.
    */
 
   /**
