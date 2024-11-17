@@ -168,13 +168,53 @@ class CookbookModel {
      */
     public async listAllRecipes(response: any, userId: string) {
         try {
-            const cookbook = await this.model.findOne({ user_id: userId }, { recipes: { recipe_id: 1 } }).exec();
+            const cookbook = await this.model.findOne(
+                { user_id: userId },
+                { recipes: 1 } // Ensure you are selecting the full `recipes` field
+            ).exec();
             response.json(cookbook ? cookbook.recipes : []);
         } catch (error) {
             console.error("Failed to list recipes:", error);
             response.status(500).json({ error: "Failed to list recipes" });
         }
     }
+
+    /**
+     * Adds one or many new recipes to the user's cookbook.
+     * @param response - The response object to send data back to the client.
+     * @param userId - ID of the user.
+     * @param newRecipes - An array of new recipe objects to be added. 
+     *                 
+    */
+    public async addManyNewRecipes(response: any, userId: string, newRecipes: any[]) {
+        try {
+            // Check if the user's cookbook already exists
+            let cookbook = await this.model.findOne({ user_id: userId }).exec();
+    
+            if (cookbook) {
+                // Add each new recipe to the existing cookbook
+                newRecipes.forEach(recipe => {
+                    const existingRecipe = cookbook.recipes.find((r: any) => r.recipe_id === recipe.recipe_id);
+                    if (!existingRecipe) {
+                        cookbook.recipes.push(recipe); 
+                    }
+                });
+            } else {
+                // If the cookbook does not exist, create a new one
+                cookbook = new this.model({
+                    user_id: userId,
+                    recipes: newRecipes // Add all new recipes at once
+                });
+            }
+    
+            // Save the updated or new cookbook
+            const result = await cookbook.save();
+            response.json({ message: "Recipes added successfully", cookbook: result });
+        } catch (error) {
+            console.error("Failed to add new recipes:", error);
+            response.status(500).json({ error: "Failed to add new recipes" });
+        }
+   }  
 }
 
 export { CookbookModel };
