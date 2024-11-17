@@ -1,13 +1,12 @@
 import * as express from 'express';
-import * as bodyParser from 'body-parser'; // for parsing url requests and json
+import * as bodyParser from 'body-parser'; // for parsing URL requests and JSON
 import { RecipeModel } from './model/RecipeModel';
 import { ModifiedRecipeModel } from './model/ModifiedRecipeModel';
 import { CookbookModel } from './model/CookbookModel';
-import * as crypto from 'crypto'; // import crypto library for unique ID generation
-
+import * as crypto from 'crypto'; // for unique ID generation
 
 /**
- * The main application class that sets up the Express server (main server to handle HTTP requests),
+ * The main application class that sets up the Express server,
  * middleware, routes, and database models.
  */
 class App {
@@ -23,21 +22,16 @@ class App {
    */
   constructor(mongoDBConnection: string) {
     this.expressApp = express();
-    this.middleware();
-    this.routes();
     this.RecipeList = new RecipeModel(mongoDBConnection);
     this.ModifiedRecipes = new ModifiedRecipeModel(mongoDBConnection);
     this.Cookbook = new CookbookModel(mongoDBConnection);
+    this.middleware();
+    this.routes();
   }
 
   /**
    * Sets up middleware for the Express application, including
    * body parsing and CORS headers.
-   * CORS - security feature implemented by web browsers to control how resources on one domain
-   * can be requested by a web page from a different domain
-   *
-   * @private
-   * @returns {void}
    */
   private middleware(): void {
     this.expressApp.use(bodyParser.json());
@@ -52,140 +46,82 @@ class App {
   /**
    * Defines the routes/endpoints for the application and associates
    * them with their respective handlers.
-   *
-   * @private
-   * @returns {void}
    */
   private routes(): void {
     const router = express.Router();
 
-    /**
-     * GET /app/recipes
-     * Retrieves all recipes.
-     *
-     * @route GET /app/recipes
-     * @param {express.Request} req - The request object.
-     * @param {express.Response} res - The response object.
-     * @returns {Promise<void>} - Resolves when the response is sent.
-     */
+    // Recipe CRUD Routes
     router.get('/app/recipes', async (req: express.Request, res: express.Response): Promise<void> => {
       await this.RecipeList.retrieveAllRecipes(res);
     });
 
-    /**
-     * GET /app/recipes/:recipeID
-     * Retrieves a specific recipe by its ID.
-     *
-     * @route GET /app/recipes/:recipeID
-     * @param {express.Request} req - The request object.
-     * @param {express.Response} res - The response object.
-     * @returns {Promise<void>} - Resolves when the response is sent.
-     */
     router.get('/app/recipes/:recipeID', async (req: express.Request, res: express.Response): Promise<void> => {
       const recipeID: string = req.params.recipeID;
       console.log('Query recipe list with id:', recipeID);
       await this.RecipeList.retrieveRecipe(res, recipeID);
     });
 
-    /**
-     * POST /app/recipes
-     * Adds a new recipe.
-     *
-     * @route POST /app/recipes
-     * @param {express.Request} req - The request object containing the recipe data.
-     * @param {express.Response} res - The response object.
-     * @returns {Promise<void>} - Resolves when the response is sent.
-     */
     router.post('/app/recipes', async (req: express.Request, res: express.Response): Promise<void> => {
-      const id: string = crypto.randomBytes(16).toString("hex"); // generate unique recipe_ID
+      const id: string = crypto.randomBytes(16).toString("hex");
       const jsonObj: object = { ...req.body, recipe_ID: id };
       await this.RecipeList.model.create(jsonObj);
       res.status(201).json({ id });
     });
 
-    /**
-     * PUT /app/recipes/:recipeID/directions
-     * Updates the directions of a specific recipe.
-     *
-     * @route PUT /app/recipes/:recipeID/directions
-     * @param {express.Request} req - The request object containing the updated directions.
-     * @param {express.Response} res - The response object.
-     * @returns {Promise<void>} - Resolves when the response is sent.
-     */
     router.put('/app/recipes/:recipeID/directions', async (req: express.Request, res: express.Response): Promise<void> => {
       const recipeID: string = req.params.recipeID;
-      const { directions }: { directions: string[] } = req.body; // Expecting string[] from the client
-
-      // Validate that directions is an array of non-empty strings
+      const { directions }: { directions: string[] } = req.body;
       if (!Array.isArray(directions) || directions.some(step => typeof step !== "string" || step.trim() === "")) {
         res.status(400).json({ error: "Directions must be an array of non-empty strings." });
         return;
       }
-
-      // Transform string[] to { step: string }[]
       const formattedDirections = directions.map(step => ({ step }));
-
-      // Call the updateDirections method with the formatted data
       await this.RecipeList.updateDirections(res, recipeID, formattedDirections);
     });
 
-
-    /**
-     * PUT /app/recipes/:recipeID/directions/:stepIndex
-     * Updates a specific step in the directions of a recipe.
-     *
-     * @route PUT /app/recipes/:recipeID/directions/:stepIndex
-     * @param {express.Request} req - The request object containing the new step.
-     * @param {express.Response} res - The response object.
-     * @returns {Promise<void>} - Resolves when the response is sent.
-     */
-    router.put('/app/recipes/:recipeID/directions', async (req: express.Request, res: express.Response): Promise<void> => {
-      const recipeID: string = req.params.recipeID;
-      const { directions }: { directions: string[] } = req.body;
-
-      if (!Array.isArray(directions) || directions.some(step => typeof step !== 'string')) {
-        res.status(400).json({ error: "Directions must be an array of strings." });
-        return;
-      }
-
-      // Transform into the required format
-      const formattedDirections = directions.map(step => ({ step }));
-
-      await this.RecipeList.updateDirections(res, recipeID, formattedDirections);
-    });
-
-    /**
-     * PUT /app/recipes/:recipeID/ingredients
-     * Updates the ingredients of a specific recipe.
-     *
-     * @route PUT /app/recipes/:recipeID/ingredients
-     * @param {express.Request} req - The request object containing the updated ingredients.
-     * @param {express.Response} res - The response object.
-     * @returns {Promise<void>} - Resolves when the response is sent.
-     */
     router.put('/app/recipes/:recipeID/ingredients', async (req: express.Request, res: express.Response): Promise<void> => {
       const recipeID: string = req.params.recipeID;
       const { ingredients }: { ingredients: { name: string; quantity: number; unit: string }[] } = req.body;
       await this.RecipeList.updateIngredients(res, recipeID, ingredients);
     });
 
-    /**
-     * DELETE /app/recipes/:recipeID
-     * Deletes a recipe by its ID.
-     *
-     * @route DELETE /app/recipes/:recipeID
-     * @param {express.Request} req - The request object.
-     * @param {express.Response} res - The response object.
-     * @returns {Promise<void>} - Resolves when the response is sent.
-     */
     router.delete('/app/recipes/:recipeID', async (req: express.Request, res: express.Response): Promise<void> => {
       const recipeID: string = req.params.recipeID;
       await this.RecipeList.deleteRecipe(res, recipeID);
     });
 
+    // Cookbook Routes
+    router.get('/app/cookbook/:userId', async (req: express.Request, res: express.Response): Promise<void> => {
+      const userId: string = req.params.userId;
+      try {
+        // Fetch the user's cookbook
+        await this.Cookbook.listAllRecipes(res, userId);
+      } catch (error) {
+        console.error("Failed to fetch cookbook:", error);
+        res.status(500).json({ error: "Failed to fetch cookbook data" });
+      }
+    });
+
+    // Route to add multiple new recipes to the user's cookbook
+    router.post('/app/cookbook/:userId/recipes', async (req: express.Request, res: express.Response): Promise<void> => {
+      const userId: string = req.params.userId;
+      const newRecipes: any[] = req.body.newRecipes; // Expecting an array of new recipe objects from the request body
+
+      if (!Array.isArray(newRecipes) || newRecipes.length === 0) {
+        res.status(400).json({ error: "newRecipes must be a non-empty array of recipe objects." });
+        return;
+      }
+
+      try {
+        await this.Cookbook.addManyNewRecipes(res, userId, newRecipes);
+      } catch (error) {
+        console.error("Failed to add new recipes:", error);
+        res.status(500).json({ error: "Failed to add new recipes" });
+      }
+    });
+
     // Mount the router on the Express application
     this.expressApp.use('/', router);
-
     this.expressApp.use('/app/json/', express.static(`${__dirname}/app/json`));
     this.expressApp.use('/images', express.static(`${__dirname}/img`));
     this.expressApp.use('/', express.static(`${__dirname}/pages`));
