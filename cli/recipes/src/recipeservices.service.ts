@@ -126,4 +126,15 @@ export class RecipeservicesService {
   getAllCookbookRecipes(userId: string): Observable<IRecipe[]> {
     return this.http.get<IRecipe[]>(`${this.hostUrl}listAllRecipes/${userId}`);
   }
+
+  /**
+   * Adds selected recipes to the user's cookbook in the backend database.
+   * @param userId - The ID of the user whose cookbook is being updated.
+   * @param recipeIds - An array of recipe IDs to be added to the cookbook.
+   * @returns An Observable that emits the response from the backend.
+   */
+  addRecipesToCookbook(userId: string, recipeIds: string[]): Observable<any> {
+    return this.http.post(`${this.hostUrl}cookbooks/${userId}`, { recipeIds });
+  }
+
 }
