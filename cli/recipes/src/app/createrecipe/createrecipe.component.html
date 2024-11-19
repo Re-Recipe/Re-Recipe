@@ -44,8 +44,8 @@
     <div class="form-group">
       <label>Ingredients</label>
       <button type="button" (click)="addIngredient()">Add Ingredient</button>
-      <div formArrayName="ingredients">
-        <div *ngFor="let ingredient of ingredients.controls; let i = index" [formGroupName]="i">
+      <div formArrayName="ingredients" class="ingredients-grid">
+        <div *ngFor="let ingredient of ingredients.controls; let i = index" [formGroupName]="i" class="ingredient-item">
           <input formControlName="name" placeholder="Ingredient Name" />
           <input formControlName="quantity" type="number" placeholder="Quantity" />
           <select formControlName="unit">
@@ -54,10 +54,11 @@
               {{ unit }}
             </option>
           </select>
-          <button type="button" (click)="removeIngredient(i)">Remove</button>
+          <button type="button" class="remove-ingredient" (click)="removeIngredient(i)">Remove</button>
         </div>
       </div>
     </div>
+
 
     <!-- Directions Section -->
     <div class="form-group">

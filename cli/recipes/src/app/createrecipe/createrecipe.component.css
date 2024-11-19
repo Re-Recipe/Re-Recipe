@@ -1,17 +1,17 @@
 /* Container styling */
 .create-recipe-container {
-  max-width: 800px;
-  margin: auto;
-  padding: 20px;
+  max-width: 1200px;
+  margin: 20px auto;
+  padding: 30px;
   border: 1px solid #ccc;
-  border-radius: 5px;
+  border-radius: 10px;
   background: #f9f9f9;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
 /* General form-group styling */
 .form-group {
-  margin-bottom: 15px;
+  margin-bottom: 20px;
 }
 
 label {
@@ -32,7 +32,7 @@ input, textarea, select {
 /* Styling for buttons */
 button {
   margin-top: 10px;
-  padding: 8px 15px;
+  padding: 10px 20px;
   border: none;
   background: #007bff;
   color: white;
@@ -124,3 +124,39 @@ textarea {
   background-color: #cc0000;
 }
 
+/* Ingredients Section Styling */
+.ingredients-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  margin-top: 10px;
+}
+
+.ingredient-item {
+  display: grid;
+  grid-template-columns: 1fr 0.6fr 0.8fr auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.ingredient-item input,
+.ingredient-item select {
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  font-size: 14px;
+}
+
+.remove-ingredient {
+  background-color: #ff4d4d;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.remove-ingredient:hover {
+  background-color: #cc0000;
+}
