@@ -92,23 +92,33 @@ div.ng-invalid.ng-touched {
 }
 
 /* Directions Section Styling */
-.direction-step {
-  display: flex;
-  align-items: flex-start;
-  margin-bottom: 10px;
+.directions-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* Fixed two columns */
+  gap: 15px;
+  margin-top: 10px;
+}
+
+.direction-item {
+  display: grid;
+  grid-template-columns: 0.5fr 2fr auto; /* Adjust proportions: label, textarea, button */
   gap: 10px;
+  align-items: center;
 }
 
 .step-label {
   font-weight: bold;
   white-space: nowrap;
-  margin-top: 5px;
 }
 
 textarea {
   flex: 1;
   resize: vertical;
   min-height: 50px;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  font-size: 14px;
 }
 
 .remove-step {
@@ -118,6 +128,7 @@ textarea {
   padding: 5px 10px;
   border-radius: 3px;
   cursor: pointer;
+  font-size: 14px;
 }
 
 .remove-step:hover {
