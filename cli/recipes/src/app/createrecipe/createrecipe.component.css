@@ -77,7 +77,6 @@ textarea {
 
 /* Error message styling */
 div.ng-invalid.ng-touched {
-  color: red;
   font-size: 14px;
   margin-top: 5px;
 }
@@ -91,3 +90,37 @@ div.ng-invalid.ng-touched {
 .form-buttons button {
   flex: 1;
 }
+
+/* Directions Section Styling */
+.direction-step {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 10px;
+  gap: 10px;
+}
+
+.step-label {
+  font-weight: bold;
+  white-space: nowrap;
+  margin-top: 5px;
+}
+
+textarea {
+  flex: 1;
+  resize: vertical;
+  min-height: 50px;
+}
+
+.remove-step {
+  background-color: #ff4d4d;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.remove-step:hover {
+  background-color: #cc0000;
+}
+

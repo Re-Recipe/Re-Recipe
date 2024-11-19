@@ -64,9 +64,10 @@
       <label>Directions</label>
       <button type="button" (click)="addDirection()">Add Step</button>
       <div formArrayName="directions">
-        <div *ngFor="let direction of directions.controls; let i = index" [formGroupName]="i">
+        <div *ngFor="let direction of directions.controls; let i = index" [formGroupName]="i" class="direction-step">
+          <label class="step-label">Step {{ i + 1 }}</label>
           <textarea formControlName="step" placeholder="Enter step"></textarea>
-          <button type="button" (click)="removeDirection(i)">Remove</button>
+          <button type="button" class="remove-step" (click)="removeDirection(i)">Remove</button>
         </div>
       </div>
     </div>
