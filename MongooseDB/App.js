@@ -49,13 +49,13 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.App = void 0;
 var express = require("express");
-var bodyParser = require("body-parser"); // for parsing url requests and json
+var bodyParser = require("body-parser"); // for parsing URL requests and JSON
 var RecipeModel_1 = require("./model/RecipeModel");
 var ModifiedRecipeModel_1 = require("./model/ModifiedRecipeModel");
 var CookbookModel_1 = require("./model/CookbookModel");
-var crypto = require("crypto"); // import crypto library for unique ID generation
+var crypto = require("crypto"); // for unique ID generation
 /**
- * The main application class that sets up the Express server (main server to handle HTTP requests),
+ * The main application class that sets up the Express server,
  * middleware, routes, and database models.
  */
 var App = /** @class */ (function () {
@@ -66,20 +66,15 @@ var App = /** @class */ (function () {
      */
     function App(mongoDBConnection) {
         this.expressApp = express();
-        this.middleware();
-        this.routes();
         this.RecipeList = new RecipeModel_1.RecipeModel(mongoDBConnection);
         this.ModifiedRecipes = new ModifiedRecipeModel_1.ModifiedRecipeModel(mongoDBConnection);
         this.Cookbook = new CookbookModel_1.CookbookModel(mongoDBConnection);
+        this.middleware();
+        this.routes();
     }
     /**
      * Sets up middleware for the Express application, including
      * body parsing and CORS headers.
-     * CORS - security feature implemented by web browsers to control how resources on one domain
-     * can be requested by a web page from a different domain
-     *
-     * @private
-     * @returns {void}
      */
     App.prototype.middleware = function () {
         this.expressApp.use(bodyParser.json());
@@ -93,22 +88,11 @@ var App = /** @class */ (function () {
     /**
      * Defines the routes/endpoints for the application and associates
      * them with their respective handlers.
-     *
-     * @private
-     * @returns {void}
      */
     App.prototype.routes = function () {
         var _this = this;
         var router = express.Router();
-        /**
-         * GET /app/recipes
-         * Retrieves all recipes.
-         *
-         * @route GET /app/recipes
-         * @param {express.Request} req - The request object.
-         * @param {express.Response} res - The response object.
-         * @returns {Promise<void>} - Resolves when the response is sent.
-         */
+        // Recipe CRUD Routes
         router.get('/app/recipes', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
@@ -119,15 +103,6 @@ var App = /** @class */ (function () {
                 }
             });
         }); });
-        /**
-         * GET /app/recipes/:recipeID
-         * Retrieves a specific recipe by its ID.
-         *
-         * @route GET /app/recipes/:recipeID
-         * @param {express.Request} req - The request object.
-         * @param {express.Response} res - The response object.
-         * @returns {Promise<void>} - Resolves when the response is sent.
-         */
         router.get('/app/recipes/:recipeID', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
             var recipeID;
             return __generator(this, function (_a) {
@@ -142,15 +117,6 @@ var App = /** @class */ (function () {
                 }
             });
         }); });
-        /**
-         * POST /app/recipes
-         * Adds a new recipe.
-         *
-         * @route POST /app/recipes
-         * @param {express.Request} req - The request object containing the recipe data.
-         * @param {express.Response} res - The response object.
-         * @returns {Promise<void>} - Resolves when the response is sent.
-         */
         router.post('/app/recipes', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
             var id, jsonObj;
             return __generator(this, function (_a) {
@@ -166,15 +132,6 @@ var App = /** @class */ (function () {
                 }
             });
         }); });
-        /**
-         * PUT /app/recipes/:recipeID/directions
-         * Updates the directions of a specific recipe.
-         *
-         * @route PUT /app/recipes/:recipeID/directions
-         * @param {express.Request} req - The request object containing the updated directions.
-         * @param {express.Response} res - The response object.
-         * @returns {Promise<void>} - Resolves when the response is sent.
-         */
         router.put('/app/recipes/:recipeID/directions', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
             var recipeID, directions, formattedDirections;
             return __generator(this, function (_a) {
@@ -182,42 +139,11 @@ var App = /** @class */ (function () {
                     case 0:
                         recipeID = req.params.recipeID;
                         directions = req.body.directions;
-                        // Validate that directions is an array of non-empty strings
                         if (!Array.isArray(directions) || directions.some(function (step) { return typeof step !== "string" || step.trim() === ""; })) {
                             res.status(400).json({ error: "Directions must be an array of non-empty strings." });
                             return [2 /*return*/];
                         }
                         formattedDirections = directions.map(function (step) { return ({ step: step }); });
-                        // Call the updateDirections method with the formatted data
-                        return [4 /*yield*/, this.RecipeList.updateDirections(res, recipeID, formattedDirections)];
-                    case 1:
-                        // Call the updateDirections method with the formatted data
-                        _a.sent();
-                        return [2 /*return*/];
-                }
-            });
-        }); });
-        /**
-         * PUT /app/recipes/:recipeID/directions/:stepIndex
-         * Updates a specific step in the directions of a recipe.
-         *
-         * @route PUT /app/recipes/:recipeID/directions/:stepIndex
-         * @param {express.Request} req - The request object containing the new step.
-         * @param {express.Response} res - The response object.
-         * @returns {Promise<void>} - Resolves when the response is sent.
-         */
-        router.put('/app/recipes/:recipeID/directions', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-            var recipeID, directions, formattedDirections;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        recipeID = req.params.recipeID;
-                        directions = req.body.directions;
-                        if (!Array.isArray(directions) || directions.some(function (step) { return typeof step !== 'string'; })) {
-                            res.status(400).json({ error: "Directions must be an array of strings." });
-                            return [2 /*return*/];
-                        }
-                        formattedDirections = directions.map(function (step) { return ({ step: step }); });
                         return [4 /*yield*/, this.RecipeList.updateDirections(res, recipeID, formattedDirections)];
                     case 1:
                         _a.sent();
@@ -225,15 +151,6 @@ var App = /** @class */ (function () {
                 }
             });
         }); });
-        /**
-         * PUT /app/recipes/:recipeID/ingredients
-         * Updates the ingredients of a specific recipe.
-         *
-         * @route PUT /app/recipes/:recipeID/ingredients
-         * @param {express.Request} req - The request object containing the updated ingredients.
-         * @param {express.Response} res - The response object.
-         * @returns {Promise<void>} - Resolves when the response is sent.
-         */
         router.put('/app/recipes/:recipeID/ingredients', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
             var recipeID, ingredients;
             return __generator(this, function (_a) {
@@ -248,15 +165,6 @@ var App = /** @class */ (function () {
                 }
             });
         }); });
-        /**
-         * DELETE /app/recipes/:recipeID
-         * Deletes a recipe by its ID.
-         *
-         * @route DELETE /app/recipes/:recipeID
-         * @param {express.Request} req - The request object.
-         * @param {express.Response} res - The response object.
-         * @returns {Promise<void>} - Resolves when the response is sent.
-         */
         router.delete('/app/recipes/:recipeID', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
             var recipeID;
             return __generator(this, function (_a) {
@@ -267,6 +175,59 @@ var App = /** @class */ (function () {
                     case 1:
                         _a.sent();
                         return [2 /*return*/];
+                }
+            });
+        }); });
+        // Cookbook Routes
+        router.get('/app/cookbook/:userId', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+            var userId, error_1;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        userId = req.params.userId;
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 3, , 4]);
+                        // Fetch the user's cookbook
+                        return [4 /*yield*/, this.Cookbook.listAllRecipes(res, userId)];
+                    case 2:
+                        // Fetch the user's cookbook
+                        _a.sent();
+                        return [3 /*break*/, 4];
+                    case 3:
+                        error_1 = _a.sent();
+                        console.error("Failed to fetch cookbook:", error_1);
+                        res.status(500).json({ error: "Failed to fetch cookbook data" });
+                        return [3 /*break*/, 4];
+                    case 4: return [2 /*return*/];
+                }
+            });
+        }); });
+        // Route to add multiple new recipes to the user's cookbook
+        router.post('/app/cookbook/:userId/recipes', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+            var userId, newRecipes, error_2;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        userId = req.params.userId;
+                        newRecipes = req.body.newRecipes;
+                        if (!Array.isArray(newRecipes) || newRecipes.length === 0) {
+                            res.status(400).json({ error: "newRecipes must be a non-empty array of recipe objects." });
+                            return [2 /*return*/];
+                        }
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 3, , 4]);
+                        return [4 /*yield*/, this.Cookbook.addManyNewRecipes(res, userId, newRecipes)];
+                    case 2:
+                        _a.sent();
+                        return [3 /*break*/, 4];
+                    case 3:
+                        error_2 = _a.sent();
+                        console.error("Failed to add new recipes:", error_2);
+                        res.status(500).json({ error: "Failed to add new recipes" });
+                        return [3 /*break*/, 4];
+                    case 4: return [2 /*return*/];
                 }
             });
         }); });

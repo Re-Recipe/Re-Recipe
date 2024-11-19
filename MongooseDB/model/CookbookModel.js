@@ -252,7 +252,8 @@ var CookbookModel = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, this.model.findOne({ user_id: userId }, { recipes: { recipe_id: 1 } }).exec()];
+                        return [4 /*yield*/, this.model.findOne({ user_id: userId }, { recipes: 1 } // Ensure you are selecting the full `recipes` field
+                            ).exec()];
                     case 1:
                         cookbook = _a.sent();
                         response.json(cookbook ? cookbook.recipes : []);
@@ -263,6 +264,54 @@ var CookbookModel = /** @class */ (function () {
                         response.status(500).json({ error: "Failed to list recipes" });
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    /**
+     * Adds one or many new recipes to the user's cookbook.
+     * @param response - The response object to send data back to the client.
+     * @param userId - ID of the user.
+     * @param newRecipes - An array of new recipe objects to be added.
+     *
+    */
+    CookbookModel.prototype.addManyNewRecipes = function (response, userId, newRecipes) {
+        return __awaiter(this, void 0, void 0, function () {
+            var cookbook_1, result, error_7;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 3, , 4]);
+                        return [4 /*yield*/, this.model.findOne({ user_id: userId }).exec()];
+                    case 1:
+                        cookbook_1 = _a.sent();
+                        if (cookbook_1) {
+                            // Add each new recipe to the existing cookbook
+                            newRecipes.forEach(function (recipe) {
+                                var existingRecipe = cookbook_1.recipes.find(function (r) { return r.recipe_id === recipe.recipe_id; });
+                                if (!existingRecipe) {
+                                    cookbook_1.recipes.push(recipe);
+                                }
+                            });
+                        }
+                        else {
+                            // If the cookbook does not exist, create a new one
+                            cookbook_1 = new this.model({
+                                user_id: userId,
+                                recipes: newRecipes // Add all new recipes at once
+                            });
+                        }
+                        return [4 /*yield*/, cookbook_1.save()];
+                    case 2:
+                        result = _a.sent();
+                        response.json({ message: "Recipes added successfully", cookbook: result });
+                        return [3 /*break*/, 4];
+                    case 3:
+                        error_7 = _a.sent();
+                        console.error("Failed to add new recipes:", error_7);
+                        response.status(500).json({ error: "Failed to add new recipes" });
+                        return [3 /*break*/, 4];
+                    case 4: return [2 /*return*/];
                 }
             });
         });
