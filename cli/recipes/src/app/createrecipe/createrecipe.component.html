@@ -94,7 +94,12 @@
 
     <!-- Submit and Reset -->
     <div class="form-buttons">
-      <button type="submit" [disabled]="recipeForm.invalid">Submit</button>
+      <button
+        type="submit"
+        [disabled]="recipeForm.invalid || ingredients.length === 0 || directions.length === 0"
+      >
+        Submit
+      </button>
       <button type="button" (click)="onReset()">Reset</button>
     </div>
   </form>

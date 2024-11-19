@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormArray, Validators, AbstractControl } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 
 @Component({
@@ -32,8 +32,8 @@ export class CreaterecipeComponent implements OnInit {
       recipe_name: ['', Validators.required],
       category: ['', Validators.required],
       cooking_duration: [null, [Validators.required, Validators.min(1), Validators.pattern('^[0-9]+$')]],
-      ingredients: this.fb.array([]), // Ingredients FormArray
-      directions: this.fb.array([]), // Directions FormArray
+      ingredients: this.fb.array([], this.minimumOneItemValidator), // Custom validator for at least one ingredient
+      directions: this.fb.array([], this.minimumOneItemValidator), // Custom validator for at least one direction
       image_url: [''],
       is_visible: [false] // Checkbox for publishing
     });
@@ -53,6 +53,15 @@ export class CreaterecipeComponent implements OnInit {
    */
   get directions(): FormArray {
     return this.recipeForm.get('directions') as FormArray;
+  }
+
+  /**
+   * Custom validator to ensure the FormArray has at least one item.
+   * @param control - The AbstractControl to validate.
+   * @returns Null if valid, otherwise an object indicating the error.
+   */
+  minimumOneItemValidator(control: AbstractControl): { [key: string]: boolean } | null {
+    return (control as FormArray).length > 0 ? null : { required: true };
   }
 
   /**
@@ -105,6 +114,8 @@ export class CreaterecipeComponent implements OnInit {
         next: (response) => {
           console.log('Recipe submitted successfully:', response);
           this.recipeForm.reset();
+          this.ingredients.clear();
+          this.directions.clear();
         },
         error: (error) => {
           console.error('Error submitting recipe:', error);
@@ -131,12 +142,7 @@ export class CreaterecipeComponent implements OnInit {
     });
 
     // Clear the FormArrays (ingredients and directions)
-    while (this.ingredients.length !== 0) {
-      this.ingredients.removeAt(0);
-    }
-
-    while (this.directions.length !== 0) {
-      this.directions.removeAt(0);
-    }
+    this.ingredients.clear();
+    this.directions.clear();
   }
 }
