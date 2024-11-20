@@ -62,12 +62,14 @@ class CookbookModel {
   //       1. OG recipe
   //       2. Modified recipe entry
 
+  // =======================
+  // 1. COPY FROM THE RECIPE (discover) DB
+  // 2. Return the new object that's saved to the cookbook as a new entry in the user's recipes
+  // =======================
   /**
-   * Save a modified recipe:
-   * 1. Create a modified recipe object from the provided recipe.
-   * 2. Add the modified recipe to the user's cookbook.
+   * Save a modified recipe from discover:
    * @param response - The response object used to send the response.
-   * @param recipe - The original recipe to be modified.
+   * @param recipe_ID - The original recipe to be modified.
    * @param user_ID - The ID of the user who owns the cookbook.
    * @returns {Promise<void>} - Returns a response with the updated cookbook or an error.
    */

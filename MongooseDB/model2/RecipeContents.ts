@@ -4,7 +4,7 @@ import { IContents } from "../interfaces/IContents";
 
 class RecipeContents {
   public schema: mongoose.Schema<IContents>;
-  public model: mongoose.Model<IContents>;
+  public contents: mongoose.Model<IContents>;
 
   public constructor() {
     this.createSchema();
@@ -33,6 +33,14 @@ class RecipeContents {
       ],
       notes: { type: String },
     };
+  }
+
+  /**
+   * Creates a mongoose model for the modified recipe.
+   * This model is used for object validation
+   */
+  public createModel() {
+    this.contents = mongoose.model<IContents>("Contents", this.schema);
   }
 }
 
