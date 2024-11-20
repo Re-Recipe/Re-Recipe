@@ -67,7 +67,7 @@ class RecipeModel {
    * @param
    * @param
    */
-  public createRecipe(recipeData: IContents, isModified: boolean = false) {
+  public createRecipe(recipeData: IRecipe, isModified: boolean = false) {
     const newRecipe = new this.contents_array({
       ...recipeData,
       // recipe_ID: uuidv4(), MAY NEED LATER IF DOESNT COME FROM CLIs

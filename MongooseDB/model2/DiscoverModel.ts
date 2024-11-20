@@ -1,10 +1,12 @@
 import * as mongoose from "mongoose";
 import { IRecipe } from "../interfaces/IRecipe";
+import { RecipeModel } from "./RecipeModel";
 
 class DiscoverModel {
   public schema: mongoose.Schema;
   public model: mongoose.Model<any>;
   public dbConnectionString: string;
+  public recipeModel = new RecipeModel();
 
   /**
    * Constructor to initialize the database connection and set up the schema and model.
@@ -46,6 +48,28 @@ class DiscoverModel {
       console.error(
         "Error connecting to MongoDB or initializing Discover model:"
       );
+    }
+  }
+
+  /**
+   * Adds a new recipe to the database.
+   * @param response - The response object to send data back to the client.
+   * @param newRecipeData - The new recipe data from the user.
+   */
+  public async createRecipe(response: any, newRecipeData: IRecipe) {
+    try {
+      // Create a new Mongoose document
+      // const newRecipe = new this.model(newRecipeData);
+      const newRecipe = this.recipeModel.createRecipe(newRecipeData);
+
+      // Save the document to the database
+      const savedRecipe = await newRecipe.save();
+
+      // Send the saved recipe as the response
+      response.status(201).json(savedRecipe);
+    } catch (e) {
+      console.error("Failed to create new recipe:", e);
+      response.status(500).json({ error: "Failed to create new recipe" });
     }
   }
 
@@ -235,27 +259,6 @@ class DiscoverModel {
     } catch (e) {
       console.error("Failed to update visibility:", e);
       response.status(500).json({ error: "Failed to update visibility" });
-    }
-  }
-
-  /**
-   * Adds a new recipe to the database.
-   * @param response - The response object to send data back to the client.
-   * @param newRecipeData - The new recipe data from the user.
-   */
-  public async createRecipe(response: any, newRecipeData: IRecipe) {
-    try {
-      // Create a new Mongoose document
-      const newRecipe = new this.model(newRecipeData);
-
-      // Save the document to the database
-      const savedRecipe = await newRecipe.save();
-
-      // Send the saved recipe as the response
-      response.status(201).json(savedRecipe);
-    } catch (e) {
-      console.error("Failed to create new recipe:", e);
-      response.status(500).json({ error: "Failed to create new recipe" });
     }
   }
 }

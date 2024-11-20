@@ -63,42 +63,48 @@ class CookbookModel {
   //       2. Modified recipe entry
 
   /**
-   * Save recipe:
-   * 1. make a modified recipe (object) out of a recipe
-   * 2. add modified recipe (obj) to cookbook recipe list
-   * (do we need to check if the recipe is already in the cookbook?)
+   * Save a modified recipe:
+   * 1. Create a modified recipe object from the provided recipe.
+   * 2. Add the modified recipe to the user's cookbook.
+   * @param response - The response object used to send the response.
+   * @param recipe - The original recipe to be modified.
+   * @param user_ID - The ID of the user who owns the cookbook.
+   * @returns {Promise<void>} - Returns a response with the updated cookbook or an error.
    */
   public async saveRecipeAsModified(
     response: any,
     recipe: IRecipe,
     user_ID: string
-  ) {
+  ): Promise<void> {
     try {
-      // 1. Use object destructuring to create recipeData from recipe
-      const recipeData: IContents = { ...recipe };
-
-      // 2. Create a new instance of RecipeModel
+      // Create a new instance of RecipeModel
       const recipeModel = new RecipeModel();
 
-      // 3. Use the createRecipe method to create a new modified recipe
+      // Use createRecipe to make a modified recipe object
       const modifiedRecipeData = recipeModel.createRecipe(
-        user_ID, // Pass user_ID
-        recipeData, // Pass the mapped recipeData
-        true // Set isModified to true to handle the modified flag
+        recipe, // Recipe data
+        true // Set isModified to true
       );
 
-      // 2.  Look for cookbook: save recipe
+      // Save the modified recipe to the database (use await)
+      await modifiedRecipeData.save();
+
+      // Find the user's cookbook in the database (use await)
       const cookbook = await this.model.findOne({ user_ID }).exec();
       if (!cookbook) {
         return response.status(404).json({ error: "Cookbook not found" });
       }
 
-      // Push the changes to the cookbook
-      cookbook.modified_recipes.push(modifiedRecipeData);
+      // Push the modified recipe's ID to the cookbook's modified_recipes array
+      cookbook.modified_recipes.push(modifiedRecipeData._id);
+
+      // Save the updated cookbook (use await)
       const updatedCookbook = await cookbook.save();
+
+      // Send the updated cookbook as the response
       response.status(201).json(updatedCookbook);
     } catch (error) {
-      // If for some reason save fails:
+      // Handle any errors that occur
       console.error("Failed to save modified recipe:", error);
       response.status(500).json({ error: "Failed to save modified recipe" });
     }
