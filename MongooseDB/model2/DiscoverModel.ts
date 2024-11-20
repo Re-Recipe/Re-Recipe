@@ -120,87 +120,88 @@ class DiscoverModel {
     }
   }
 
-  /**
-   * Deletes a recipe by its `recipe_ID`.
-   * @param response - The response object to send data back to the client.
-   * @param recipe_ID - The unique ID of the recipe to delete.
-   */
-  public async deleteRecipe(response: any, recipe_ID: string) {
-    try {
-      const result = await this.model.deleteOne({ recipe_ID }).exec();
-      if (result.deletedCount && result.deletedCount > 0) {
-        response.json({
-          message: `Recipe ${recipe_ID} deleted successfully.`,
-          result,
-        });
-      } else {
-        response.status(404).json({ error: "Recipe not found" });
-      }
-    } catch (e) {
-      console.error("Failed to delete recipe:", e);
-      response.status(500).json({ error: "Failed to delete recipe" });
-    }
-  }
+  // BEN: I DONT THINK THESE NEED TO EXIST
+  // /**
+  //  * Deletes a recipe by its `recipe_ID`.
+  //  * @param response - The response object to send data back to the client.
+  //  * @param recipe_ID - The unique ID of the recipe to delete.
+  //  */
+  // public async deleteRecipe(response: any, recipe_ID: string) {
+  //   try {
+  //     const result = await this.model.deleteOne({ recipe_ID }).exec();
+  //     if (result.deletedCount && result.deletedCount > 0) {
+  //       response.json({
+  //         message: `Recipe ${recipe_ID} deleted successfully.`,
+  //         result,
+  //       });
+  //     } else {
+  //       response.status(404).json({ error: "Recipe not found" });
+  //     }
+  //   } catch (e) {
+  //     console.error("Failed to delete recipe:", e);
+  //     response.status(500).json({ error: "Failed to delete recipe" });
+  //   }
+  // }
 
-  /**
-   * Updates the `directions` of a recipe by `recipe_ID`.
-   * @param response - The response object to send data back to the client.
-   * @param recipe_ID - The unique ID of the recipe to update.
-   * @param directions - An array of objects containing the new steps for directions.
-   */
-  public async updateDirections(
-    response: any,
-    recipe_ID: string,
-    directions: { step: string }[]
-  ) {
-    try {
-      const result = await this.model
-        .findOneAndUpdate(
-          { recipe_ID },
-          { $set: { directions } },
-          { new: true, runValidators: true }
-        )
-        .exec();
-      if (result) {
-        response.json(result);
-      } else {
-        response.status(404).json({ error: "Recipe not found" });
-      }
-    } catch (e) {
-      console.error("Failed to update directions:", e);
-      response.status(500).json({ error: "Failed to update directions" });
-    }
-  }
+  // /**
+  //  * Updates the `directions` of a recipe by `recipe_ID`.
+  //  * @param response - The response object to send data back to the client.
+  //  * @param recipe_ID - The unique ID of the recipe to update.
+  //  * @param directions - An array of objects containing the new steps for directions.
+  //  */
+  // public async updateDirections(
+  //   response: any,
+  //   recipe_ID: string,
+  //   directions: { step: string }[]
+  // ) {
+  //   try {
+  //     const result = await this.model
+  //       .findOneAndUpdate(
+  //         { recipe_ID },
+  //         { $set: { directions } },
+  //         { new: true, runValidators: true }
+  //       )
+  //       .exec();
+  //     if (result) {
+  //       response.json(result);
+  //     } else {
+  //       response.status(404).json({ error: "Recipe not found" });
+  //     }
+  //   } catch (e) {
+  //     console.error("Failed to update directions:", e);
+  //     response.status(500).json({ error: "Failed to update directions" });
+  //   }
+  // }
 
-  /**
-   * Updates the `ingredients` of a recipe by `recipe_ID`.
-   * @param response - The response object to send data back to the client.
-   * @param recipe_ID - The unique ID of the recipe to update.
-   * @param ingredients - An array of objects containing `name`, `quantity`, and `unit` for each ingredient.
-   */
-  public async updateIngredients(
-    response: any,
-    recipe_ID: string,
-    ingredients: { name: string; quantity: number; unit: string }[]
-  ) {
-    try {
-      const result = await this.model
-        .findOneAndUpdate(
-          { recipe_ID },
-          { $set: { ingredients } },
-          { new: true, runValidators: true }
-        )
-        .exec();
-      if (result) {
-        response.json(result);
-      } else {
-        response.status(404).json({ error: "Recipe not found" });
-      }
-    } catch (e) {
-      console.error("Failed to update ingredients:", e);
-      response.status(500).json({ error: "Failed to update ingredients" });
-    }
-  }
+  // /**
+  //  * Updates the `ingredients` of a recipe by `recipe_ID`.
+  //  * @param response - The response object to send data back to the client.
+  //  * @param recipe_ID - The unique ID of the recipe to update.
+  //  * @param ingredients - An array of objects containing `name`, `quantity`, and `unit` for each ingredient.
+  //  */
+  // public async updateIngredients(
+  //   response: any,
+  //   recipe_ID: string,
+  //   ingredients: { name: string; quantity: number; unit: string }[]
+  // ) {
+  //   try {
+  //     const result = await this.model
+  //       .findOneAndUpdate(
+  //         { recipe_ID },
+  //         { $set: { ingredients } },
+  //         { new: true, runValidators: true }
+  //       )
+  //       .exec();
+  //     if (result) {
+  //       response.json(result);
+  //     } else {
+  //       response.status(404).json({ error: "Recipe not found" });
+  //     }
+  //   } catch (e) {
+  //     console.error("Failed to update ingredients:", e);
+  //     response.status(500).json({ error: "Failed to update ingredients" });
+  //   }
+  // }
 
   /**
    * Updates the `image_url` of a recipe by `recipe_ID`.
