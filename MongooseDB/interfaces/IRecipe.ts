@@ -5,7 +5,7 @@ export interface IRecipe extends Document {
   user_ID: string;
   recipe_ID: string;
   recipe_name: string;
-  category: string[];
+  meal_category: string[];
   recipe_versions: [Object]; // THESE ARE THE RECIPE CONTENTS OBJECTS
   image_url?: string;
   is_visible?: boolean;

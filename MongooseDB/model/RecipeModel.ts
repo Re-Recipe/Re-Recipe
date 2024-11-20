@@ -31,13 +31,18 @@ class RecipeModel {
       modified_flag: Boolean,
       recipe_ID: { type: String, required: true }, // ID of the original recipe
       recipe_name: { type: String, required: true },
-      meal_category: [
-        {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "MealCategory",
-          required: true,
-        },
-      ],
+      meal_category: {
+        enum: [
+          "breakfast",
+          "lunch",
+          "dinner",
+          "dessert",
+          "vegetarian",
+          "vegan",
+          "gluten-free",
+        ],
+      },
+
       recipe_versions: [
         { type: mongoose.Schema.Types.ObjectId, ref: "RecipeContents" },
       ], // this is recipe_contents

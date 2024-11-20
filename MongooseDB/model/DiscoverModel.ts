@@ -121,27 +121,27 @@ class DiscoverModel {
   }
 
   // BEN: I DONT THINK THESE NEED TO EXIST
-  // /**
-  //  * Deletes a recipe by its `recipe_ID`.
-  //  * @param response - The response object to send data back to the client.
-  //  * @param recipe_ID - The unique ID of the recipe to delete.
-  //  */
-  // public async deleteRecipe(response: any, recipe_ID: string) {
-  //   try {
-  //     const result = await this.model.deleteOne({ recipe_ID }).exec();
-  //     if (result.deletedCount && result.deletedCount > 0) {
-  //       response.json({
-  //         message: `Recipe ${recipe_ID} deleted successfully.`,
-  //         result,
-  //       });
-  //     } else {
-  //       response.status(404).json({ error: "Recipe not found" });
-  //     }
-  //   } catch (e) {
-  //     console.error("Failed to delete recipe:", e);
-  //     response.status(500).json({ error: "Failed to delete recipe" });
-  //   }
-  // }
+  /**
+   * Deletes a recipe by its `recipe_ID`.
+   * @param response - The response object to send data back to the client.
+   * @param recipe_ID - The unique ID of the recipe to delete.
+   */
+  public async deleteRecipe(response: any, recipe_ID: string) {
+    try {
+      const result = await this.model.deleteOne({ recipe_ID }).exec();
+      if (result.deletedCount && result.deletedCount > 0) {
+        response.json({
+          message: `Recipe ${recipe_ID} deleted successfully.`,
+          result,
+        });
+      } else {
+        response.status(404).json({ error: "Recipe not found" });
+      }
+    } catch (e) {
+      console.error("Failed to delete recipe:", e);
+      response.status(500).json({ error: "Failed to delete recipe" });
+    }
+  }
 
   // /**
   //  * Updates the `directions` of a recipe by `recipe_ID`.
