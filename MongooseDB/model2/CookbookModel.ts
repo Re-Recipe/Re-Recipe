@@ -1,6 +1,7 @@
 import * as mongoose from "mongoose";
 import { RecipeModel } from "./RecipeModel";
 import { IRecipe } from "../interfaces/IRecipe";
+import { DiscoverModel } from "./DiscoverModel";
 
 class CookbookModel {
   public schema: mongoose.Schema;
@@ -67,50 +68,50 @@ class CookbookModel {
   // 2. Return the new object that's saved to the cookbook as a new entry in the user's recipes
   // =======================
   /**
-   * Save a modified recipe from discover:
-   * @param response - The response object used to send the response.
-   * @param recipe_ID - The original recipe to be modified.
-   * @param user_ID - The ID of the user who owns the cookbook.
-   * @returns {Promise<void>} - Returns a response with the updated cookbook or an error.
-   */
-  public async saveRecipeAsModified(
+ * Retrieves a single recipe from the `Discover` collection by `recipe_ID`,
+ * copies the data, and creates a new recipe in the `RecipeModel`.
+ * @param response - The response object to send data back to the client.
+ * @param recipe_ID - The unique ID of the recipe to retrieve and copy.
+ * @param user_ID - The ID of the user for whom the new recipe will be created.
+ */
+  public async copyRecipeFromDiscover(
     response: any,
-    recipe: IRecipe,
+    recipe_ID: string,
     user_ID: string
   ): Promise<void> {
     try {
-      // Create a new instance of RecipeModel
-      const recipeModel = new RecipeModel();
-
-      // Use createRecipe to make a modified recipe object
-      const modifiedRecipeData = recipeModel.createRecipe(
-        recipe, // Recipe data
-        true // Set isModified to true
-      );
-
-      // Save the modified recipe to the database (use await)
-      await modifiedRecipeData.save();
-
-      // Find the user's cookbook in the database (use await)
-      const cookbook = await this.model.findOne({ user_ID }).exec();
-      if (!cookbook) {
-        return response.status(404).json({ error: "Cookbook not found" });
+      // 1. Retrieve the original recipe from the `Discover` collection
+      const originalRecipe = await this.model.findOne({ _id: recipe_ID }).exec();
+      if (!originalRecipe) {
+        return response.status(404).json({ error: "Recipe not found in Discover!" });
       }
 
-      // Push the modified recipe's ID to the cookbook's modified_recipes array
-      cookbook.modified_recipes.push(modifiedRecipeData._id);
+      // 2. Create a new instance of RecipeModel
+      const recipeModel = new RecipeModel();
 
-      // Save the updated cookbook (use await)
-      const updatedCookbook = await cookbook.save();
+      // 3. Use the data from `originalRecipe` to create a new recipe object
+      // Convert the Mongoose document to a plain object
+      const originalRecipeData = originalRecipe.toObject();
 
-      // Send the updated cookbook as the response
-      response.status(201).json(updatedCookbook);
+      // 4. Use the `createRecipe` method to create a new recipe
+      const newRecipe = recipeModel.createRecipe(
+        originalRecipeData,      // Data copied from the original recipe
+        true                     // Set `isModified` to true if needed
+      );
+
+      // 5. Save the new recipe to the database
+      await newRecipe.save();
+
+      // 6. Send the newly created recipe as the response
+      response.status(201).json(newRecipe);
     } catch (error) {
       // Handle any errors that occur
-      console.error("Failed to save modified recipe:", error);
-      response.status(500).json({ error: "Failed to save modified recipe" });
+      console.error("Failed to copy recipe from Discover:", error);
+      response.status(500).json({ error: "Failed to copy recipe from Discover" });
     }
   }
+
+  
 
   // Deleting a modified recipes with the recipe ID  and user ID
   /**
