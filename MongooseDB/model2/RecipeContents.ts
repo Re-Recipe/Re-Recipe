@@ -1,19 +1,20 @@
 // models/ModifiedRecipeModel.ts
 import * as mongoose from "mongoose";
-import { IRecipe } from "../interfaces/IRecipe";
+import { IContents } from "../interfaces/IContents";
 
 class RecipeContents {
-  public schema: mongoose.Schema<IRecipe>;
-  public model: mongoose.Model<IRecipe>;
+  public schema: mongoose.Schema<IContents>;
+  public model: mongoose.Model<IContents>;
 
   public constructor() {
     this.createSchema();
   }
 
   public createSchema() {
-    const SchemaDefinition: mongoose.SchemaDefinition<IRecipe> = {
+    const SchemaDefinition: mongoose.SchemaDefinition<IContents> = {
       version_number: { type: Number, default: 1, required: true },
-      cooking_duration: { type: Number, requiresd: true },
+      cooking_duration: { type: Number, required: true },
+      serving_size: { type: Number, required: true },
       ingredients: [
         {
           name: { type: String, required: true },

@@ -1,12 +1,12 @@
 import * as mongoose from "mongoose";
-import { ModifiedRecipeModel } from "./ModifiedRecipeModel";
+import { RecipeModel } from "./RecipeModel";
 import { IRecipe } from "../interfaces/IRecipe";
 
 class CookbookModel {
   public schema: mongoose.Schema;
   public model: mongoose.Model<any>;
   public dbConnectionString: string;
-  private modifiedRecipeModel: ModifiedRecipeModel;
+  private modifiedRecipeModel: RecipeModel;
 
   /**
    * Constructor to initialize the database connection and set up the schema and model.
@@ -16,7 +16,7 @@ class CookbookModel {
     this.dbConnectionString = DB_CONNECTION_STRING;
     this.createSchema();
     this.createModel();
-    this.modifiedRecipeModel = new ModifiedRecipeModel();
+    this.modifiedRecipeModel = new RecipeModel();
   }
 
   /**
@@ -28,16 +28,13 @@ class CookbookModel {
         user_ID: { type: String, required: true, unique: true },
         title: { type: String, default: "My Cookbook" }, // Optional user title
         modified_recipes: [
-          { type: mongoose.Schema.Types.ObjectId, ref: "ModifiedRecipe" },
+          { type: mongoose.Schema.Types.ObjectId, ref: "RecipeModel" },
         ],
-        // saved_recipes: [ DONT NEED BC MOD RECIPES HAVE THE ID OF THE OG RECIPE
-        //   { type: mongoose.Schema.Types.ObjectId, ref: "Recipe" }
-        // ],
       },
       { collection: "cookbooks" }
     );
   }
-
+  //=============================================================
   /**
    * Connects to the MongoDB database and creates the Mongoose model based on the schema.
    * @returns void
@@ -77,13 +74,17 @@ class CookbookModel {
     user_ID: string
   ) {
     try {
-      // validate inputs todo?
+      // 1. Use object destructuring to create recipeData from recipe
+      const recipeData: IContents = { ...recipe };
 
-      // 1. Create new ModifiedRecipeModel with new recipe data
-      // TODO: THIS IS NOT CORRECT
-      const modifiedRecipeData = this.modifiedRecipeModel.createModRecipe(
-        newRecipeData,
-        userID
+      // 2. Create a new instance of RecipeModel
+      const recipeModel = new RecipeModel();
+
+      // 3. Use the createRecipe method to create a new modified recipe
+      const modifiedRecipeData = recipeModel.createRecipe(
+        user_ID, // Pass user_ID
+        recipeData, // Pass the mapped recipeData
+        true // Set isModified to true to handle the modified flag
       );
 
       // 2.  Look for cookbook: save recipe

@@ -1,11 +1,9 @@
 import * as mongoose from "mongoose";
 import { IRecipe } from "../interfaces/IRecipe";
-import { Category } from "./CategoryModel";
-import { RecipeContents } from "./recipeContents";
 
-class RecipeModel {
-  public schema: mongoose.Schema<IRecipe>;
-  public model: mongoose.Model<IRecipe>;
+class DiscoverModel {
+  public schema: mongoose.Schema;
+  public model: mongoose.Model<any>;
   public dbConnectionString: string;
 
   /**
@@ -25,24 +23,13 @@ class RecipeModel {
   public createSchema() {
     this.schema = new mongoose.Schema(
       {
-        recipe_ID: { type: String, required: true }, // Unique identifier for recipe
-        user_ID: { type: String, required: true }, // Author of recipe
-        recipe_name: { type: String, required: true }, // Title of recipe
-        category: [
-          {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Category",
-            required: true,
-          },
+        recipeList: [
+          { type: mongoose.Schema.Types.ObjectId, ref: "originalRecipes" },
         ],
-        recipe: { type: mongoose.Schema.Types.ObjectId, ref: "RecipeContents" },
-        image_url: { type: String }, // Image of recipe
-        is_visible: { type: Boolean, default: true }, // Published or private recipe
       },
-      { collection: "recipes", timestamps: true }
+      { collection: "discover" }
     );
   }
-
   /**
    * Connects to the MongoDB database and creates the Mongoose model based on the schema.
    * The model is stored in `this.model`.
@@ -53,12 +40,11 @@ class RecipeModel {
         useNewUrlParser: true,
         useUnifiedTopology: true,
       }); // Connects to MongoDB database
-      this.model = mongoose.model<IRecipe>("Recipe", this.schema);
-      console.log("Connected to MongoDB and initialized Recipe model.");
+      this.model = mongoose.model("Discover", this.schema);
+      console.log("Connected to MongoDB and initialized Discover model.");
     } catch (e) {
       console.error(
-        "Error connecting to MongoDB or initializing Recipe model:",
-        e
+        "Error connecting to MongoDB or initializing Discover model:"
       );
     }
   }
@@ -274,4 +260,4 @@ class RecipeModel {
   }
 }
 
-export { RecipeModel };
+export { DiscoverModel };
