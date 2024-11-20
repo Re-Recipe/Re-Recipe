@@ -1,23 +1,25 @@
 import * as mongoose from "mongoose";
-import { RecipeModel } from "./RecipeModel";
 import { IRecipe } from "../interfaces/IRecipe";
+import { RecipeModel } from "./RecipeModel";
 import { DiscoverModel } from "./DiscoverModel";
 
 class CookbookModel {
   public schema: mongoose.Schema;
   public model: mongoose.Model<any>;
   public dbConnectionString: string;
-  private modifiedRecipeModel: RecipeModel;
+  private discoverModel: DiscoverModel;
+  private recipeModel: RecipeModel;
 
   /**
    * Constructor to initialize the database connection and set up the schema and model.
-   * @param DB_CONNECTION_STRING - MongoDB connection string.
+   * @param {string} DB_CONNECTION_STRING - MongoDB connection string.
    */
   public constructor(DB_CONNECTION_STRING: string) {
     this.dbConnectionString = DB_CONNECTION_STRING;
     this.createSchema();
     this.createModel();
-    this.modifiedRecipeModel = new RecipeModel();
+    this.discoverModel = new DiscoverModel(DB_CONNECTION_STRING);
+    this.recipeModel = new RecipeModel();
   }
 
   /**
@@ -27,7 +29,7 @@ class CookbookModel {
     this.schema = new mongoose.Schema(
       {
         user_ID: { type: String, required: true, unique: true },
-        title: { type: String, default: "My Cookbook" }, // Optional user title
+        title: { type: String, default: "My Cookbook" },
         modified_recipes: [
           { type: mongoose.Schema.Types.ObjectId, ref: "RecipeModel" },
         ],
@@ -35,10 +37,9 @@ class CookbookModel {
       { collection: "cookbooks" }
     );
   }
-  //=============================================================
+
   /**
    * Connects to the MongoDB database and creates the Mongoose model based on the schema.
-   * @returns void
    */
   public async createModel() {
     try {
@@ -54,141 +55,155 @@ class CookbookModel {
   }
 
   /**
-   * ======================================================
-   * TODO: CHANGE METHODS BELOW TO REFLECT UPDATED SCHEMA!!
-   * ======================================================
+   * Copies a recipe from the Discover collection and adds it to the user's cookbook.
+   * @param {any} response - The response object to send data back to the client.
+   * @param {string} recipe_ID - The ID of the recipe to copy from Discover.
+   * @param {string} user_ID - The ID of the user to whom the new recipe will belong.
+   * @returns {Promise<void>}
    */
-
-  // TODO: should add a new cookbook entry for the user? so 2 references
-  //       1. OG recipe
-  //       2. Modified recipe entry
-
-  // =======================
-  // 1. COPY FROM THE RECIPE (discover) DB
-  // 2. Return the new object that's saved to the cookbook as a new entry in the user's recipes
-  // =======================
-  /**
- * Retrieves a single recipe from the `Discover` collection by `recipe_ID`,
- * copies the data, and creates a new recipe in the `RecipeModel`.
- * @param response - The response object to send data back to the client.
- * @param recipe_ID - The unique ID of the recipe to retrieve and copy.
- * @param user_ID - The ID of the user for whom the new recipe will be created.
- */
   public async copyRecipeFromDiscover(
     response: any,
     recipe_ID: string,
     user_ID: string
   ): Promise<void> {
     try {
-      // 1. Retrieve the original recipe from the `Discover` collection
-      const originalRecipe = await this.model.findOne({ _id: recipe_ID }).exec();
+      // Use the existing model from DiscoverModel to retrieve the recipe
+      const originalRecipe = await this.discoverModel.model.findOne({ _id: recipe_ID }).exec();
       if (!originalRecipe) {
         return response.status(404).json({ error: "Recipe not found in Discover!" });
       }
 
-      // 2. Create a new instance of RecipeModel
-      const recipeModel = new RecipeModel();
+      // Create a copy of the recipe and add user-specific data
+      const newRecipeData: IRecipe = {
+        ...originalRecipe.toObject(),
+        user_ID,
+        isModified: true,
+      };
 
-      // 3. Use the data from `originalRecipe` to create a new recipe object
-      // Convert the Mongoose document to a plain object
-      const originalRecipeData = originalRecipe.toObject();
-
-      // 4. Use the `createRecipe` method to create a new recipe
-      const newRecipe = recipeModel.createRecipe(
-        originalRecipeData,      // Data copied from the original recipe
-        true                     // Set `isModified` to true if needed
-      );
-
-      // 5. Save the new recipe to the database
+      // Create a new recipe document using RecipeModel
+      const recipeModelInstance = new RecipeModel(); 
+      const newRecipe = new recipeModelInstance.recipe(newRecipeData); 
       await newRecipe.save();
 
-      // 6. Send the newly created recipe as the response
-      response.status(201).json(newRecipe);
+      // Find or create the user's cookbook
+      let cookbook = await this.model.findOne({ user_ID }).exec();
+      if (!cookbook) {
+        cookbook = new this.model({ user_ID, modified_recipes: [newRecipe._id] });
+      } else {
+        cookbook.modified_recipes.push(newRecipe._id);
+      }
+
+      // Save the updated cookbook and respond
+      const savedCookbook = await cookbook.save();
+      response.status(201).json(savedCookbook);
     } catch (error) {
-      // Handle any errors that occur
       console.error("Failed to copy recipe from Discover:", error);
       response.status(500).json({ error: "Failed to copy recipe from Discover" });
     }
   }
 
-  
-
-  // Deleting a modified recipes with the recipe ID  and user ID
   /**
-   * Removes a recipe from the cookbook
-   * @param userId - ID of the user.
-   * @param recipeId - The ID of the recipe.
-   * @param response - The response object to send data back to the client.
+   * Removes a recipe from the user's cookbook.
+   * @param {any} response - The response object to send data back to the client.
+   * @param {string} userId - The ID of the user.
+   * @param {string} recipeId - The ID of the recipe to remove.
+   * @returns {Promise<void>}
    */
   public async removeRecipeFromCookbook(
     response: any,
     userId: string,
     recipeId: string
-  ) {
+  ): Promise<void> {
     try {
-      // Remove entire recipe entry
-      const result = await this.modifiedRecipeModel.model
-        .deleteOne({ user_ID: userId, recipe_ID: recipeId })
-        .exec();
-
-      if (result.deletedCount > 0) {
-        response.json({
-          message: `Modified recipe with ID ${recipeId} deleted successfully.`,
-          result,
-        });
-      } else {
-        response.status(404).json({ error: "Modified Recipe Not Found" });
-
-        response.json({
-          message: `Recipe ${recipeId} and all versions removed`,
-          result,
-        });
+      const cookbook = await this.model.findOne({ user_ID: userId }).exec();
+      if (!cookbook) {
+        return response.status(404).json({ error: "Cookbook not found" });
       }
+
+      const recipeIndex = cookbook.modified_recipes.findIndex(
+        (id: mongoose.Types.ObjectId) => id.toString() === recipeId
+      );
+
+      if (recipeIndex === -1) {
+        return response.status(404).json({ error: "Recipe not found in cookbook" });
+      }
+
+      cookbook.modified_recipes.splice(recipeIndex, 1);
+      await cookbook.save();
+
+      response.json({ message: `Modified recipe with ID ${recipeId} deleted successfully.` });
     } catch (error) {
       console.error("Failed to remove recipe from the cookbook:", error);
-      response.status(500).json({ error: "Failed to remove recipe/version" });
+      response.status(500).json({ error: "Failed to remove recipe from cookbook" });
     }
   }
 
   /**
-   * Lists all recipes in the user's cookbook.
-   * @param userId - ID of the user.
-   * @param response - The response object to send data back to the client.
+   * Retrieves a single modified recipe with the first and most recent versions.
+   * @param {any} response - The response object to send data back to the client.
+   * @param {string} userId - The ID of the user.
+   * @param {string} recipeId - The ID of the recipe to retrieve.
+   * @returns {Promise<void>}
    */
-  public async listAllRecipes(response: any, userId: string) {
+  public async getSingleRecipeWithVersions(
+    response: any,
+    userId: string,
+    recipeId: string
+  ): Promise<void> {
     try {
       const cookbook = await this.model
-        .findOne(
-          { user_id: userId },
-          { recipes: 1 } // Ensure you are selecting the full `recipes` field
-        )
+        .findOne({ user_ID: userId }, { modified_recipes: 1 })
+        .populate("modified_recipes")
         .exec();
-      response.json(cookbook ? cookbook.recipes : []);
+
+      if (!cookbook) {
+        return response.status(404).json({ error: "Cookbook not found" });
+      }
+
+      const recipe = cookbook.modified_recipes.find(
+        (r: any) => r._id.toString() === recipeId
+      );
+
+      if (!recipe) {
+        return response.status(404).json({ error: "Recipe not found" });
+      }
+
+      const versions = recipe.versions || [];
+      const firstVersion = versions[0];
+      const mostRecentVersion = versions[versions.length - 1];
+
+      response.json({
+        recipe: {
+          ...recipe.toObject(),
+          versions: [firstVersion, mostRecentVersion].filter(Boolean),
+        },
+      });
     } catch (error) {
-      console.error("Failed to list recipes:", error);
-      response.status(500).json({ error: "Failed to list recipes" });
+      console.error("Failed to retrieve recipe:", error);
+      response.status(500).json({ error: "Failed to retrieve recipe" });
     }
   }
 
   /**
-   * Adds a new version of a recipe to the modified recipe in cookbook DB
-   * @param userId - ID of the user.
-   * @param recipeId - ID of the recipe.
-   * @param versionData - Metadata for the new version.
-   * @param response - The response object to send data back to the client.
+   * Adds a new version to an existing recipe in the user's cookbook.
+   * @param {any} response - The response object to send data back to the client.
+   * @param {string} userId - The ID of the user.
+   * @param {string} recipeId - The ID of the recipe to add a new version to.
+   * @param {any} versionData - The data for the new version to add.
+   * @returns {Promise<void>}
    */
   public async addRecipeVersion(
     response: any,
     userId: string,
     recipeId: string,
     versionData: any
-  ) {
+  ): Promise<void> {
     try {
       const result = await this.model
         .findOneAndUpdate(
-          { user_id: userId, "recipes.recipe_id": recipeId },
-          { $push: { "recipes.$.versions": versionData } },
-          { new: true, upsert: true }
+          { user_ID: userId, "modified_recipes._id": recipeId },
+          { $push: { "modified_recipes.$.versions": versionData } },
+          { new: true }
         )
         .exec();
       response.json(result);
@@ -196,38 +211,36 @@ class CookbookModel {
       console.error("Failed to add recipe version:", error);
       response.status(500).json({ error: "Failed to add recipe version" });
     }
-
-    //*************************************** */
   }
 
-  //
-
   /**
-   * Retrieves specific or all versions of a recipe by `recipe_id`.
-   * @param userId - ID of the user.
-   * @param recipeId - The ID of the recipe.
-   * @param versionNumber - (Optional) The specific version number to retrieve.
-   * @param response - The response object to send data back to the client.
+   * Retrieves specific or all versions of a recipe.
+   * @param {any} response - The response object to send data back to the client.
+   * @param {string} userId - The ID of the user.
+   * @param {string} recipeId - The ID of the recipe to retrieve versions for.
+   * @param {number} [versionNumber] - The specific version number to retrieve, if provided.
+   * @returns {Promise<void>}
    */
   public async retrieveRecipeVersion(
     response: any,
     userId: string,
     recipeId: string,
     versionNumber?: number
-  ) {
+  ): Promise<void> {
     try {
       const cookbook = await this.model
-        .findOne({ user_id: userId, "recipes.recipe_id": recipeId })
+        .findOne({ user_ID: userId, "modified_recipes._id": recipeId })
         .exec();
-      const recipe = cookbook?.recipes.find(
-        (r: any) => r.recipe_id === recipeId
+
+      const recipe = cookbook?.modified_recipes.find(
+        (r: any) => r._id.toString() === recipeId
       );
 
       if (recipe) {
-        const result = versionNumber
-          ? recipe.versions.find((v: any) => v.version_number === versionNumber)
+        const versions = versionNumber
+          ? recipe.versions.filter((v: any) => v.version_number === versionNumber)
           : recipe.versions;
-        response.json(result);
+        response.json(versions);
       } else {
         response.status(404).json({ error: "Recipe not found" });
       }
@@ -238,162 +251,37 @@ class CookbookModel {
   }
 
   /**
-   * Removes a recipe or a specific version of a recipe.
-   * @param userId - ID of the user.
-   * @param recipeId - The ID of the recipe.
-   * @param versionNumber - (Optional) Version number to remove.
-   * @param response - The response object to send data back to the client.
+   * Removes a version or the entire recipe.
+   * @param {any} response - The response object to send data back to the client.
+   * @param {string} userId - The ID of the user.
+   * @param {string} recipeId - The ID of the recipe to remove.
+   * @param {number} [versionNumber] - The specific version number to remove, if provided.
+   * @returns {Promise<void>}
    */
   public async removeRecipeVersion(
     response: any,
     userId: string,
     recipeId: string,
     versionNumber?: number
-  ) {
+  ): Promise<void> {
     try {
-      if (versionNumber) {
-        // Remove specific version
-        const result = await this.model
-          .updateOne(
-            { user_id: userId, "recipes.recipe_id": recipeId },
-            {
-              $pull: {
-                "recipes.$.versions": { version_number: versionNumber },
-              },
-            }
-          )
-          .exec();
-        response.json({
-          message: `Version ${versionNumber} removed from recipe ${recipeId}`,
-          result,
-        });
-      } else {
-        // Remove entire recipe entry
-        const result = await this.model
-          .updateOne(
-            { user_id: userId },
-            { $pull: { recipes: { recipe_id: recipeId } } }
-          )
-          .exec();
-        response.json({
-          message: `Recipe ${recipeId} and all versions removed`,
-          result,
-        });
-      }
+      const updateQuery = versionNumber
+        ? {
+            $pull: { "modified_recipes.$.versions": { version_number: versionNumber } },
+          }
+        : { $pull: { modified_recipes: { _id: recipeId } } };
+
+      const result = await this.model.updateOne({ user_ID: userId }, updateQuery).exec();
+
+      response.json({
+        message: versionNumber
+          ? `Version ${versionNumber} removed from recipe ${recipeId}`
+          : `Recipe ${recipeId} and all versions removed`,
+        result,
+      });
     } catch (error) {
       console.error("Failed to remove recipe/version:", error);
       response.status(500).json({ error: "Failed to remove recipe/version" });
-    }
-  }
-
-  /**
-   * Compares two versions of a recipe by version number.
-   * @param userId - ID of the user.
-   * @param recipeId - The ID of the recipe.
-   * @param version1 - The first version number to compare.
-   * @param version2 - The second version number to compare.
-   * @param response - The response object to send data back to the client.
-   */
-  public async compareRecipeVersions(
-    response: any,
-    userId: string,
-    recipeId: string,
-    version1: number,
-    version2: number
-  ) {
-    try {
-      const cookbook = await this.model
-        .findOne({ user_id: userId, "recipes.recipe_id": recipeId })
-        .exec();
-      const recipe = cookbook?.recipes.find(
-        (r: any) => r.recipe_id === recipeId
-      );
-
-      if (recipe) {
-        const ver1 = recipe.versions.find(
-          (v: any) => v.version_number === version1
-        );
-        const ver2 = recipe.versions.find(
-          (v: any) => v.version_number === version2
-        );
-
-        if (ver1 && ver2) {
-          response.json({ version1: ver1, version2: ver2 });
-        } else {
-          response
-            .status(404)
-            .json({ error: "One or both versions not found" });
-        }
-      } else {
-        response.status(404).json({ error: "Recipe not found" });
-      }
-    } catch (error) {
-      console.error("Failed to compare recipe versions:", error);
-      response.status(500).json({ error: "Failed to compare recipe versions" });
-    }
-  }
-
-  /**
-   * Lists all recipes in the user's cookbook.
-   * @param userId - ID of the user.
-   * @param response - The response object to send data back to the client.
-   */
-  // public async listAllRecipes(response: any, userId: string) {
-  //     try {
-  //         const cookbook = await this.model.findOne(
-  //             { user_id: userId },
-  //             { recipes: 1 } // Ensure you are selecting the full `recipes` field
-  //         ).exec();
-  //         response.json(cookbook ? cookbook.recipes : []);
-  //     } catch (error) {
-  //         console.error("Failed to list recipes:", error);
-  //         response.status(500).json({ error: "Failed to list recipes" });
-  //     }
-  // }
-
-  /**
-   * Adds one or many new recipes to the user's cookbook.
-   * @param response - The response object to send data back to the client.
-   * @param userId - ID of the user.
-   * @param newRecipes - An array of new recipe objects to be added.
-   *
-   */
-  public async addManyNewRecipes(
-    response: any,
-    userId: string,
-    newRecipes: any[]
-  ) {
-    try {
-      // Check if the user's cookbook already exists
-      let cookbook = await this.model.findOne({ user_id: userId }).exec();
-
-      if (cookbook) {
-        // Add each new recipe to the existing cookbook
-        newRecipes.forEach((recipe) => {
-          const existingRecipe = cookbook.recipes.find(
-            (r: any) => r.recipe_id === recipe.recipe_id
-          );
-          if (!existingRecipe) {
-            cookbook.recipes.push(recipe);
-          }
-        });
-      } else {
-        // If the cookbook does not exist, create a new one
-        cookbook = new this.model({
-          user_id: userId,
-          recipes: newRecipes, // Add all new recipes at once
-        });
-      }
-
-      // Save the updated or new cookbook
-      const result = await cookbook.save();
-      response.json({
-        message: "Recipes added successfully",
-        cookbook: result,
-      });
-    } catch (error) {
-      console.error("Failed to add new recipes:", error);
-      response.status(500).json({ error: "Failed to add new recipes" });
     }
   }
 }
