@@ -26,7 +26,7 @@ class DiscoverModel {
     this.schema = new mongoose.Schema(
       {
         recipeList: [
-          { type: mongoose.Schema.Types.ObjectId, ref: "originalRecipes" },
+          { type: mongoose.Schema.Types.ObjectId, ref: "RecipeModel" },
         ],
       },
       { collection: "discover" }
@@ -51,28 +51,55 @@ class DiscoverModel {
     }
   }
 
-  /**
-   * Adds a new recipe to the database.
-   * @param response - The response object to send data back to the client.
-   * @param newRecipeData - The new recipe data from the user.
-   */
-  public async createRecipe(response: any, newRecipeData: IRecipe) {
-    try {
-      // Create a new Mongoose document
-      // const newRecipe = new this.model(newRecipeData);
-      const newRecipe = this.recipeModel.createRecipe(newRecipeData);
+  // /**
+  //  * Adds a new recipe to the database.
+  //  * @param response - The response object to send data back to the client.
+  //  * @param newRecipeData - The new recipe data from the user.
+  //  */
+  // public async createRecipe(response: any, newRecipeData: IRecipe) {
+  //   try {
+  //     // Create a new Mongoose document
+  //     // const newRecipe = new this.model(newRecipeData);
+  //     const newRecipe = this.recipeModel.createRecipe(newRecipeData);
 
-      // Save the document to the database
+  //     // Save the document to the database
+  //     const savedRecipe = await newRecipe.save();
+  //     //const savedRecipe = await this.recipeModel.createRecipe(newRecipeData);
+
+  //     // Send the saved recipe as the response
+  //     response.status(201).json(savedRecipe);
+  //   } catch (e) {
+  //     console.error("Failed to create new recipe:", e);
+  //     response.status(500).json({ error: "Failed to create new recipe" });
+  //   }
+  // }
+
+  /**
+   * Creates a new recipe and adds it to the Discover collection.
+   * @param recipeData - Data for the new recipe.
+   */
+  public async createRecipe(response: any, recipeData: IRecipe) {
+    try {
+      // Create a new recipe
+      const newRecipe = await this.recipeModel.createRecipe(recipeData);
       const savedRecipe = await newRecipe.save();
 
-      // Send the saved recipe as the response
+      // Add the recipe to Discover
+      const discoverEntry = await this.model.findOneAndUpdate(
+        {}, // Assumes there's one document in the Discover collection. Adjust as needed.
+        { $push: { recipeList: savedRecipe._id } },
+        { upsert: true, new: true }
+      );
+
+      console.log("Recipe added to Discover:", discoverEntry);
       response.status(201).json(savedRecipe);
-    } catch (e) {
-      console.error("Failed to create new recipe:", e);
+      // return discoverEntry;
+    } catch (error) {
+      console.error("Error adding recipe to Discover:", error);
       response.status(500).json({ error: "Failed to create new recipe" });
+      throw error;
     }
   }
-
   /**
    * Retrieves all recipes from the database.
    * @param response - The response object to send data back to the client.

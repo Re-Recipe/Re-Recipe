@@ -23,7 +23,7 @@ class App {
   constructor(mongoDBConnection: string) {
     this.expressApp = express();
     this.DiscoverModel = new DiscoverModel(mongoDBConnection);
-    this.Cookbook = new CookbookModel(mongoDBConnection);
+    this.Cookbook = new CookbookModel(mongoDBConnection, DiscoverModel);
     this.middleware();
     this.routes();
   }
@@ -60,14 +60,14 @@ class App {
 
     // Recipe CRUD Routes
     router.get(
-      "/app/recipes",
+      "/app/discover",
       async (req: express.Request, res: express.Response): Promise<void> => {
         await this.DiscoverModel.retrieveAllRecipes(res);
       }
     );
 
     router.get(
-      "/app/recipes/:recipeID",
+      "/app/discover/:recipeID",
       async (req: express.Request, res: express.Response): Promise<void> => {
         const recipeID: string = req.params.recipeID;
         console.log("Query recipe list with id:", recipeID);
@@ -76,7 +76,7 @@ class App {
     );
 
     router.post(
-      "/app/recipes",
+      "/app/discover",
       async (req: express.Request, res: express.Response): Promise<void> => {
         const id: string = crypto.randomBytes(16).toString("hex");
         const jsonObj: object = { ...req.body, recipe_ID: id };
@@ -86,7 +86,7 @@ class App {
     );
 
     router.delete(
-      "/app/recipes/:recipeID",
+      "/app/discover/:recipeID",
       async (req: express.Request, res: express.Response): Promise<void> => {
         const recipeID: string = req.params.recipeID;
         await this.DiscoverModel.deleteRecipe(res, recipeID);

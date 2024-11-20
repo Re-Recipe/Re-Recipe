@@ -50,8 +50,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.App = void 0;
 var express = require("express");
 var bodyParser = require("body-parser"); // for parsing URL requests and JSON
-var RecipeModel_1 = require("./model/RecipeModel");
-var ModifiedRecipeModel_1 = require("./model/ModifiedRecipeModel");
+var DiscoverModel_1 = require("./model/DiscoverModel");
 var CookbookModel_1 = require("./model/CookbookModel");
 var crypto = require("crypto"); // for unique ID generation
 /**
@@ -66,9 +65,8 @@ var App = /** @class */ (function () {
      */
     function App(mongoDBConnection) {
         this.expressApp = express();
-        this.RecipeList = new RecipeModel_1.RecipeModel(mongoDBConnection);
-        this.ModifiedRecipes = new ModifiedRecipeModel_1.ModifiedRecipeModel(mongoDBConnection);
-        this.Cookbook = new CookbookModel_1.CookbookModel(mongoDBConnection);
+        this.DiscoverModel = new DiscoverModel_1.DiscoverModel(mongoDBConnection);
+        this.Cookbook = new CookbookModel_1.CookbookModel(mongoDBConnection, DiscoverModel_1.DiscoverModel);
         this.middleware();
         this.routes();
     }
@@ -93,38 +91,38 @@ var App = /** @class */ (function () {
         var _this = this;
         var router = express.Router();
         // Recipe CRUD Routes
-        router.get('/app/recipes', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+        router.get("/app/discover", function (req, res) { return __awaiter(_this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.RecipeList.retrieveAllRecipes(res)];
+                    case 0: return [4 /*yield*/, this.DiscoverModel.retrieveAllRecipes(res)];
                     case 1:
                         _a.sent();
                         return [2 /*return*/];
                 }
             });
         }); });
-        router.get('/app/recipes/:recipeID', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+        router.get("/app/discover/:recipeID", function (req, res) { return __awaiter(_this, void 0, void 0, function () {
             var recipeID;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         recipeID = req.params.recipeID;
-                        console.log('Query recipe list with id:', recipeID);
-                        return [4 /*yield*/, this.RecipeList.retrieveRecipe(res, recipeID)];
+                        console.log("Query recipe list with id:", recipeID);
+                        return [4 /*yield*/, this.DiscoverModel.retrieveRecipe(res, recipeID)];
                     case 1:
                         _a.sent();
                         return [2 /*return*/];
                 }
             });
         }); });
-        router.post('/app/recipes', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+        router.post("/app/discover", function (req, res) { return __awaiter(_this, void 0, void 0, function () {
             var id, jsonObj;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         id = crypto.randomBytes(16).toString("hex");
                         jsonObj = __assign(__assign({}, req.body), { recipe_ID: id });
-                        return [4 /*yield*/, this.RecipeList.model.create(jsonObj)];
+                        return [4 /*yield*/, this.DiscoverModel.model.create(jsonObj)];
                     case 1:
                         _a.sent();
                         res.status(201).json({ id: id });
@@ -132,46 +130,13 @@ var App = /** @class */ (function () {
                 }
             });
         }); });
-        router.put('/app/recipes/:recipeID/directions', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-            var recipeID, directions, formattedDirections;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        recipeID = req.params.recipeID;
-                        directions = req.body.directions;
-                        if (!Array.isArray(directions) || directions.some(function (step) { return typeof step !== "string" || step.trim() === ""; })) {
-                            res.status(400).json({ error: "Directions must be an array of non-empty strings." });
-                            return [2 /*return*/];
-                        }
-                        formattedDirections = directions.map(function (step) { return ({ step: step }); });
-                        return [4 /*yield*/, this.RecipeList.updateDirections(res, recipeID, formattedDirections)];
-                    case 1:
-                        _a.sent();
-                        return [2 /*return*/];
-                }
-            });
-        }); });
-        router.put('/app/recipes/:recipeID/ingredients', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-            var recipeID, ingredients;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        recipeID = req.params.recipeID;
-                        ingredients = req.body.ingredients;
-                        return [4 /*yield*/, this.RecipeList.updateIngredients(res, recipeID, ingredients)];
-                    case 1:
-                        _a.sent();
-                        return [2 /*return*/];
-                }
-            });
-        }); });
-        router.delete('/app/recipes/:recipeID', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+        router.delete("/app/discover/:recipeID", function (req, res) { return __awaiter(_this, void 0, void 0, function () {
             var recipeID;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         recipeID = req.params.recipeID;
-                        return [4 /*yield*/, this.RecipeList.deleteRecipe(res, recipeID)];
+                        return [4 /*yield*/, this.DiscoverModel.deleteRecipe(res, recipeID)];
                     case 1:
                         _a.sent();
                         return [2 /*return*/];
@@ -179,7 +144,8 @@ var App = /** @class */ (function () {
             });
         }); });
         // Cookbook Routes
-        router.get('/app/cookbook/:userId', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+        // Retrieve all recipes in a user's cookbook
+        router.get("/app/cookbook/:userId", function (req, res) { return __awaiter(_this, void 0, void 0, function () {
             var userId, error_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
@@ -203,39 +169,93 @@ var App = /** @class */ (function () {
                 }
             });
         }); });
-        // Route to add multiple new recipes to the user's cookbook
-        router.post('/app/cookbook/:userId/recipes', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-            var userId, newRecipes, error_2;
+        // Delete a specific recipe from a user's cookbook
+        router.delete("/app/cookbook/:userId/recipes/:recipeId", function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+            var userId, recipeId, error_2;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         userId = req.params.userId;
-                        newRecipes = req.body.newRecipes;
-                        if (!Array.isArray(newRecipes) || newRecipes.length === 0) {
-                            res.status(400).json({ error: "newRecipes must be a non-empty array of recipe objects." });
-                            return [2 /*return*/];
-                        }
+                        recipeId = req.params.recipeId;
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        return [4 /*yield*/, this.Cookbook.addManyNewRecipes(res, userId, newRecipes)];
+                        return [4 /*yield*/, this.Cookbook.removeRecipeFromCookbook(res, userId, recipeId)];
                     case 2:
                         _a.sent();
                         return [3 /*break*/, 4];
                     case 3:
                         error_2 = _a.sent();
-                        console.error("Failed to add new recipes:", error_2);
-                        res.status(500).json({ error: "Failed to add new recipes" });
+                        console.error("Failed to delete recipe:", error_2);
+                        res
+                            .status(500)
+                            .json({ error: "Failed to delete recipe from cookbook" });
+                        return [3 /*break*/, 4];
+                    case 4: return [2 /*return*/];
+                }
+            });
+        }); });
+        // Add a new version to a recipe in a user's cookbook
+        router.post("/app/cookbook/:userId/recipes/:recipeId/versions", function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+            var userId, recipeId, versionData, error_3;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        userId = req.params.userId;
+                        recipeId = req.params.recipeId;
+                        versionData = req.body.versionData;
+                        if (!versionData || typeof versionData !== "object") {
+                            res
+                                .status(400)
+                                .json({ error: "Version data must be a valid object." });
+                            return [2 /*return*/];
+                        }
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 3, , 4]);
+                        return [4 /*yield*/, this.Cookbook.addRecipeVersion(res, userId, recipeId, versionData)];
+                    case 2:
+                        _a.sent();
+                        return [3 /*break*/, 4];
+                    case 3:
+                        error_3 = _a.sent();
+                        console.error("Failed to add recipe version:", error_3);
+                        res.status(500).json({ error: "Failed to add recipe version" });
+                        return [3 /*break*/, 4];
+                    case 4: return [2 /*return*/];
+                }
+            });
+        }); });
+        // Retrieve all recipes in a user's cookbook
+        router.get("/app/cookbook/:userId/recipes", function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+            var userId, error_4;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        userId = req.params.userId;
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 3, , 4]);
+                        // Call the listAllRecipes method from CookbookModel
+                        return [4 /*yield*/, this.Cookbook.listAllRecipes(res, userId)];
+                    case 2:
+                        // Call the listAllRecipes method from CookbookModel
+                        _a.sent();
+                        return [3 /*break*/, 4];
+                    case 3:
+                        error_4 = _a.sent();
+                        console.error("Failed to fetch recipes:", error_4);
+                        res.status(500).json({ error: "Failed to fetch recipes" });
                         return [3 /*break*/, 4];
                     case 4: return [2 /*return*/];
                 }
             });
         }); });
         // Mount the router on the Express application
-        this.expressApp.use('/', router);
-        this.expressApp.use('/app/json/', express.static("".concat(__dirname, "/app/json")));
-        this.expressApp.use('/images', express.static("".concat(__dirname, "/img")));
-        this.expressApp.use('/', express.static("".concat(__dirname, "/pages")));
+        this.expressApp.use("/", router);
+        this.expressApp.use("/app/json/", express.static("".concat(__dirname, "/app/json")));
+        this.expressApp.use("/images", express.static("".concat(__dirname, "/img")));
+        this.expressApp.use("/", express.static("".concat(__dirname, "/pages")));
     };
     return App;
 }());

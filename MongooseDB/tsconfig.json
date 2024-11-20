@@ -15,18 +15,12 @@
     "module": "commonjs",
     "lib": ["ES2015", "es2018", "dom", "ES6"],
     "target": "es6",
-    "moduleResolution" : "node",
+    "moduleResolution": "node",
     "rootDir": "./",
     "sourceMap": true,
-    "types":["node"],
-    "typeRoots": [
-      "node_modules/@types"
-    ],
+    "types": ["node"],
+    "typeRoots": ["node_modules/@types"]
   },
-  "includes" : [
-    "**/*"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+  "includes": ["**/*"],
+  "exclude": ["node_modules", "MongooseDB/model (defunct)"]
 }

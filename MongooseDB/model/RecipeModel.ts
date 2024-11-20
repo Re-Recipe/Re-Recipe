@@ -1,25 +1,20 @@
 import * as mongoose from "mongoose";
 import { IRecipe } from "../interfaces/IRecipe";
-import { RecipeContents } from "./RecipeContents";
+import { RecipeContents, recipeContentsInstance } from "./RecipeContents";
 import { IContents } from "../interfaces/IContents";
 import { v4 as uuidv4 } from "uuid";
-
-// todo pulled this out import { ICategory } from "../interfaces/ICategory";
-
-// TODO
-//
+import { isReadable } from "stream";
 
 class RecipeModel {
   public schema: mongoose.Schema<IRecipe>;
   public recipe: mongoose.Model<IRecipe>;
-  public contents_schema: mongoose.Schema<IContents>;
-  public contents_array: mongoose.Model<IContents>;
 
   /**
    * Constructor to initialize the database connection and set up the schema and model.
    */
   public constructor() {
     this.createSchema();
+    this.createModel();
   }
 
   /**
@@ -49,7 +44,7 @@ class RecipeModel {
       image_url: { type: String },
       is_visible: { type: Boolean, default: false },
     };
-    this.createModel();
+    this.schema = new mongoose.Schema(schemaDefinition);
   }
 
   /**
@@ -57,11 +52,8 @@ class RecipeModel {
    * This model is used for object validation
    */
   public createModel() {
-    this.recipe = mongoose.model<IRecipe>("Recipe", this.schema);
-    this.contents_array = mongoose.model<IContents>(
-      "Contents",
-      this.contents_schema
-    );
+    this.recipe =
+      mongoose.models.Recipe || mongoose.model<IRecipe>("Recipe", this.schema);
   }
 
   /**
@@ -72,16 +64,14 @@ class RecipeModel {
    * @param
    * @param
    */
-  public createRecipe(recipeData: IRecipe, isModified: boolean = false) {
-    const newRecipe = new this.contents_array({
+  public async createRecipe(recipeData: IRecipe, isModified: boolean = false) {
+    const newRecipe = new this.recipe({
       ...recipeData,
-      // recipe_ID: uuidv4(), MAY NEED LATER IF DOESNT COME FROM CLIs
       modified_flag: isModified,
     });
 
     return newRecipe;
   }
-
   // Update?
   // Delete?
 
@@ -96,11 +86,11 @@ class RecipeModel {
    */
   public createRecipeVersion(recipe: IRecipe, recipe_contents_data: IContents) {
     const new_version_number = recipe.recipe_versions.length;
-    const recipe_contents = new this.contents_array({
+    const newRecipeContents = new recipeContentsInstance.contents({
       ...recipe_contents_data,
       version_number: new_version_number,
     });
-    recipe.recipe_versions.push(recipe_contents);
+    recipe.recipe_versions.push(newRecipeContents);
 
     return recipe;
   }

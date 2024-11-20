@@ -8,10 +8,11 @@ class RecipeContents {
 
   public constructor() {
     this.createSchema();
+    this.createModel();
   }
 
   public createSchema() {
-    const SchemaDefinition: mongoose.SchemaDefinition<IContents> = {
+    const schemaDefinition: mongoose.SchemaDefinition<IContents> = {
       version_number: { type: Number, default: 1, required: true },
       cooking_duration: { type: Number, required: true },
       serving_size: { type: Number, required: true },
@@ -33,6 +34,7 @@ class RecipeContents {
       ],
       notes: { type: String },
     };
+    this.schema = new mongoose.Schema(schemaDefinition);
   }
 
   /**
@@ -44,4 +46,7 @@ class RecipeContents {
   }
 }
 
-export { RecipeContents };
+// export { RecipeContents };
+const recipeContentsInstance = new RecipeContents();
+
+export { recipeContentsInstance, RecipeContents };

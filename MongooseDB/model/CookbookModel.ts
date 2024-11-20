@@ -14,11 +14,11 @@ class CookbookModel {
    * Constructor to initialize the database connection and set up the schema and model.
    * @param {string} DB_CONNECTION_STRING - MongoDB connection string.
    */
-  public constructor(DB_CONNECTION_STRING: string) {
+  public constructor(DB_CONNECTION_STRING: string, discoverModel) {
     this.dbConnectionString = DB_CONNECTION_STRING;
     this.createSchema();
     this.createModel();
-    this.discoverModel = new DiscoverModel(DB_CONNECTION_STRING);
+    this.discoverModel = discoverModel;
     this.recipeModel = new RecipeModel();
   }
 
