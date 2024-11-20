@@ -91,34 +91,68 @@ class App {
     });
 
     // Cookbook Routes
-    router.get('/app/cookbook/:userId', async (req: express.Request, res: express.Response): Promise<void> => {
-      const userId: string = req.params.userId;
-      try {
-        // Fetch the user's cookbook
-        await this.Cookbook.listAllRecipes(res, userId);
-      } catch (error) {
-        console.error("Failed to fetch cookbook:", error);
-        res.status(500).json({ error: "Failed to fetch cookbook data" });
-      }
-    });
 
-    // Route to add multiple new recipes to the user's cookbook
-    router.post('/app/cookbook/:userId/recipes', async (req: express.Request, res: express.Response): Promise<void> => {
-      const userId: string = req.params.userId;
-      const newRecipes: any[] = req.body.newRecipes; // Expecting an array of new recipe objects from the request body
+  // Retrieve all recipes in a user's cookbook
+  router.get('/app/cookbook/:userId', async (req: express.Request, res: express.Response): Promise<void> => {
+    const userId: string = req.params.userId;
+    try {
+      // Fetch the user's cookbook
+      await this.Cookbook.listAllRecipes(res, userId);
+    } catch (error) {
+      console.error("Failed to fetch cookbook:", error);
+      res.status(500).json({ error: "Failed to fetch cookbook data" });
+    }
+  });
 
-      if (!Array.isArray(newRecipes) || newRecipes.length === 0) {
-        res.status(400).json({ error: "newRecipes must be a non-empty array of recipe objects." });
-        return;
-      }
+  // Add multiple new recipes to a user's cookbook
+  router.post('/app/cookbook/:userId/recipes', async (req: express.Request, res: express.Response): Promise<void> => {
+    const userId: string = req.params.userId;
+    const newRecipes: any[] = req.body.newRecipes; // Expecting an array of new recipe objects from the request body
 
-      try {
-        await this.Cookbook.addManyNewRecipes(res, userId, newRecipes);
-      } catch (error) {
-        console.error("Failed to add new recipes:", error);
-        res.status(500).json({ error: "Failed to add new recipes" });
-      }
-    });
+    if (!Array.isArray(newRecipes) || newRecipes.length === 0) {
+      res.status(400).json({ error: "newRecipes must be a non-empty array of recipe objects." });
+      return;
+    }
+
+    try {
+      await this.Cookbook.addManyNewRecipes(res, userId, newRecipes);
+    } catch (error) {
+      console.error("Failed to add new recipes:", error);
+      res.status(500).json({ error: "Failed to add new recipes" });
+    }
+  });
+
+  // Delete a specific recipe from a user's cookbook
+  router.delete('/app/cookbook/:userId/recipes/:recipeId', async (req: express.Request, res: express.Response): Promise<void> => {
+    const userId: string = req.params.userId;
+    const recipeId: string = req.params.recipeId;
+
+    try {
+      await this.Cookbook.removeRecipeFromCookbook(res, userId, recipeId);
+    } catch (error) {
+      console.error("Failed to delete recipe:", error);
+      res.status(500).json({ error: "Failed to delete recipe from cookbook" });
+    }
+  });
+
+  // Add a new version to a recipe in a user's cookbook
+  router.post('/app/cookbook/:userId/recipes/:recipeId/versions', async (req: express.Request, res: express.Response): Promise<void> => {
+    const userId: string = req.params.userId;
+    const recipeId: string = req.params.recipeId;
+    const versionData = req.body.versionData; // New version details in request body
+
+    if (!versionData || typeof versionData !== "object") {
+      res.status(400).json({ error: "Version data must be a valid object." });
+      return;
+    }
+
+    try {
+      await this.Cookbook.addRecipeVersion(res, userId, recipeId, versionData);
+    } catch (error) {
+      console.error("Failed to add recipe version:", error);
+      res.status(500).json({ error: "Failed to add recipe version" });
+    }
+  });
 
     // Mount the router on the Express application
     this.expressApp.use('/', router);
