@@ -1,21 +1,14 @@
-export interface IRecipe {
-    user_ID: string;
-    recipe_ID: string;
-    recipe_name: string;
-    category: string[]; 
-    cooking_duration: number;
-    ingredients: {
-        ingredient_id?: string;
-        name: string;
-        quantity: number;
-        unit: string;
-    }[];
-    directions: {
-        step: string;
-    }[];
-    image_url?: string;
-    is_visible?: boolean;
-    personal_recipe_ID?: string;
-    notes?: string;
-    version_number?: number;
+import { Document } from 'mongoose';
+import { EnumType } from 'typescript';
+import { IContents } from './IContents.model';
+
+export interface IRecipe extends Document {
+  modified_flag: boolean;
+  user_ID: string;
+  recipe_ID: string;
+  recipe_name: string;
+  meal_category: [EnumType];
+  recipe_versions: [IContents]; // THESE ARE THE RECIPE CONTENTS OBJECTS
+  image_url?: string;
+  is_visible?: boolean;
 }

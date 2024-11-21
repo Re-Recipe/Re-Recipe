@@ -11,18 +11,17 @@ describe("Test Recipe List Retrieval", function () {
 
   // Pre-fetch the data before running tests
   before(function (done) {
-    chai.request("http://localhost:8080")
-			.get("/app/discover")
-			.end(function (err, res) {
-				requestResult = res.body;
-				response = res;
-                expect(err).to.be.null;
-                expect(res).to.have.status(200);
-				done();
-			});
-        });
+    chai
+      .request("http://localhost:8080")
+      .get("/app/discover")
+      .end(function (err, res) {
+        requestResult = res.body;
+        response = res;
+        expect(err).to.be.null;
+        expect(res).to.have.status(200);
+        done();
+      });
   });
-
 
   // 1. Make sure it's an array of recipes
   it("Should return an array of recipes", function () {
