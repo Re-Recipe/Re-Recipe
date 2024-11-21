@@ -8,12 +8,13 @@ describe("Test Recipe List Retrieval", function () {
   this.timeout(15000);
 
   let response;
+  let requestResult;
 
-  // Pre-fetch the data before running tests
+  // Pre-fetch the recipe list before running tests
   before(function (done) {
     chai
       .request("http://localhost:8080")
-      .get("/app/discover")
+      .get("/app/discover") // Endpoint for retrieving the recipe list
       .end(function (err, res) {
         requestResult = res.body;
         response = res;
@@ -23,18 +24,19 @@ describe("Test Recipe List Retrieval", function () {
       });
   });
 
-  // 1. Make sure it's an array of recipes
-  it("Should return an array of recipes", function () {
-    // Check that the response body is an array
-    expect(response.body).to.be.an("array");
-    // Ensure the array has at least two recipes
-    expect(response.body).to.have.length.above(1);
+  // Test 1: Ensure the response is an array with more than 2 objects
+  it("Should return an array of recipes with more than 2 objects", function () {
+    expect(response).to.have.status(200); // Ensure a successful response
+    expect(response.body).to.be.an("array"); // The response should be an array
+    expect(response.body).to.have.length.above(2); // Ensure the array has more than 2 recipes
+    expect(response).to.have.headers; // Check for headers in the response
   });
 
-  // 2. Validate the properties in the arrays
+  // Test 2: Validate the top-level properties of each recipe
   it("Each recipe should have the expected top-level properties", function () {
     response.body.forEach((recipe) => {
-      // Check that the recipe object contains the necessary top-level fields
+
+      // Properties that it should have (high level)
       expect(recipe).to.include.keys(
         "modified_flag",
         "user_ID",
@@ -46,7 +48,7 @@ describe("Test Recipe List Retrieval", function () {
         "is_visible"
       );
 
-      // Validate the types of top-level fields
+      // Validate the types of the top-level fields
       expect(recipe.modified_flag).to.be.a("boolean");
       expect(recipe.user_ID).to.be.a("string");
       expect(recipe.recipe_ID).to.be.a("string");
@@ -58,11 +60,10 @@ describe("Test Recipe List Retrieval", function () {
     });
   });
 
-  // Make sure they have the expected properties
+  // Test 3: Validate the properties of each recipe version (more granular)
   it("Each recipe version should have the expected properties", function () {
     response.body.forEach((recipe) => {
       recipe.recipe_versions.forEach((version) => {
-        // Validate fields in each recipe version
         expect(version).to.include.keys(
           "cooking_duration",
           "version_number",
@@ -77,14 +78,14 @@ describe("Test Recipe List Retrieval", function () {
         expect(version.ingredients).to.be.an("array");
         expect(version.directions).to.be.an("array");
 
-        // Validate fields in ingredients
+        // Validate the properties of ingredients in each recipe version
         version.ingredients.forEach((ingredient) => {
           expect(ingredient).to.include.keys("name", "unit");
           expect(ingredient.name).to.be.a("string");
           expect(ingredient.unit).to.be.a("string");
         });
 
-        // Validate fields in directions
+        // Validate the properties of directions in each recipe version
         version.directions.forEach((direction) => {
           expect(direction).to.include.keys("step");
           expect(direction.step).to.be.a("string");
