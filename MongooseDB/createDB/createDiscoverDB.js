@@ -11,18 +11,17 @@ discoverCollection.deleteMany({});
 // Insert sample recipes with a user_ID
 
 discoverCollection.insertMany([
-
   {
     modified_flag: true,
     user_ID: "user001",
     recipe_ID: "recipe001",
     recipe_name: "Classic Pancakes",
-    meal_category: ["Breakfast"],  // Enum type for category
+    meal_category: ["Breakfast"], // Enum type for category
     recipe_versions: [
       {
         cooking_duration: 15, // Example cooking time
-        version_number: 1,    // First version
-        serving_size: 1,      // Number of servings
+        version_number: 1, // First version
+        serving_size: 1, // Number of servings
         ingredients: [
           { name: "Flour", unit: "cup" },
           { name: "Milk", unit: "cup" },
@@ -45,7 +44,7 @@ discoverCollection.insertMany([
     user_ID: "user002",
     recipe_ID: "recipe002",
     recipe_name: "Spaghetti Bolognese",
-    meal_category: ["Dinner"],  // Enum type for category
+    meal_category: ["Dinner"], // Enum type for category
     recipe_versions: [
       {
         cooking_duration: 40,
@@ -75,7 +74,7 @@ discoverCollection.insertMany([
     user_ID: "user001",
     recipe_ID: "recipe003",
     recipe_name: "Caesar Salad",
-    meal_category: ["Salad"],  // Enum type for category
+    meal_category: ["Salad"], // Enum type for category
     recipe_versions: [
       {
         cooking_duration: 10, // Short cooking time
@@ -102,7 +101,7 @@ discoverCollection.insertMany([
     user_ID: "user003",
     recipe_ID: "recipe004",
     recipe_name: "Chicken Curry",
-    meal_category: ["Dinner"],  // Enum type for category
+    meal_category: ["Dinner"], // Enum type for category
     recipe_versions: [
       {
         cooking_duration: 30,
@@ -131,7 +130,7 @@ discoverCollection.insertMany([
     user_ID: "user002",
     recipe_ID: "recipe005",
     recipe_name: "Avocado Toast",
-    meal_category: ["Breakfast"],  // Enum type for category
+    meal_category: ["Breakfast"], // Enum type for category
     recipe_versions: [
       {
         cooking_duration: 10,
@@ -159,7 +158,7 @@ discoverCollection.insertMany([
     user_ID: "user004",
     recipe_ID: "recipe006",
     recipe_name: "Chocolate Chip Cookies",
-    meal_category: ["Dessert"],  // Enum type for category
+    meal_category: ["Dessert"], // Enum type for category
     recipe_versions: [
       {
         cooking_duration: 25,
@@ -178,7 +177,9 @@ discoverCollection.insertMany([
           { step: "Cream together butter and sugars." },
           { step: "Beat in eggs one at a time." },
           { step: "Mix in flour, then fold in chocolate chips." },
-          { step: "Drop dough by spoonfuls onto baking sheet and bake for 10-12 minutes." },
+          {
+            step: "Drop dough by spoonfuls onto baking sheet and bake for 10-12 minutes.",
+          },
         ],
       },
     ],
@@ -190,7 +191,7 @@ discoverCollection.insertMany([
     user_ID: "user003",
     recipe_ID: "recipe007",
     recipe_name: "Vegetable Stir Fry",
-    meal_category: ["Lunch"],  // Enum type for category
+    meal_category: ["Lunch"], // Enum type for category
     recipe_versions: [
       {
         cooking_duration: 15,
@@ -218,7 +219,7 @@ discoverCollection.insertMany([
     user_ID: "user002",
     recipe_ID: "recipe008",
     recipe_name: "Banana Smoothie",
-    meal_category: ["Beverage"],  // Enum type for category
+    meal_category: ["Beverage"], // Enum type for category
     recipe_versions: [
       {
         cooking_duration: 5,
@@ -239,9 +240,6 @@ discoverCollection.insertMany([
     image_url: "http://example.com/banana_smoothie.jpg",
     is_visible: true,
   },
-]);
-
-
   {
     recipe_ID: "recipe004",
     recipe_name: "Chicken Curry",
