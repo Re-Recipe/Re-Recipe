@@ -13,7 +13,7 @@ describe('Test Recipes API', function () {
 
     before(function (done) {
         chai.request("http://localhost:8080")
-            .get("/api/discover")  // Corrected endpoint
+            .get("/app/discover")  
             .end(function (err, res) {
                 requestResult = res.body;
                 response = res;
@@ -23,18 +23,21 @@ describe('Test Recipes API', function () {
             });
     });
 
+    // 1. Make sure response is an array with 2+ recipes 
     it('Should return an array object with more than 2 recipes', function () {
         expect(response).to.have.status(200);
         expect(response.body).to.have.length.above(2);
     });
 
+    // 2. Make sure first index has the right properties 
     it('The first entry in the array has known properties', function () {
         // Check if the first recipe has the expected properties
         expect(requestResult[0]).to.include.keys('recipe_ID', 'recipe_name', 'meal_category', 'recipe_versions', 'image_url', 'is_visible');
         expect(requestResult[0]).to.have.property('_id');
         expect(requestResult[0].recipe_versions[0]).to.have.property('cooking_duration');
     });
-
+    
+    // 3. Check the rest 
     it('The elements in the array have the expected properties', function () {
         expect(response.body).to.satisfy(function (body) {
             for (var i = 0; i < body.length; i++) {
