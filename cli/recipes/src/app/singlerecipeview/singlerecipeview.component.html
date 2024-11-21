@@ -1,14 +1,8 @@
 <div *ngIf="recipe; else loadingOrError" class="container my-5 d-flex">
   <!-- Image Section (Left) -->
   <div class="image-section me-4">
-    <h1 class="display-4 mb-4 text-center text-success">
-      {{ recipe.recipe_name }}
-    </h1>
-    <img
-      [src]="recipe.image_url"
-      alt="{{ recipe.recipe_name }}"
-      class="img-fluid rounded shadow-lg"
-    />
+    <h1 class="display-4 mb-4 text-center text-success">{{ recipe.recipe_name }}</h1>
+    <img [src]="recipe.image_url" alt="{{ recipe.recipe_name }}" class="img-fluid rounded shadow-lg">
   </div>
 
   <!-- Recipe Details Section (Right) -->
@@ -39,10 +33,7 @@
 
       <h3 class="text-primary">Directions:</h3>
       <ol class="list-group list-group-numbered">
-        <li
-          *ngFor="let direction of recipe.recipe_versions[0].directions"
-          class="list-group-item p-3"
-        >
+        <li *ngFor="let direction of recipe.directions" class="list-group-item p-3">
           {{ direction.step }}
         </li>
       </ol>
