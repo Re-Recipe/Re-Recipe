@@ -1,6 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { RecipeservicesService } from '../../recipeservices.service';
+import { IRecipe } from '../model/IRecipe.model';
+import { IContents } from '../model/IContents';
 @Component({
   selector: 'app-discover',
   templateUrl: './discover.component.html',
@@ -8,18 +10,27 @@ import { RecipeservicesService } from '../../recipeservices.service';
 })
 export class DiscoverComponent {
   title = 'recipes';
-  constructor (private recipeService: RecipeservicesService){
+  recipeList: IRecipe[] = [];
+  recipeList_1: IContents[] = [];
 
+  constructor(private recipeService: RecipeservicesService) {}
+
+  getRecipes() {
+    this.recipeService.getRecipes().subscribe(
+      data => this.recipeList = data,
+      error => console.error('Error fetching recipes:', error)
+    );
   }
 
-  recipeList: any = [];
-  getRecipes(){
-    this.recipeService.getRecipes().subscribe(data=>{
-      this.recipeList = data;
-
-    }) 
+  getRecipes_1() {
+    this.recipeService.getRecipes_1().subscribe(
+      data => this.recipeList_1 = data,
+      error => console.error('Error fetching recipes_1:', error)
+    );
   }
-ngOnInit(){ 
-  this.getRecipes();
-}
+
+  ngOnInit() {
+    this.getRecipes();
+    this.getRecipes_1();
+  }
 }
