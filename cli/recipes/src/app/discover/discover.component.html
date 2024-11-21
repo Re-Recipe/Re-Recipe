@@ -18,12 +18,15 @@
         <!-- Toggle Checkbox -->
         <input type="checkbox" class="top-right-checkbox form-check-input" />
 
-        <!-- Image Section -->
-        <img
-          [src]="recipe.image_url || 'assets/images/placeholder.png'"
-          class="card-img-top"
-          alt="{{ recipe.recipe_name }}"
-        />
+        <!-- Clickable Link Wrapper -->
+        <a [routerLink]="['/discover', recipe.recipe_ID]" class="stretched-link text-decoration-none">
+          <!-- Image Section -->
+          <img
+            [src]="recipe.image_url || 'assets/images/placeholder.png'"
+            class="card-img-top"
+            alt="{{ recipe.recipe_name }}"
+          />
+        </a>
 
         <!-- Card Body -->
         <div class="card-body">
