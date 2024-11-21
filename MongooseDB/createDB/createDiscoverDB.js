@@ -25,7 +25,7 @@ discoverCollection.insertMany([
         ingredients: [
           { name: "Flour", unit: "cup" },
           { name: "Milk", unit: "cup" },
-          { name: "Eggs", unit: "each" },
+          { name: "Eggs", unit: "exeach" },
           { name: "Baking Powder", unit: "tbsp" },
           { name: "Salt", unit: "tsp" },
         ],
