@@ -6,7 +6,7 @@ var should = chai.should();
 
 chai.use(chaiHttp);
 
-describe('Test Recipes API', function () {
+describe('Test Get Recipe Object List', function () {
 
     var requestResult;
     var response;
