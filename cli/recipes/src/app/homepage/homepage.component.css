@@ -19,7 +19,6 @@
     background-image: url('https://i.pinimg.com/originals/d3/6d/46/d36d462db827833805497d9ea78a1343.jpg'); /* Replace with your own image */
     background-position: center;
     background-size: cover;
-    filter: blur(2px);
     z-index: -1;
   }
   
@@ -35,7 +34,8 @@
     font-size: 3rem;
     font-weight: bold;
     margin-bottom: 20px;
-    animation: fadeIn 2s ease-out;
+    color: aliceblue;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5); /* Drop shadow */
   }
   
   /* Fade-in animation keyframes */
