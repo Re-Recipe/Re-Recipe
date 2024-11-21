@@ -59,7 +59,7 @@ var DiscoverModel = /** @class */ (function () {
             recipeList: [
                 { type: mongoose.Schema.Types.ObjectId, ref: "RecipeModel" },
             ],
-        }, { collection: "recipes" });
+        }, { collection: "discover" });
     };
     /**
      * Connects to the MongoDB database and creates the Mongoose model based on the schema.

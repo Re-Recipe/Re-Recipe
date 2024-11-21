@@ -67,7 +67,7 @@ class App {
     );
 
     router.get(
-      "/app/discover/:recipeID",
+      "/app/discover/:recipeID", 
       async (req: express.Request, res: express.Response): Promise<void> => {
         const recipeID: string = req.params.recipeID;
         console.log("Query recipe list with id:", recipeID);

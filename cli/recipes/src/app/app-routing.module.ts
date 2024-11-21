@@ -7,10 +7,10 @@ import { CookbookComponent } from './cookbook/cookbook.component';
 import { SinglerecipeviewComponent } from './singlerecipeview/singlerecipeview.component';
 const routes: Routes = [
   { path: '', component:  DiscoverComponent},
-  { path: 'recipes', component:  DiscoverComponent},
+  { path: 'discover', component:  DiscoverComponent},
   { path: 'createrecipe', component: CreaterecipeComponent},
   { path: 'cookbook',component:CookbookComponent},
-  { path: 'recipes/:recipeID', component: SinglerecipeviewComponent },
+  { path: 'discover/:recipeID', component: SinglerecipeviewComponent },
 ]; 
 
 @NgModule({

@@ -24,7 +24,7 @@ export class RecipeservicesService {
    * @returns An Observable that emits an array of IRecipe objects.
    */
   getRecipes(): Observable<IRecipe[]> {
-    return this.http.get<IRecipe[]>(`${this.hostUrl}recipes`);
+    return this.http.get<IRecipe[]>(`${this.hostUrl}discover`);
   }
 
   /**
@@ -34,7 +34,7 @@ export class RecipeservicesService {
    *          provided ID.
    */
   getRecipeByID(recipeID: string): Observable<IRecipe> {
-    return this.http.get<IRecipe>(`${this.hostUrl}recipes/${recipeID}`);
+    return this.http.get<IRecipe>(`${this.hostUrl}discover/${recipeID}`);
   }
 
   /**
@@ -54,7 +54,7 @@ export class RecipeservicesService {
    * @returns An Observable that emits the newly created IRecipe object.
    */
   addRecipe(recipe: IRecipe): Observable<IRecipe> {
-    return this.http.post<IRecipe>(`${this.hostUrl}recipes`, recipe);
+    return this.http.post<IRecipe>(`${this.hostUrl}discover`, recipe);
   }
 
   /**
