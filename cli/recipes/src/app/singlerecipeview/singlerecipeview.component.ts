@@ -18,7 +18,7 @@ export class SinglerecipeviewComponent implements OnInit {
   ngOnInit(): void {
     const recipeID = this.route.snapshot.paramMap.get('recipeID');
     if (recipeID) {
-      this.recipeService.getRecipeByID_1(recipeID).subscribe(
+      this.recipeService.getRecipeContentByID(recipeID).subscribe(
         (data) => {
           this.recipe = data;
           console.log('Fetched recipe:', this.recipe);

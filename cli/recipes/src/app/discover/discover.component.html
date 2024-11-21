@@ -9,6 +9,12 @@
         [(ngModel)]="searchQuery"
       />
     </div>
+    <div class="col-md-4">
+      <select class="form-select" [(ngModel)]="selectedCategory">
+        <option value="">All Categories</option>
+        <option *ngFor="let category of uniqueCategories" [value]="category">{{ category }}</option>
+      </select>
+    </div>
   </div>
 
   <!-- Recipe Cards -->
@@ -33,7 +39,7 @@
           <!-- Recipe Title -->
           <h5 class="card-title">{{ recipe.recipe_name }}</h5>
 
-          <!-- Hardcoded Heart Ratings -->
+          <!-- Hardcoded Heart Ratings TBD -->
           <div class="stars" aria-label="Hardcoded star rating">
             ★★★★★
           </div>
@@ -45,7 +51,7 @@
 
           <!-- Cooking Time -->
           <p class="card-text text-muted">
-            <strong>Cooking Time:</strong> {{ recipe.recipe_versions[0]?.cooking_duration }} minutes
+            <strong>Cooking Time:</strong> {{ recipe.recipe_versions[0].cooking_duration }} minutes
           </p>
         </div>
       </div>

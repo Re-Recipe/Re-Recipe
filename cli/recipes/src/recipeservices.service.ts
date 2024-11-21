@@ -26,7 +26,7 @@ export class RecipeservicesService {
   getRecipes(): Observable<IRecipe[]> {
     return this.http.get<IRecipe[]>(`${this.hostUrl}discover`);
   }
-  getRecipes_1(): Observable<IRecipeContents[]>{
+  getRecipeContent(): Observable<IRecipeContents[]>{
     return this.http.get<IRecipeContents[]>(`${this.hostUrl}discover`);
   }
 
@@ -40,7 +40,7 @@ export class RecipeservicesService {
   getRecipeByID(recipeID: string): Observable<IRecipe> {
     return this.http.get<IRecipe>(`${this.hostUrl}discover/${recipeID}`);
   }
-  getRecipeByID_1(recipeID: string): Observable<IRecipeContents> {
+  getRecipeContentByID(recipeID: string): Observable<IRecipeContents> {
     return this.http.get<IRecipeContents>(`${this.hostUrl}discover/${recipeID}`);
   }
 
@@ -73,54 +73,54 @@ export class RecipeservicesService {
   deleteRecipe(recipeID: string): Observable<void> {
     return this.http.delete<void>(`${this.hostUrl}recipes/${recipeID}`);
   }
-  /**
-   * Updates the directions of a recipe.
-   * @param recipeID - The ID of the recipe to be updated.
-   * @param directions - An array of strings representing the new directions.
-   * @returns An Observable that emits the updated IRecipe object.
-   */
-  updateRecipeDirections(
-    recipeID: string,
-    directions: string[]
-  ): Observable<IRecipe> {
-    return this.http.put<IRecipe>(
-      `${this.hostUrl}recipes/${recipeID}/directions`,
-      { directions }
-    );
-  }
+  // /**
+  //  * Updates the directions of a recipe.
+  //  * @param recipeID - The ID of the recipe to be updated.
+  //  * @param directions - An array of strings representing the new directions.
+  //  * @returns An Observable that emits the updated IRecipe object.
+  //  */
+  // updateRecipeDirections(
+  //   recipeID: string,
+  //   directions: string[]
+  // ): Observable<IRecipe> {
+  //   return this.http.put<IRecipe>(
+  //     `${this.hostUrl}recipes/${recipeID}/directions`,
+  //     { directions }
+  //   );
+  // }
 
-  /**
-   * Updates the ingredients of a recipe.
-   * @param recipeID - The ID of the recipe to be updated.
-   * @param ingredients - An array of objects containing `name`, `quantity`,
-   *                      and `unit` for each ingredient.
-   * @returns An Observable that emits the updated IRecipe object.
-   */
-  updateRecipeIngredients(
-    recipeID: string,
-    ingredients: { name: string; quantity: number; unit: string }[]
-  ): Observable<IRecipe> {
-    return this.http.put<IRecipe>(
-      `${this.hostUrl}recipes/${recipeID}/ingredients`,
-      { ingredients }
-    );
-  }
+  // /**
+  //  * Updates the ingredients of a recipe.
+  //  * @param recipeID - The ID of the recipe to be updated.
+  //  * @param ingredients - An array of objects containing `name`, `quantity`,
+  //  *                      and `unit` for each ingredient.
+  //  * @returns An Observable that emits the updated IRecipe object.
+  //  */
+  // updateRecipeIngredients(
+  //   recipeID: string,
+  //   ingredients: { name: string; quantity: number; unit: string }[]
+  // ): Observable<IRecipe> {
+  //   return this.http.put<IRecipe>(
+  //     `${this.hostUrl}recipes/${recipeID}/ingredients`,
+  //     { ingredients }
+  //   );
+  // }
 
-  /**
-   * Updates the image URL of a recipe.
-   * @param recipeID - The ID of the recipe to be updated.
-   * @param imageUrl - The new image URL for the recipe.
-   * @returns An Observable that emits the updated IRecipe object.
-   */
-  updateRecipeImageUrl(
-    recipeID: string,
-    imageUrl: string
-  ): Observable<IRecipe> {
-    return this.http.put<IRecipe>(
-      `${this.hostUrl}recipes/${recipeID}/imageUrl`,
-      { imageUrl }
-    );
-  }
+  // /**
+  //  * Updates the image URL of a recipe.
+  //  * @param recipeID - The ID of the recipe to be updated.
+  //  * @param imageUrl - The new image URL for the recipe.
+  //  * @returns An Observable that emits the updated IRecipe object.
+  //  */
+  // updateRecipeImageUrl(
+  //   recipeID: string,
+  //   imageUrl: string
+  // ): Observable<IRecipe> {
+  //   return this.http.put<IRecipe>(
+  //     `${this.hostUrl}recipes/${recipeID}/imageUrl`,
+  //     { imageUrl }
+  //   );
+  // }
 
   /**
    * Updates the visibility status of a recipe.
