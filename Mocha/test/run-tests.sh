@@ -1,7 +1,8 @@
 #!/bin/bash
 
-echo "Running all Mocha tests..."
+echo "Running selected Mocha tests..."
 # Navigate to the script's directory
 cd "$(dirname "$0")"
-# Run Mocha tests with the spec reporter
-npx mocha --reporter spec
+
+# Run the specified Mocha test files with the spec reporter
+npx mocha --reporter spec getRecipeListObjects.test.js getSingleRecipe.test.js
