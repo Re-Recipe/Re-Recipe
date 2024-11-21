@@ -1,23 +1,38 @@
-import { HttpClient } from '@angular/common/http';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RecipeservicesService } from '../../recipeservices.service';
-import { IRecipe } from '../model/IRecipe.model';
-import { IContents } from '../model/IContents';
+import { IRecipe } from '../model/IRecipe';
+
 @Component({
   selector: 'app-discover',
   templateUrl: './discover.component.html',
-  styleUrl: './discover.component.css'
+  styleUrls: ['./discover.component.css']
 })
-export class DiscoverComponent {
-  title = 'recipes';
+export class DiscoverComponent implements OnInit {
   recipeList: IRecipe[] = [];
+  loading: boolean = true;
+  error: string | null = null;
   recipeList_1: IContents[] = [];
   searchQuery: string = '';
 
   constructor(private recipeService: RecipeservicesService) {}
 
+  ngOnInit(): void {
+    this.getRecipes();
+  }
+
   getRecipes() {
     this.recipeService.getRecipes().subscribe(
+      (data) => {
+        console.log(data); // Inspect API response
+        this.recipeList = data;
+        this.loading = false;
+      },
+      (error) => {
+        this.error = 'Failed to load recipes.';
+        console.error(error);
+        this.loading = false;
+      }
+    );
       data => this.recipeList = data,
       error => console.error('Error fetching recipes:', error)
     );

@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { IRecipe } from './app/model/IRecipe.model';
-import { IContents } from './app/model/IContents';
+import { IRecipe } from './app/model/IRecipe';
+import { IRecipeContents } from './app/model/IRecipeContents';
 @Injectable({
   providedIn: 'root',
 })
@@ -26,8 +26,8 @@ export class RecipeservicesService {
   getRecipes(): Observable<IRecipe[]> {
     return this.http.get<IRecipe[]>(`${this.hostUrl}discover`);
   }
-  getRecipes_1(): Observable<IContents[]>{
-    return this.http.get<IContents[]>(`${this.hostUrl}discover`);
+  getRecipes_1(): Observable<IRecipeContents[]>{
+    return this.http.get<IRecipeContents[]>(`${this.hostUrl}discover`);
   }
 
  
@@ -40,8 +40,8 @@ export class RecipeservicesService {
   getRecipeByID(recipeID: string): Observable<IRecipe> {
     return this.http.get<IRecipe>(`${this.hostUrl}discover/${recipeID}`);
   }
-  getRecipeByID_1(recipeID: string): Observable<IContents> {
-    return this.http.get<IContents>(`${this.hostUrl}discover/${recipeID}`);
+  getRecipeByID_1(recipeID: string): Observable<IRecipeContents> {
+    return this.http.get<IRecipeContents>(`${this.hostUrl}discover/${recipeID}`);
   }
 
   /**

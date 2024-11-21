@@ -1,6 +1,6 @@
 import { Document } from "mongoose";
 
-export interface IContents extends Document {
+export interface IRecipeContents extends Document {
   cooking_duration: number;
   version_number: number;
   serving_size: number;
@@ -8,6 +8,7 @@ export interface IContents extends Document {
     ingredient_id?: string;
     name: string;
     unit: string;
+    quantity: Number,
   }[];
   directions: {
     step: string;

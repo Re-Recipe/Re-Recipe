@@ -9,25 +9,24 @@ discoverCollection = db.getCollection("discover");
 discoverCollection.deleteMany({});
 
 // Insert sample recipes with a user_ID
-
 discoverCollection.insertMany([
   {
     modified_flag: true,
     user_ID: "user001",
     recipe_ID: "recipe001",
     recipe_name: "Classic Pancakes",
-    meal_category: ["Breakfast"], // Enum type for category
+    meal_category: ["Breakfast"],
     recipe_versions: [
       {
-        cooking_duration: 15, // Example cooking time
-        version_number: 1, // First version
-        serving_size: 1, // Number of servings
+        cooking_duration: 15,
+        version_number: 1,
+        serving_size: 1,
         ingredients: [
-          { name: "Flour", unit: "cup" },
-          { name: "Milk", unit: "cup" },
-          { name: "Eggs", unit: "exeach" },
-          { name: "Baking Powder", unit: "tbsp" },
-          { name: "Salt", unit: "tsp" },
+          { name: "Flour", quantity: 1, unit: "cup" },
+          { name: "Milk", quantity: 1, unit: "cup" },
+          { name: "Eggs", quantity: 2, unit: "each" },
+          { name: "Baking Powder", quantity: 1, unit: "tbsp" },
+          { name: "Salt", quantity: 0.5, unit: "tsp" },
         ],
         directions: [
           { step: "Mix dry ingredients together." },
@@ -37,6 +36,7 @@ discoverCollection.insertMany([
       },
     ],
     image_url: "https://www.pamperedchef.com/iceberg/com/recipe/1307769-lg.jpg",
+    image_url: "https://www.pamperedchef.com/iceberg/com/recipe/1307769-lg.jpg",
     is_visible: true,
   },
   {
@@ -44,18 +44,18 @@ discoverCollection.insertMany([
     user_ID: "user002",
     recipe_ID: "recipe002",
     recipe_name: "Spaghetti Bolognese",
-    meal_category: ["Dinner"], // Enum type for category
+    meal_category: ["Dinner"],
     recipe_versions: [
       {
         cooking_duration: 40,
         version_number: 0,
         serving_size: 2,
         ingredients: [
-          { name: "Spaghetti", unit: "g" },
-          { name: "Ground Beef", unit: "lb" },
-          { name: "Tomato Sauce", unit: "cup" },
-          { name: "Onion", unit: "each" },
-          { name: "Garlic", unit: "tsp" },
+          { name: "Spaghetti", quantity: 200, unit: "g" },
+          { name: "Ground Beef", quantity: 0.5, unit: "lb" },
+          { name: "Tomato Sauce", quantity: 1.5, unit: "cup" },
+          { name: "Onion", quantity: 1, unit: "each" },
+          { name: "Garlic", quantity: 1, unit: "clove" },
         ],
         directions: [
           { step: "Cook spaghetti according to package instructions." },
@@ -66,7 +66,7 @@ discoverCollection.insertMany([
         ],
       },
     ],
-    image_url: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ97jLGv5IcW92d-U0smDY1ovVPs4M7m7LlvA&s",
+    image_url: "https://images.ctfassets.net/uexfe9h31g3m/6QtnhruEFi8qgEyYAICkyS/ab01e9b1da656f35dd1a721c810162a0/Spaghetti_bolognese_4x3_V2_LOW_RES.jpg",
     is_visible: true,
   },
   {
@@ -74,17 +74,17 @@ discoverCollection.insertMany([
     user_ID: "user001",
     recipe_ID: "recipe003",
     recipe_name: "Caesar Salad",
-    meal_category: ["Salad"], // Enum type for category
+    meal_category: ["Salad"],
     recipe_versions: [
       {
-        cooking_duration: 10, // Short cooking time
+        cooking_duration: 10,
         version_number: 1,
         serving_size: 1,
         ingredients: [
-          { name: "Romaine Lettuce", unit: "each" },
-          { name: "Caesar Dressing", unit: "cup" },
-          { name: "Croutons", unit: "cup" },
-          { name: "Parmesan Cheese", unit: "cup" },
+          { name: "Romaine Lettuce", quantity: 1, unit: "head" },
+          { name: "Caesar Dressing", quantity: 0.25, unit: "cup" },
+          { name: "Croutons", quantity: 0.5, unit: "cup" },
+          { name: "Parmesan Cheese", quantity: 0.25, unit: "cup" },
         ],
         directions: [
           { step: "Chop romaine lettuce and place in a large bowl." },
@@ -93,7 +93,7 @@ discoverCollection.insertMany([
         ],
       },
     ],
-    image_url: "https://www.allrecipes.com/thmb/mXZ0Tulwn3x9_YB_ZbkiTveDYFE=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/229063-Classic-Restaurant-Caesar-Salad-ddmfs-4x3-231-89bafa5e54dd4a8c933cf2a5f9f12a6f.jpg",
+    image_url: "https://www.seriouseats.com/thmb/Fi_FEyVa3_-_uzfXh6OdLrzal2M=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/the-best-caesar-salad-recipe-06-40e70f549ba2489db09355abd62f79a9.jpg",
     is_visible: true,
   },
   {
@@ -101,18 +101,18 @@ discoverCollection.insertMany([
     user_ID: "user003",
     recipe_ID: "recipe004",
     recipe_name: "Chicken Curry",
-    meal_category: ["Dinner"], // Enum type for category
+    meal_category: ["Dinner"],
     recipe_versions: [
       {
         cooking_duration: 30,
         version_number: 0,
         serving_size: 2,
         ingredients: [
-          { name: "Chicken Breast", unit: "lb" },
-          { name: "Coconut Milk", unit: "cup" },
-          { name: "Curry Powder", unit: "tbsp" },
-          { name: "Onion", unit: "each" },
-          { name: "Garlic", unit: "tsp" },
+          { name: "Chicken Breast", quantity: 1, unit: "lb" },
+          { name: "Coconut Milk", quantity: 1, unit: "cup" },
+          { name: "Curry Powder", quantity: 2, unit: "tbsp" },
+          { name: "Onion", quantity: 1, unit: "each" },
+          { name: "Garlic", quantity: 2, unit: "cloves" },
         ],
         directions: [
           { step: "Heat oil in a pan and cook onions until softened." },
@@ -122,7 +122,7 @@ discoverCollection.insertMany([
         ],
       },
     ],
-    image_url: "https://www.allrecipes.com/thmb/5cHs2EbIqqjkg8oz-vXzuUpMD2w=/0x512/filters:no_upscale():max_bytes(150000):strip_icc()/46822-indian-chicken-curry-ii-DDMFS-4x3-39160aaa95674ee395b9d4609e3b0988.jpg",
+    image_url: "https://www.kitchensanctuary.com/wp-content/uploads/2020/08/Easy-Chicken-Curry-square-FS-117.jpg",
     is_visible: true,
   },
   {
@@ -130,18 +130,18 @@ discoverCollection.insertMany([
     user_ID: "user002",
     recipe_ID: "recipe005",
     recipe_name: "Avocado Toast",
-    meal_category: ["Breakfast"], // Enum type for category
+    meal_category: ["Breakfast"],
     recipe_versions: [
       {
         cooking_duration: 10,
         version_number: 0,
         serving_size: 1,
         ingredients: [
-          { name: "Bread", unit: "slice" },
-          { name: "Avocado", unit: "each" },
-          { name: "Salt", unit: "tsp" },
-          { name: "Pepper", unit: "tsp" },
-          { name: "Lemon Juice", unit: "tsp" },
+          { name: "Bread", quantity: 1, unit: "slice" },
+          { name: "Avocado", quantity: 1, unit: "each" },
+          { name: "Salt", quantity: 0.25, unit: "tsp" },
+          { name: "Pepper", quantity: 0.25, unit: "tsp" },
+          { name: "Lemon Juice", quantity: 0.5, unit: "tsp" },
         ],
         directions: [
           { step: "Toast bread slices to desired crispness." },
@@ -150,7 +150,7 @@ discoverCollection.insertMany([
         ],
       },
     ],
-    image_url: "https://www.rootsandradishes.com/wp-content/uploads/2017/08/avocado-toast-with-everything-bagel-seasoning-feat.jpg",
+    image_url: "https://bonabbetit.com/wp-content/uploads/2022/07/Avocado-toast-with-farmers-cheese-and-bacon-bits.jpg",
     is_visible: true,
   },
   {
@@ -158,19 +158,19 @@ discoverCollection.insertMany([
     user_ID: "user004",
     recipe_ID: "recipe006",
     recipe_name: "Chocolate Chip Cookies",
-    meal_category: ["Dessert"], // Enum type for category
+    meal_category: ["Dessert"],
     recipe_versions: [
       {
         cooking_duration: 25,
         version_number: 0,
         serving_size: 24,
         ingredients: [
-          { name: "Butter", unit: "cup" },
-          { name: "Sugar", unit: "cup" },
-          { name: "Brown Sugar", unit: "cup" },
-          { name: "Eggs", unit: "each" },
-          { name: "Flour", unit: "cup" },
-          { name: "Chocolate Chips", unit: "cup" },
+          { name: "Butter", quantity: 1, unit: "cup" },
+          { name: "Sugar", quantity: 0.75, unit: "cup" },
+          { name: "Brown Sugar", quantity: 0.75, unit: "cup" },
+          { name: "Eggs", quantity: 2, unit: "each" },
+          { name: "Flour", quantity: 2.25, unit: "cup" },
+          { name: "Chocolate Chips", quantity: 2, unit: "cup" },
         ],
         directions: [
           { step: "Preheat oven to 350°F (175°C)." },
@@ -183,7 +183,7 @@ discoverCollection.insertMany([
         ],
       },
     ],
-    image_url: "https://handletheheat.com/wp-content/uploads/2020/10/BAKERY-STYLE-CHOCOLATE-CHIP-COOKIES-9-637x637-1-500x500.jpg",
+    image_url: "https://sallysbakingaddiction.com/wp-content/uploads/2013/05/classic-chocolate-chip-cookies.jpg",
     is_visible: true,
   },
   {
@@ -191,18 +191,18 @@ discoverCollection.insertMany([
     user_ID: "user003",
     recipe_ID: "recipe007",
     recipe_name: "Vegetable Stir Fry",
-    meal_category: ["Lunch"], // Enum type for category
+    meal_category: ["Lunch"],
     recipe_versions: [
       {
         cooking_duration: 15,
         version_number: 0,
         serving_size: 2,
         ingredients: [
-          { name: "Broccoli", unit: "cup" },
-          { name: "Carrot", unit: "each" },
-          { name: "Bell Pepper", unit: "each" },
-          { name: "Soy Sauce", unit: "tbsp" },
-          { name: "Olive Oil", unit: "tbsp" },
+          { name: "Broccoli", quantity: 1, unit: "cup" },
+          { name: "Carrot", quantity: 1, unit: "each" },
+          { name: "Bell Pepper", quantity: 1, unit: "each" },
+          { name: "Soy Sauce", quantity: 2, unit: "tbsp" },
+          { name: "Olive Oil", quantity: 1, unit: "tbsp" },
         ],
         directions: [
           { step: "Heat olive oil in a wok over medium heat." },
@@ -211,7 +211,7 @@ discoverCollection.insertMany([
         ],
       },
     ],
-    image_url: "https://images.themodernproper.com/billowy-turkey/production/posts/VegetableStirFry_10.jpg?w=1200&q=82&auto=format&fit=crop&dm=1703377361&s=dcc5b387ddf86e293603e6c4adeba792",
+    image_url: "https://www.allrecipes.com/thmb/MF7yU1MBbRlaT40ogVr-1PgggKc=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/222658-frozen-vegetable-stir-fry-4x3-1382-583b53fa0bcd4247920611ad431c14cb.jpg",
     is_visible: true,
   },
   {
@@ -219,17 +219,17 @@ discoverCollection.insertMany([
     user_ID: "user002",
     recipe_ID: "recipe008",
     recipe_name: "Banana Smoothie",
-    meal_category: ["Beverage"], // Enum type for category
+    meal_category: ["Beverage"],
     recipe_versions: [
       {
         cooking_duration: 5,
         version_number: 0,
         serving_size: 1,
         ingredients: [
-          { name: "Banana", unit: "each" },
-          { name: "Milk", unit: "cup" },
-          { name: "Honey", unit: "tbsp" },
-          { name: "Ice Cubes", unit: "each" },
+          { name: "Banana", quantity: 1, unit: "each" },
+          { name: "Milk", quantity: 1, unit: "cup" },
+          { name: "Honey", quantity: 1, unit: "tbsp" },
+          { name: "Ice Cubes", quantity: 3, unit: "each" },
         ],
         directions: [
           { step: "Combine all ingredients in a blender." },
@@ -237,7 +237,7 @@ discoverCollection.insertMany([
         ],
       },
     ],
-    image_url: "https://yoursmoothieguide.com/wp-content/uploads/2022/01/Banana-Milkshake-7-1.jpg",
+    image_url: "https://www.dessertfortwo.com/wp-content/uploads/2023/02/Banana-Milkshake-8-735x1103.jpg",
     is_visible: true,
   },
 ]);

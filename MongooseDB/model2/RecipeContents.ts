@@ -1,6 +1,7 @@
 // models/ModifiedRecipeModel.ts
 import * as mongoose from "mongoose";
 import { IRecipeContents } from "../interfaces/IRecipeContents";
+import { MealCategory } from "./MealCategoryModel";
 
 class RecipeContents {
   public schema: mongoose.Schema<IRecipeContents>;
@@ -8,11 +9,10 @@ class RecipeContents {
 
   public constructor() {
     this.createSchema();
-    this.createModel();
   }
 
   public createSchema() {
-    const schemaDefinition: mongoose.SchemaDefinition<IRecipeContents> = {
+    const SchemaDefinition: mongoose.SchemaDefinition<IRecipeContents> = {
       version_number: { type: Number, default: 1, required: true },
       cooking_duration: { type: Number, required: true },
       serving_size: { type: Number, required: true },
@@ -34,7 +34,6 @@ class RecipeContents {
       ],
       notes: { type: String },
     };
-    this.schema = new mongoose.Schema(schemaDefinition);
   }
 
   /**
@@ -46,7 +45,4 @@ class RecipeContents {
   }
 }
 
-// export { RecipeContents };
-const recipeContentsInstance = new RecipeContents();
-
-export { recipeContentsInstance, RecipeContents };
+export { RecipeContents };

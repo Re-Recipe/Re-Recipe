@@ -1,20 +1,24 @@
 import * as mongoose from "mongoose";
 import { IRecipe } from "../interfaces/IRecipe";
-import { RecipeContents, recipeContentsInstance } from "./RecipeContents";
+import { RecipeContents } from "./RecipeContents";
 import { IRecipeContents } from "../interfaces/IRecipeContents";
+import { IMealCategories} from from "../interfaces/IMealCategories"
 import { v4 as uuidv4 } from "uuid";
-import { isReadable } from "stream";
+
+// todo pulled this out import { ICategory } from "../interfaces/ICategory";
+
 
 class RecipeModel {
   public schema: mongoose.Schema<IRecipe>;
   public recipe: mongoose.Model<IRecipe>;
+  public contents_schema: mongoose.Schema<IRecipeContents>;
+  public contents_array: mongoose.Model<IRecipeContents>;
 
   /**
    * Constructor to initialize the database connection and set up the schema and model.
    */
   public constructor() {
     this.createSchema();
-    this.createModel();
   }
 
   /**
@@ -26,25 +30,20 @@ class RecipeModel {
       modified_flag: Boolean,
       recipe_ID: { type: String, required: true }, // ID of the original recipe
       recipe_name: { type: String, required: true },
-      meal_category: {
-        enum: [
-          "breakfast",
-          "lunch",
-          "dinner",
-          "dessert",
-          "vegetarian",
-          "vegan",
-          "gluten-free",
-        ],
-      },
-
+      meal_category: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "MealCategory",
+          required: true,
+        },
+      ],
       recipe_versions: [
         { type: mongoose.Schema.Types.ObjectId, ref: "RecipeContents" },
       ], // this is recipe_contents
       image_url: { type: String },
       is_visible: { type: Boolean, default: false },
     };
-    this.schema = new mongoose.Schema(schemaDefinition);
+    this.createModel();
   }
 
   /**
@@ -52,8 +51,11 @@ class RecipeModel {
    * This model is used for object validation
    */
   public createModel() {
-    this.recipe =
-      mongoose.models.Recipe || mongoose.model<IRecipe>("Recipe", this.schema);
+    this.recipe = mongoose.model<IRecipe>("Recipe", this.schema);
+    this.contents_array = mongoose.model<IRecipeContents>(
+      "Contents",
+      this.contents_schema
+    );
   }
 
   /**
@@ -64,14 +66,16 @@ class RecipeModel {
    * @param
    * @param
    */
-  public async createRecipe(recipeData: IRecipe, isModified: boolean = false) {
-    const newRecipe = new this.recipe({
+  public createRecipe(recipeData: IRecipe, isModified: boolean = false) {
+    const newRecipe = new this.contents_array({
       ...recipeData,
+      // recipe_ID: uuidv4(), MAY NEED LATER IF DOESNT COME FROM CLIs
       modified_flag: isModified,
     });
 
     return newRecipe;
   }
+
   // Update?
   // Delete?
 
@@ -86,11 +90,11 @@ class RecipeModel {
    */
   public createRecipeVersion(recipe: IRecipe, recipe_contents_data: IRecipeContents) {
     const new_version_number = recipe.recipe_versions.length;
-    const newRecipeContents = new recipeContentsInstance.contents({
+    const recipe_contents = new this.contents_array({
       ...recipe_contents_data,
       version_number: new_version_number,
     });
-    recipe.recipe_versions.push(newRecipeContents);
+    recipe.recipe_versions.push(recipe_contents);
 
     return recipe;
   }

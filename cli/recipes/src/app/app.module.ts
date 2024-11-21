@@ -11,6 +11,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { provideHttpClient } from '@angular/common/http';
 import { HomepageComponent } from './homepage/homepage.component';
 
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -19,6 +20,7 @@ import { HomepageComponent } from './homepage/homepage.component';
     CreaterecipeComponent,
     SinglerecipeviewComponent,
     HomepageComponent,
+
   ],
   imports: [
     BrowserModule,
