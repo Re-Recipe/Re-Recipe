@@ -9,13 +9,13 @@
   <div class="recipe-details-section flex-grow-1 overflow-auto">
     <div class="recipe-details">
       <h3 class="text-primary">Category:</h3>
-      <p class="text-muted">{{ recipe.category[0]?.name }} - Serving: {{ recipe.category[0]?.serving }}</p>
+      <p class="text-muted">{{ recipe.meal_category[0] }} - Serving: {{ recipe.recipe_versions[0]?.serving_size }}</p>
 
       <h3 class="text-primary">Ingredients:</h3>
       <div class="row">
         <div class="col-md-6">
           <ul class="list-group">
-            <li *ngFor="let ingredient of recipe.ingredients.slice(0, recipe.ingredients.length / 2)" 
+            <li *ngFor="let ingredient of recipe.recipe_versions[0]?.ingredients.slice(0, recipe.recipe_versions[0]?.ingredients.length / 2)" 
                 class="list-group-item d-flex justify-content-between align-items-center">
               <b>{{ ingredient.quantity }} {{ ingredient.unit }}</b> - <span>{{ ingredient.name }}</span>
             </li>
@@ -23,7 +23,7 @@
         </div>
         <div class="col-md-6">
           <ul class="list-group">
-            <li *ngFor="let ingredient of recipe.ingredients.slice(recipe.ingredients.length / 2)" 
+            <li *ngFor="let ingredient of recipe.recipe_versions[0]?.ingredients.slice(recipe.recipe_versions[0]?.ingredients.length / 2)" 
                 class="list-group-item d-flex justify-content-between align-items-center">
               <b>{{ ingredient.quantity }} {{ ingredient.unit }}</b> - <span>{{ ingredient.name }}</span>
             </li>
@@ -33,7 +33,7 @@
 
       <h3 class="text-primary">Directions:</h3>
       <ol class="list-group list-group-numbered">
-        <li *ngFor="let direction of recipe.directions" class="list-group-item p-3">
+        <li *ngFor="let direction of recipe.recipe_versions[0]?.directions" class="list-group-item p-3">
           {{ direction.step }}
         </li>
       </ol>

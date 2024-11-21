@@ -7,7 +7,7 @@ import { DiscoverComponent } from './discover/discover.component';
 import { CookbookComponent } from './cookbook/cookbook.component';
 import { CreaterecipeComponent } from './createrecipe/createrecipe.component';
 import { SinglerecipeviewComponent } from './singlerecipeview/singlerecipeview.component';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { provideHttpClient } from '@angular/common/http';
 import { HomepageComponent } from './homepage/homepage.component';
 
@@ -24,6 +24,7 @@ import { HomepageComponent } from './homepage/homepage.component';
     BrowserModule,
     AppRoutingModule,
     ReactiveFormsModule, // Add ReactiveFormsModule
+    FormsModule,
   ],
   providers: [
     provideClientHydration(),

@@ -36,7 +36,7 @@ discoverCollection.insertMany([
         ],
       },
     ],
-    image_url: "http://example.com/classic_pancakes.jpg",
+    image_url: "https://www.pamperedchef.com/iceberg/com/recipe/1307769-lg.jpg",
     is_visible: true,
   },
   {
@@ -66,7 +66,7 @@ discoverCollection.insertMany([
         ],
       },
     ],
-    image_url: "http://example.com/spaghetti_bolognese.jpg",
+    image_url: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ97jLGv5IcW92d-U0smDY1ovVPs4M7m7LlvA&s",
     is_visible: true,
   },
   {
@@ -93,7 +93,7 @@ discoverCollection.insertMany([
         ],
       },
     ],
-    image_url: "http://example.com/caesar_salad.jpg",
+    image_url: "https://www.allrecipes.com/thmb/mXZ0Tulwn3x9_YB_ZbkiTveDYFE=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/229063-Classic-Restaurant-Caesar-Salad-ddmfs-4x3-231-89bafa5e54dd4a8c933cf2a5f9f12a6f.jpg",
     is_visible: true,
   },
   {
@@ -122,7 +122,7 @@ discoverCollection.insertMany([
         ],
       },
     ],
-    image_url: "http://example.com/chicken_curry.jpg",
+    image_url: "https://www.allrecipes.com/thmb/5cHs2EbIqqjkg8oz-vXzuUpMD2w=/0x512/filters:no_upscale():max_bytes(150000):strip_icc()/46822-indian-chicken-curry-ii-DDMFS-4x3-39160aaa95674ee395b9d4609e3b0988.jpg",
     is_visible: true,
   },
   {
@@ -150,7 +150,7 @@ discoverCollection.insertMany([
         ],
       },
     ],
-    image_url: "http://example.com/avocado_toast.jpg",
+    image_url: "https://www.rootsandradishes.com/wp-content/uploads/2017/08/avocado-toast-with-everything-bagel-seasoning-feat.jpg",
     is_visible: true,
   },
   {
@@ -183,7 +183,7 @@ discoverCollection.insertMany([
         ],
       },
     ],
-    image_url: "http://example.com/chocolate_chip_cookies.jpg",
+    image_url: "https://handletheheat.com/wp-content/uploads/2020/10/BAKERY-STYLE-CHOCOLATE-CHIP-COOKIES-9-637x637-1-500x500.jpg",
     is_visible: true,
   },
   {
@@ -211,7 +211,7 @@ discoverCollection.insertMany([
         ],
       },
     ],
-    image_url: "http://example.com/vegetable_stir_fry.jpg",
+    image_url: "https://images.themodernproper.com/billowy-turkey/production/posts/VegetableStirFry_10.jpg?w=1200&q=82&auto=format&fit=crop&dm=1703377361&s=dcc5b387ddf86e293603e6c4adeba792",
     is_visible: true,
   },
   {
@@ -237,7 +237,7 @@ discoverCollection.insertMany([
         ],
       },
     ],
-    image_url: "http://example.com/banana_smoothie.jpg",
+    image_url: "https://yoursmoothieguide.com/wp-content/uploads/2022/01/Banana-Milkshake-7-1.jpg",
     is_visible: true,
   },
 ]);

@@ -1,6 +1,13 @@
 <div class="container my-4">
+  <!-- Search Bar -->
+  <div class="row mb-4">
+    <div class="col-md-6">
+      <input type="text" class="form-control" placeholder="Search recipes..." [(ngModel)]="searchQuery" />
+    </div>
+  </div>
+
   <div class="row">
-    <div class="col-md-4 mb-4" *ngFor="let recipe of recipeList">
+    <div class="col-md-4 mb-4" *ngFor="let recipe of filteredRecipes()">
       <div class="card recipe-card d-flex flex-column">
         <input type="checkbox" class="top-right-checkbox form-check-input" />
         <a [routerLink]="['/discover', recipe.recipe_ID]">

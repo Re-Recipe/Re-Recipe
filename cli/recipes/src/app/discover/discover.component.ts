@@ -12,6 +12,7 @@ export class DiscoverComponent {
   title = 'recipes';
   recipeList: IRecipe[] = [];
   recipeList_1: IContents[] = [];
+  searchQuery: string = '';
 
   constructor(private recipeService: RecipeservicesService) {}
 
@@ -26,6 +27,12 @@ export class DiscoverComponent {
     this.recipeService.getRecipes_1().subscribe(
       data => this.recipeList_1 = data,
       error => console.error('Error fetching recipes_1:', error)
+    );
+  }
+  // Filter recipes based on the search query
+  filteredRecipes() {
+    return this.recipeList.filter(recipe => 
+      recipe.recipe_name.toLowerCase().includes(this.searchQuery.toLowerCase())
     );
   }
 
