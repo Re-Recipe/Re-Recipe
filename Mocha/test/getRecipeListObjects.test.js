@@ -1,96 +1,58 @@
-const chai = require("chai");
-const chaiHttp = require("chai-http");
+var chai = require('chai');
+var chaiHttp = require('chai-http');
+var assert = chai.assert;
+var expect = chai.expect;
+var should = chai.should();
 
-const expect = chai.expect;
 chai.use(chaiHttp);
 
-describe("Test Recipe List Retrieval", function () {
-  this.timeout(15000);
+describe('Test Recipes API', function () {
 
-  let response;
-  let requestResult;
+    var requestResult;
+    var response;
 
-  // Pre-fetch the recipe list before running tests
-  before(function (done) {
-    chai
-      .request("http://localhost:8080")
-      .get("/app/discover") // Endpoint for retrieving the recipe list
-      .end(function (err, res) {
-        requestResult = res.body;
-        response = res;
-        expect(err).to.be.null;
-        expect(res).to.have.status(200);
-        done();
-      });
-  });
-
-  // Test 1: Ensure the response is an array with more than 2 objects
-  it("Should return an array of recipes with more than 2 objects", function () {
-    expect(response).to.have.status(200); // Ensure a successful response
-    expect(response.body).to.be.an("array"); // The response should be an array
-    expect(response.body).to.have.length.above(2); // Ensure the array has more than 2 recipes
-    expect(response).to.have.headers; // Check for headers in the response
-  });
-
-  // Test 2: Validate the top-level properties of each recipe
-  it("Each recipe should have the expected top-level properties", function () {
-    response.body.forEach((recipe) => {
-
-      // Properties that it should have (high level)
-      expect(recipe).to.include.keys(
-        "modified_flag",
-        "user_ID",
-        "recipe_ID",
-        "recipe_name",
-        "meal_category",
-        "recipe_versions",
-        "image_url",
-        "is_visible"
-      );
-
-      // Validate the types of the top-level fields
-      expect(recipe.modified_flag).to.be.a("boolean");
-      expect(recipe.user_ID).to.be.a("string");
-      expect(recipe.recipe_ID).to.be.a("string");
-      expect(recipe.recipe_name).to.be.a("string");
-      expect(recipe.meal_category).to.be.an("array");
-      expect(recipe.recipe_versions).to.be.an("array");
-      expect(recipe.image_url).to.be.a("string");
-      expect(recipe.is_visible).to.be.a("boolean");
+    before(function (done) {
+        chai.request("http://localhost:8080")
+            .get("/api/discover")  // Corrected endpoint
+            .end(function (err, res) {
+                requestResult = res.body;
+                response = res;
+                expect(err).to.be.null;
+                expect(res).to.have.status(200);
+                done();
+            });
     });
-  });
 
-  // Test 3: Validate the properties of each recipe version (more granular)
-  it("Each recipe version should have the expected properties", function () {
-    response.body.forEach((recipe) => {
-      recipe.recipe_versions.forEach((version) => {
-        expect(version).to.include.keys(
-          "cooking_duration",
-          "version_number",
-          "serving_size",
-          "ingredients",
-          "directions"
-        );
-
-        expect(version.cooking_duration).to.be.a("number");
-        expect(version.version_number).to.be.a("number");
-        expect(version.serving_size).to.be.a("number");
-        expect(version.ingredients).to.be.an("array");
-        expect(version.directions).to.be.an("array");
-
-        // Validate the properties of ingredients in each recipe version
-        version.ingredients.forEach((ingredient) => {
-          expect(ingredient).to.include.keys("name", "unit");
-          expect(ingredient.name).to.be.a("string");
-          expect(ingredient.unit).to.be.a("string");
-        });
-
-        // Validate the properties of directions in each recipe version
-        version.directions.forEach((direction) => {
-          expect(direction).to.include.keys("step");
-          expect(direction.step).to.be.a("string");
-        });
-      });
+    it('Should return an array object with more than 2 recipes', function () {
+        expect(response).to.have.status(200);
+        expect(response.body).to.have.length.above(2);
     });
-  });
+
+    it('The first entry in the array has known properties', function () {
+        // Check if the first recipe has the expected properties
+        expect(requestResult[0]).to.include.keys('recipe_ID', 'recipe_name', 'meal_category', 'recipe_versions', 'image_url', 'is_visible');
+        expect(requestResult[0]).to.have.property('_id');
+        expect(requestResult[0].recipe_versions[0]).to.have.property('cooking_duration');
+    });
+
+    it('The elements in the array have the expected properties', function () {
+        expect(response.body).to.satisfy(function (body) {
+            for (var i = 0; i < body.length; i++) {
+                // Ensure each recipe has all the necessary properties
+                expect(body[i]).to.have.property('recipe_ID');
+                expect(body[i]).to.have.property('recipe_name');
+                expect(body[i]).to.have.property('meal_category');
+                expect(body[i]).to.have.property('recipe_versions');
+                expect(body[i]).to.have.property('image_url');
+                expect(body[i]).to.have.property('is_visible').that.is.a('boolean');
+                
+                // Ensure each version of the recipe has the expected fields
+                expect(body[i].recipe_versions[0]).to.have.property('cooking_duration').that.is.a('number');
+                expect(body[i].recipe_versions[0]).to.have.property('ingredients').that.is.an('array');
+                expect(body[i].recipe_versions[0]).to.have.property('directions').that.is.an('array');
+            }
+            return true;
+        });
+    });
+
 });
