@@ -9,6 +9,7 @@ import { CreaterecipeComponent } from './createrecipe/createrecipe.component';
 import { SinglerecipeviewComponent } from './singlerecipeview/singlerecipeview.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { provideHttpClient } from '@angular/common/http';
+import { HomepageComponent } from './homepage/homepage.component';
 
 @NgModule({
   declarations: [
@@ -17,6 +18,7 @@ import { provideHttpClient } from '@angular/common/http';
     CookbookComponent,
     CreaterecipeComponent,
     SinglerecipeviewComponent,
+    HomepageComponent,
   ],
   imports: [
     BrowserModule,

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  
+
   <title>My Cookbook</title>
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -11,8 +11,13 @@
       <!-- Navbar -->
 <nav class="navbar navbar-dark">
     <div class="container">
-      <a class="navbar-brand" href="#">Re- Recipe</a>
+      <!-- Logo and Site Name -->
+      <a class="navbar-brand d-flex align-items-center" href="#">
+        <img src="https://i.ibb.co/y5tNhjP/ChefRiRi.png" alt="ChefRiRi" width="40" height="40" class="me-2 rounded-circle">
+        Re-Recipe
+      </a>
       <ul class="nav">
+        <li class="nav-item"><a  class="nav-link text-light" [routerLink]= "['/home']" routerLinkActive="active">Home</a></li>
         <li class="nav-item"><a  class="nav-link text-light" [routerLink]= "['/discover']" routerLinkActive="active">Discover</a></li>
         <li class="nav-item"><a class="nav-link text-light" [routerLink]="['/cookbook']" routerLinkActive="active">My Cookbook</a></li>
         <li class="nav-item"><a class="nav-link text-light"[routerLink]="['/createrecipe']" routerLinkActive="active">Create Recipe</a></li>
