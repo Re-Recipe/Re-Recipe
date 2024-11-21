@@ -33,6 +33,11 @@
           <!-- Recipe Title -->
           <h5 class="card-title">{{ recipe.recipe_name }}</h5>
 
+          <!-- Hardcoded Heart Ratings -->
+          <div class="stars" aria-label="Hardcoded star rating">
+            ★★★★★
+          </div>
+
           <!-- Category -->
           <p class="card-text text-muted">
             <strong>Category:</strong> {{ recipe.meal_category[0] || 'N/A' }}
