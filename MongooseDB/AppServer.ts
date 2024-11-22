@@ -1,17 +1,15 @@
 import * as dotenv from 'dotenv';
-import {App} from './App';
+import { App } from './App';
 
 dotenv.config();
 
 const port = process.env.PORT;
-const dbUser = process.env.DB_USER;
-const dbPassword = process.env.DB_PASSWORD;
-const mongoDBConnection = 'mongodb://' + dbUser + ':' + encodeURIComponent(dbPassword) + process.env.DB_INFO;
-console.log("dbUser " + dbUser);
-console.log("dbPassword " + dbPassword);
+const mongoDBConnection = process.env.DB_INFO;
+
 console.log("server db connection URL " + mongoDBConnection);
-console.log("process.env.DB_INFO" + process.env.DB_INFO);
+console.log("process.env.DB_INFO " + process.env.DB_INFO);
 
 let server: any = new App(mongoDBConnection).expressApp;
-server.listen(port);
-console.log("server running in port " + port);
+server.listen(port, () => {
+    console.log("server running on port " + port);
+});
