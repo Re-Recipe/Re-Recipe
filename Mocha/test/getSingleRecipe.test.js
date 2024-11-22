@@ -79,4 +79,41 @@ describe("Test Single Recipe Retrieval", function () {
       });
     });
   });
+
+  // Test 4: Does it match expected written content in DB? for this specific recipe 
+  it("Should match the expected data for recipe002", function () {
+    const expectedData = {
+      recipe_ID: "recipe002",
+      recipe_name: "Spaghetti Bolognese",
+      meal_category: ["Dinner"],
+      recipe_versions: [
+        {
+          cooking_duration: 40,
+          version_number: 0,
+          serving_size: 2,
+          ingredients: [
+            { name: "Spaghetti", quantity: 200, unit: "g" },
+            { name: "Ground Beef", quantity: 0.5, unit: "lb" },
+            { name: "Tomato Sauce", quantity: 1.5, unit: "cup" },
+            { name: "Onion", quantity: 1, unit: "each" },
+            { name: "Garlic", quantity: 1, unit: "clove" },
+          ],
+          directions: [
+            { step: "Cook spaghetti according to package instructions." },
+            { step: "Brown ground beef and drain excess fat." },
+            { step: "Add onion and garlic, and cook until softened." },
+            { step: "Stir in tomato sauce and simmer for 10 minutes." },
+            { step: "Serve sauce over spaghetti." },
+          ],
+        },
+      ],
+      image_url:
+        "https://images.ctfassets.net/uexfe9h31g3m/6QtnhruEFi8qgEyYAICkyS/ab01e9b1da656f35dd1a721c810162a0/Spaghetti_bolognese_4x3_V2_LOW_RES.jpg",
+      is_visible: true,
+    };
+  
+    // Check that the response includes the expected data
+    expect(requestResult).to.deep.include(expectedData);
+  });
+  
 });
