@@ -1,7 +1,4 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
-name: Build and deploy Node.js app to Azure Web App - Re-Recipe
+name: Build and Deploy Node.js App to Azure Web App - Re-Recipe
 
 on:
   push:
@@ -14,26 +11,41 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      # Step 1: Checkout repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
+      # Step 2: Set up Node.js
       - name: Set up Node.js version
         uses: actions/setup-node@v3
         with:
           node-version: '20.x'
 
-      - name: npm install, build, and test
+      # Step 3: Install and Build Angular (Frontend)
+      - name: Install and Build Angular Frontend
         run: |
+          cd cli/cook/src
           npm install
-          npm run build --if-present
-          npm run test --if-present
+          npm run build
 
+      # Step 4: Install and Build App Server (Backend)
+      - name: Install and Build Backend Server
+        run: |
+          cd MongooseDB
+          npm install
+          npm run build
+
+      # Step 5: Zip artifact for deployment
       - name: Zip artifact for deployment
-        run: zip release.zip ./* -r
+        run: |
+          cd ..
+          zip -r release.zip cli/cook/src/dist MongooseDB
 
+      # Step 6: Upload artifact
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
-          name: node-app
+          name: re-recipe-app
           path: release.zip
 
   deploy:
@@ -42,21 +54,23 @@ jobs:
     environment:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-    
+
     steps:
+      # Step 1: Download artifact from build job
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
-          name: node-app
+          name: re-recipe-app
 
-      - name: Unzip artifact for deployment
+      # Step 2: Unzip artifact for deployment
+      - name: Unzip artifact
         run: unzip release.zip
-      
-      - name: 'Deploy to Azure Web App'
+
+      # Step 3: Deploy to Azure Web App
+      - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'Re-Recipe'
           slot-name: 'Production'
-          package: .
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_807F2A4F164F41658ADF979DD9BF5056 }}
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
