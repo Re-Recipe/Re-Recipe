@@ -71,7 +71,7 @@ export class RecipeservicesService {
    *          deleted.
    */
   deleteRecipe(recipeID: string): Observable<void> {
-    return this.http.delete<void>(`${this.hostUrl}recipes/${recipeID}`);
+    return this.http.delete<void>(`${this.hostUrl}discover/${recipeID}`);
   }
   // /**
   //  * Updates the directions of a recipe.
@@ -133,7 +133,7 @@ export class RecipeservicesService {
     isVisible: boolean
   ): Observable<IRecipe> {
     return this.http.put<IRecipe>(
-      `${this.hostUrl}recipes/${recipeID}/visibility`,
+      `${this.hostUrl}discover/${recipeID}/visibility`,
       { isVisible }
     );
   }
