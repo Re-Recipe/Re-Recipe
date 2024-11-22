@@ -71,4 +71,9 @@
   .top-right-checkbox:hover {
     background-color: #007bff;
   }
-  
+  .form-control{
+    margin-left: 50px;
+  }
+  .form-select{
+    margin-left: 50px;
+  }
