@@ -59,4 +59,4 @@ jobs:
           app-name: 'Re-Recipe'
           slot-name: 'Production'
           package: .
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_D546EAFFE8B84EB89202B6165F0CCD85 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_807F2A4F164F41658ADF979DD9BF5056 }}
