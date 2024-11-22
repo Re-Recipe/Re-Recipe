@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule, provideClientHydration } from '@angular/platform-browser';
-
+import { RecipeservicesService } from '../recipeservices.service';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { DiscoverComponent } from './discover/discover.component';
@@ -31,6 +31,7 @@ import { HomepageComponent } from './homepage/homepage.component';
   providers: [
     provideClientHydration(),
     provideHttpClient(), // Correct usage of provideHttpClient
+    RecipeservicesService
   ],
   bootstrap: [AppComponent],
 })
