@@ -22,31 +22,33 @@ jobs:
           node-version: '20.x'
 
       # Step 3: Install and Build Angular Frontend
-      - name: Install Angular Frontend Dependencies and Build
+      - name: Install and Build Angular Frontend
         run: |
-          cd cli/cook/src
+          cd cli/recipes/src/app
           npm install
-          npm run build --prod
+          ng build --prod
+        env:
+          CI: true
 
-      # Step 4: Compile and Prepare Backend Server
+      # Step 4: Compile Backend Server
       - name: Compile Backend Server
         run: |
           cd MongooseDB
           npm install
           tsc AppServer.ts
 
-      # Step 5: Zip artifact for deployment
+      # Step 5: Prepare Deployment Artifact
       - name: Prepare Deployment Artifact
         run: |
-          cd ..
-          mkdir deploy
-          cp -r cli/cook/src/dist deploy/frontend
-          cp -r MongooseDB/AppServer.js deploy/backend
-          cp -r MongooseDB/package.json deploy/backend
+          mkdir -p deploy/frontend
+          cp -r cli/recipes/src/app/dist deploy/frontend
+          mkdir -p deploy/backend
+          cp MongooseDB/AppServer.js deploy/backend
+          cp MongooseDB/package.json deploy/backend
           cd deploy
           zip -r release.zip frontend backend
 
-      # Step 6: Upload artifact for deployment
+      # Step 6: Upload Artifact for Deployment
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
