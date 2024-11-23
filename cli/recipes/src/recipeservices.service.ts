@@ -7,7 +7,7 @@ import { IRecipeContents } from './app/model/IRecipeContents';
   providedIn: 'root',
 })
 export class RecipeservicesService {
-  hostUrl: string = 'http://localhost:8080/app/';
+  hostUrl: string = 'http://localhost:3000/app/';
 
   constructor(private http: HttpClient) {}
 
