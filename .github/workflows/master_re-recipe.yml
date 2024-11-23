@@ -28,7 +28,7 @@ jobs:
       # Step 4: Install and Build Angular Frontend
       - name: Install and Build Angular Frontend
         run: |
-          cd cli/recipes/src/app
+          cd cli/recipes
           npm install
           ng build --configuration production
         env:
@@ -45,7 +45,7 @@ jobs:
       - name: Prepare Deployment Artifact
         run: |
           mkdir -p deploy/frontend
-          cp -r cli/recipes/src/app/dist deploy/frontend
+          cp -r cli/recipes/dist/recipes deploy/frontend
           mkdir -p deploy/backend
           cp MongooseDB/AppServer.js deploy/backend
           cp MongooseDB/package.json deploy/backend
