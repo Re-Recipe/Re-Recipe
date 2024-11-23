@@ -15,42 +15,38 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Step 2: Set up Node.js
+      # Step 2: Cache Node.js modules
+      - name: Cache Node.js modules
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      # Step 3: Set up Node.js
       - name: Set up Node.js version
         uses: actions/setup-node@v3
         with:
           node-version: '20.x'
-
-      # Step 3: Install Angular CLI
-      - name: Install Angular CLI
-        run: npm install -g @angular/cli
 
       # Step 4: Install and Build Angular Frontend
       - name: Install and Build Angular Frontend
         run: |
           cd cli/recipes
           npm install
-          ng build --configuration production
+          ng build --configuration production --build-cache
         env:
           CI: true
 
-      # Step 5: Verify Angular Build Output
-      - name: Verify Angular Build Output
-        run: |
-          ls -l cli/recipes/dist
-
-      # Step 6: Compile Backend Server
+      # Step 5: Compile Backend Server
       - name: Compile Backend Server
         run: |
           cd MongooseDB
           npm install
-          tsc AppServer.ts
+          tsc --incremental AppServer.ts
 
-      # Step 7: Verify Backend Files
-      - name: Verify Backend Files
-        run: ls -l MongooseDB
-
-      # Step 8: Prepare Deployment Artifact
+      # Step 6: Prepare Deployment Artifact
       - name: Prepare Deployment Artifact
         run: |
           mkdir -p deploy/frontend
@@ -61,11 +57,7 @@ jobs:
           cd deploy
           zip -r release.zip frontend backend
 
-      # Step 9: Verify Deployment Artifact
-      - name: Verify Deployment Artifact
-        run: ls -lR deploy
-
-      # Step 10: Upload Artifact for Deployment
+      # Step 7: Upload Artifact for Deployment
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -77,28 +69,33 @@ jobs:
     needs: build
     environment:
       name: 'Production'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
 
     steps:
       # Step 1: Download Artifact from Build Job
-      - name: Download Artifact from Build Job
+      - name: Download Artifact
         uses: actions/download-artifact@v4
         with:
           name: re-recipe-app
 
-      # Step 2: List Files for Debugging
-      - name: List Files for Debugging
-        run: ls -lR re-recipe-app
+      # Step 2: Verify Artifact Location
+      - name: Debugging Current Directory
+        run: |
+          echo "Current working directory:"
+          pwd
+          echo "Files and directories:"
+          ls -lR
 
       # Step 3: Unzip Deployment Artifact
       - name: Unzip Deployment Artifact
         run: |
           mkdir -p deploy
-          unzip re-recipe-app/release.zip -d deploy
+          unzip re-recipe-app.zip -d deploy
 
-      # Step 4: Debug Deployment Directory
+      # Step 4: Verify Deployment Files
       - name: Debug Deployment Files
-        run: ls -lR deploy
+        run: |
+          echo "Contents of the deploy directory:"
+          ls -lR deploy
 
       # Step 5: Deploy to Azure Web App
       - name: Deploy to Azure Web App
