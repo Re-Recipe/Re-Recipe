@@ -30,7 +30,7 @@ class UserModel {
         hints: { type: String }, // Optional field
         recipeIDs: [{ type: mongoose.Schema.Types.ObjectId, ref: "Recipe" }],
       },
-      { collection: "users", timestamps: true } // Enable automatic timestamps
+      { collection: "users", timestamps: true }
     );
 
     // Pre-save hook to hash the password
@@ -41,7 +41,7 @@ class UserModel {
       if (!user.isModified("password")) return next();
 
       try {
-        user.password = UserModel.hashPW(user.password); // Use the hashPW function
+        user.password = UserModel.hashPW(user.password); // Hash the password
         next();
       } catch (err) {
         next(err);
@@ -71,100 +71,7 @@ class UserModel {
    * @returns {string} - The hashed password.
    */
   public static hashPW(password: string): string {
-    return crypto
-      .createHash("sha256")
-      .update(password)
-      .digest("base64")
-      .toString();
-  }
-
-  /**
-   * Finds a user by their ID.
-   * @param {string} userId - The ID of the user to find.
-   * @returns {Promise<IUser | null>}
-   */
-  public async findUserById(userId: string): Promise<IUser | null> {
-    try {
-      const user = await this.model.findOne({ user_ID: userId }).exec();
-      return user;
-    } catch (error) {
-      console.error("Error finding user by ID:", error);
-      throw error;
-    }
-  }
-
-  /**
-   * Creates a new user.
-   * @param {IUser} userData - The data for the new user.
-   * @returns {Promise<IUser>}
-   */
-  public async createUser(userData: IUser): Promise<IUser> {
-    try {
-      // Hash the password before saving
-      userData.password = UserModel.hashPW(userData.password);
-
-      const newUser = new this.model(userData);
-      const savedUser = await newUser.save();
-      return savedUser;
-    } catch (error) {
-      console.error("Error creating user:", error);
-      throw error;
-    }
-  }
-
-  /**
-   * Updates a user's information.
-   * @param {string} userId - The ID of the user to update.
-   * @param {Partial<IUser>} updateData - The data to update.
-   * @returns {Promise<IUser | null>}
-   */
-  public async updateUser(
-    userId: string,
-    updateData: Partial<IUser>
-  ): Promise<IUser | null> {
-    try {
-      if (updateData.password) {
-        // Hash the password if it's being updated
-        updateData.password = UserModel.hashPW(updateData.password);
-      }
-
-      const updatedUser = await this.model
-        .findOneAndUpdate({ user_ID: userId }, updateData, { new: true })
-        .exec();
-      return updatedUser;
-    } catch (error) {
-      console.error("Error updating user:", error);
-      throw error;
-    }
-  }
-
-  /**
-   * Deletes a user by their ID.
-   * @param {string} userId - The ID of the user to delete.
-   * @returns {Promise<void>}
-   */
-  public async deleteUser(userId: string): Promise<void> {
-    try {
-      await this.model.deleteOne({ user_ID: userId }).exec();
-      console.log(`User with ID ${userId} deleted successfully.`);
-    } catch (error) {
-      console.error("Error deleting user:", error);
-      throw error;
-    }
-  }
-
-  /**
-   * Lists all users in the database.
-   * @returns {Promise<IUser[]>}
-   */
-  public async listAllUsers(): Promise<IUser[]> {
-    try {
-      const users = await this.model.find({}).exec();
-      return users;
-    } catch (error) {
-      console.error("Error listing all users:", error);
-      throw error;
-    }
+    return crypto.createHash("sha256").update(password).digest("base64").toString();
   }
 
   /**
@@ -173,12 +80,132 @@ class UserModel {
    * @param {string} storedPassword - The hashed password stored in the database.
    * @returns {boolean} - Whether the passwords match.
    */
-  public static validatePassword(
-    inputPassword: string,
-    storedPassword: string
-  ): boolean {
+  public static validatePassword(inputPassword: string, storedPassword: string): boolean {
     const hashedInput = UserModel.hashPW(inputPassword);
     return hashedInput === storedPassword;
+  }
+
+  /**
+   * User Signup
+   * @param {any} response - The response object.
+   * @param {IUser} userData - The data for the new user.
+   */
+  public async signup(response: any, userData: IUser): Promise<void> {
+    try {
+      userData.password = UserModel.hashPW(userData.password);
+      const newUser = new this.model(userData);
+      const savedUser = await newUser.save();
+      response.status(201).json(savedUser);
+    } catch (error) {
+      console.error("Error signing up user:", error);
+      response.status(400).json({ error: "Error creating user. Please try again." });
+    }
+  }
+
+  /**
+   * User Login
+   * @param {any} response - The response object.
+   * @param {string} username - The username provided by the user.
+   * @param {string} password - The password provided by the user.
+   */
+  public async login(response: any, username: string, password: string): Promise<void> {
+    try {
+      const user = await this.model.findOne({ username }).exec();
+      if (!user) {
+        return response.status(404).json({ error: "User not found" });
+      }
+
+      const isPasswordValid = UserModel.validatePassword(password, user.password);
+      if (!isPasswordValid) {
+        return response.status(401).json({ error: "Invalid credentials" });
+      }
+
+      // Successful login
+      response.json({ message: "Login successful", user });
+    } catch (error) {
+      console.error("Error during login:", error);
+      response.status(500).json({ error: "Error logging in. Please try again." });
+    }
+  }
+
+  /**
+   * Get User Profile
+   * @param {any} response - The response object.
+   * @param {string} userId - The ID of the user to retrieve.
+   */
+  public async getUserProfile(response: any, userId: string): Promise<void> {
+    try {
+      const user = await this.model.findOne({ user_ID: userId }).exec();
+      if (!user) {
+        return response.status(404).json({ error: "User not found" });
+      }
+      response.json(user);
+    } catch (error) {
+      console.error("Error retrieving user profile:", error);
+      response.status(500).json({ error: "Error retrieving profile. Please try again." });
+    }
+  }
+
+  /**
+   * Update User Profile
+   * @param {any} response - The response object.
+   * @param {string} userId - The ID of the user to update.
+   * @param {Partial<IUser>} updateData - The data to update.
+   */
+  public async updateUser(response: any, userId: string, updateData: Partial<IUser>): Promise<void> {
+    try {
+      if (updateData.password) {
+        updateData.password = UserModel.hashPW(updateData.password); // Hash the password if updated
+      }
+
+      const updatedUser = await this.model.findOneAndUpdate(
+        { user_ID: userId },
+        updateData,
+        { new: true }
+      ).exec();
+
+      if (!updatedUser) {
+        return response.status(404).json({ error: "User not found" });
+      }
+
+      response.json(updatedUser);
+    } catch (error) {
+      console.error("Error updating user:", error);
+      response.status(500).json({ error: "Error updating profile. Please try again." });
+    }
+  }
+
+  /**
+   * Delete User Profile
+   * @param {any} response - The response object.
+   * @param {string} userId - The ID of the user to delete.
+   */
+  public async deleteUser(response: any, userId: string): Promise<void> {
+    try {
+      const result = await this.model.deleteOne({ user_ID: userId }).exec();
+      if (result.deletedCount === 0) {
+        return response.status(404).json({ error: "User not found" });
+      }
+
+      response.json({ message: "User deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      response.status(500).json({ error: "Error deleting profile. Please try again." });
+    }
+  }
+
+  /**
+   * List All Users
+   * @param {any} response - The response object.
+   */
+  public async listAllUsers(response: any): Promise<void> {
+    try {
+      const users = await this.model.find({}).exec();
+      response.json(users);
+    } catch (error) {
+      console.error("Error listing users:", error);
+      response.status(500).json({ error: "Error retrieving users. Please try again." });
+    }
   }
 }
 
