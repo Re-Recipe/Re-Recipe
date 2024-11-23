@@ -45,13 +45,12 @@ jobs:
       - name: Prepare Deployment Artifact
         run: |
           mkdir -p deploy/frontend
-          cp -r cli/recipes/dist/recipes deploy/frontend
-          mkdir -p deploy/backend
-          cp MongooseDB/AppServer.js deploy/backend
-          cp MongooseDB/package.json deploy/backend
-          cp -r MongooseDB/node_modules deploy/backend
+          cp -r cli/recipes/dist/recipes/* deploy/frontend
+          cp MongooseDB/AppServer.js deploy/
+          cp MongooseDB/package.json deploy/
+          cp -r MongooseDB/node_modules deploy/
           cd deploy
-          zip -r release.zip frontend backend
+          zip -r release.zip .
 
       # Step 7: Upload Artifact for Deployment
       - name: Upload Artifact
