@@ -1,4 +1,3 @@
-
 name: Build and Deploy Re-Recipe App to Azure
 
 on:
@@ -41,16 +40,19 @@ jobs:
           cd MongooseDB
           npm install
           tsc AppServer.ts
+
       # Step 6: Prepare Deployment Artifact
       - name: Prepare Deployment Artifact
         run: |
-          mkdir -p deploy/frontend
-          cp -r cli/recipes/dist/recipes/* deploy/frontend
-          cp MongooseDB/AppServer.js deploy/
-          cp MongooseDB/package.json deploy/
-          cp -r MongooseDB/node_modules deploy/
+          mkdir -p deploy/cli
+          cp -r cli/* deploy/cli
+          mkdir -p deploy/backend
+          cp MongooseDB/AppServer.js deploy/backend
+          cp MongooseDB/package.json deploy/backend
+          cp -r MongooseDB/node_modules deploy/backend
           cd deploy
           zip -r release.zip .
+
       # Step 7: Upload Artifact for Deployment
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
@@ -76,6 +78,7 @@ jobs:
       - name: Unzip Deployment Artifact
         run: |
           unzip deploy/release.zip -d deploy
+
       # Step 3: Deploy to Azure Web App
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
