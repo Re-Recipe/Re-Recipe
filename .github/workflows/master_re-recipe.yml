@@ -71,13 +71,13 @@ jobs:
       - name: Download Artifact from Build Job
         uses: actions/download-artifact@v4
         with:
-          name: re-recipe-app
-          path: artifact.zip
+          name: re-recipe-app # Use the same name as in the upload step
+          path: deploy
 
       # Step 2: Unzip Deployment Artifact
       - name: Unzip Deployment Artifact
         run: |
-          unzip artifact.zip -d deploy
+          unzip deploy/re-recipe-app -d deploy
 
       # Step 3: Deploy to Azure Web App
       - name: Deploy to Azure Web App
