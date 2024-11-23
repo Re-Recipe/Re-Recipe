@@ -1,9 +1,9 @@
 import * as express from "express";
-import * as bodyParser from "body-parser"; // for parsing URL requests and JSON
+import * as bodyParser from "body-parser"; // For parsing URL requests and JSON
 import { RecipeModel } from "./model/RecipeModel";
 import { DiscoverModel } from "./model/DiscoverModel";
 import { CookbookModel } from "./model/CookbookModel";
-import * as crypto from "crypto"; // for unique ID generation
+import { UserModel } from "./model/UserModel"; // Import the UserModel
 
 /**
  * The main application class that sets up the Express server,
@@ -14,6 +14,7 @@ class App {
   public RecipeList: RecipeModel;
   public Cookbook: CookbookModel;
   public DiscoverModel: DiscoverModel;
+  public UserModel: UserModel;
 
   /**
    * Creates an instance of the App.
@@ -24,6 +25,7 @@ class App {
     this.expressApp = express();
     this.DiscoverModel = new DiscoverModel(mongoDBConnection);
     this.Cookbook = new CookbookModel(mongoDBConnection, DiscoverModel);
+    this.UserModel = new UserModel(mongoDBConnection); // Initialize UserModel
     this.middleware();
     this.routes();
   }
@@ -58,7 +60,13 @@ class App {
   private routes(): void {
     const router = express.Router();
 
-    // Recipe CRUD Routes
+    /**
+     * ========================
+     * SECTION: DISCOVER ROUTES
+     * ========================
+     */
+
+    // Retrieve all recipes in the Discover collection
     router.get(
       "/app/discover",
       async (req: express.Request, res: express.Response): Promise<void> => {
@@ -66,25 +74,25 @@ class App {
       }
     );
 
+    // Retrieve a specific recipe from the Discover collection by recipeID
     router.get(
-      "/app/discover/:recipeID", 
+      "/app/discover/:recipeID",
       async (req: express.Request, res: express.Response): Promise<void> => {
         const recipeID: string = req.params.recipeID;
-        console.log("Query recipe list with id:", recipeID);
         await this.DiscoverModel.retrieveRecipe(res, recipeID);
       }
     );
 
+    // Add a new recipe to the Discover collection
     router.post(
       "/app/discover",
       async (req: express.Request, res: express.Response): Promise<void> => {
-        const id: string = crypto.randomBytes(16).toString("hex");
-        const jsonObj: object = { ...req.body, recipe_ID: id };
-        await this.DiscoverModel.model.create(jsonObj);
-        res.status(201).json({ id });
+        const newRecipeData = req.body;
+        await this.DiscoverModel.createRecipe(res, newRecipeData);
       }
     );
 
+    // Delete a recipe from the Discover collection by recipeID
     router.delete(
       "/app/discover/:recipeID",
       async (req: express.Request, res: express.Response): Promise<void> => {
@@ -93,38 +101,28 @@ class App {
       }
     );
 
-    // Cookbook Routes
+    /**
+     * ========================
+     * SECTION: COOKBOOK ROUTES
+     * ========================
+     */
 
     // Retrieve all recipes in a user's cookbook
     router.get(
       "/app/cookbook/:userId",
       async (req: express.Request, res: express.Response): Promise<void> => {
         const userId: string = req.params.userId;
-        try {
-          // Fetch the user's cookbook
-          await this.Cookbook.listAllRecipes(res, userId);
-        } catch (error) {
-          console.error("Failed to fetch cookbook:", error);
-          res.status(500).json({ error: "Failed to fetch cookbook data" });
-        }
+        await this.Cookbook.listAllRecipes(res, userId);
       }
     );
 
-    // Delete a specific recipe from a user's cookbook
+    // Remove a specific recipe from a user's cookbook
     router.delete(
       "/app/cookbook/:userId/recipes/:recipeId",
       async (req: express.Request, res: express.Response): Promise<void> => {
         const userId: string = req.params.userId;
         const recipeId: string = req.params.recipeId;
-
-        try {
-          await this.Cookbook.removeRecipeFromCookbook(res, userId, recipeId);
-        } catch (error) {
-          console.error("Failed to delete recipe:", error);
-          res
-            .status(500)
-            .json({ error: "Failed to delete recipe from cookbook" });
-        }
+        await this.Cookbook.removeRecipeFromCookbook(res, userId, recipeId);
       }
     );
 
@@ -134,42 +132,60 @@ class App {
       async (req: express.Request, res: express.Response): Promise<void> => {
         const userId: string = req.params.userId;
         const recipeId: string = req.params.recipeId;
-        const versionData = req.body.versionData; // New version details in request body
-
-        if (!versionData || typeof versionData !== "object") {
-          res
-            .status(400)
-            .json({ error: "Version data must be a valid object." });
-          return;
-        }
-
-        try {
-          await this.Cookbook.addRecipeVersion(
-            res,
-            userId,
-            recipeId,
-            versionData
-          );
-        } catch (error) {
-          console.error("Failed to add recipe version:", error);
-          res.status(500).json({ error: "Failed to add recipe version" });
-        }
+        const versionData = req.body.versionData;
+        await this.Cookbook.addRecipeVersion(res, userId, recipeId, versionData);
       }
     );
 
-    // Retrieve all recipes in a user's cookbook
+    /**
+     * ====================
+     * SECTION: USER ROUTES
+     * ====================
+     */
+
+    // Create a new user account
+    router.post(
+      "/app/user/signup",
+      async (req: express.Request, res: express.Response): Promise<void> => {
+        const userData = req.body;
+        await this.UserModel.signup(res, userData);
+      }
+    );
+
+    // Log in an existing user
+    router.post(
+      "/app/user/login",
+      async (req: express.Request, res: express.Response): Promise<void> => {
+        const { username, password } = req.body;
+        await this.UserModel.login(res, username, password);
+      }
+    );
+
+    // Retrieve a user's profile by userId
     router.get(
-      "/app/cookbook/:userId/recipes",
+      "/app/user/profile/:userId",
       async (req: express.Request, res: express.Response): Promise<void> => {
         const userId: string = req.params.userId;
+        await this.UserModel.getUserProfile(res, userId);
+      }
+    );
 
-        try {
-          // Call the listAllRecipes method from CookbookModel
-          await this.Cookbook.listAllRecipes(res, userId);
-        } catch (error) {
-          console.error("Failed to fetch recipes:", error);
-          res.status(500).json({ error: "Failed to fetch recipes" });
-        }
+    // Update a user's profile information
+    router.put(
+      "/app/user/profile/:userId",
+      async (req: express.Request, res: express.Response): Promise<void> => {
+        const userId: string = req.params.userId;
+        const updateData = req.body;
+        await this.UserModel.updateUser(res, userId, updateData);
+      }
+    );
+
+    // Delete a user's profile by userId
+    router.delete(
+      "/app/user/profile/:userId",
+      async (req: express.Request, res: express.Response): Promise<void> => {
+        const userId: string = req.params.userId;
+        await this.UserModel.deleteUser(res, userId);
       }
     );
 
