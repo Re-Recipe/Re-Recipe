@@ -73,12 +73,17 @@ jobs:
         with:
           name: re-recipe-app
 
-      # Step 2: Unzip Artifact
+      # Step 2: Locate Artifact
+      - name: List Files for Debugging
+        run: ls -R re-recipe-app
+
+      # Step 3: Unzip Artifact
       - name: Unzip Deployment Artifact
         run: |
+          mkdir -p deploy
           unzip re-recipe-app/release.zip -d deploy
 
-      # Step 3: Deploy to Azure Web App
+      # Step 4: Deploy to Azure Web App
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
