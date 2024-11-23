@@ -1,8 +1,9 @@
 const express = require('express');
 const path = require('path');
 import * as dotenv from 'dotenv';
-import * as cookieParser from 'cookie-parser'; // Import cookie-parser
-import * as expressSession from 'express-session'; // Import express-session
+import * as cookieParser from 'cookie-parser';
+import * as expressSession from 'express-session';
+const mongoStore = require('connect-mongo'); // Import connect-mongo
 import { App } from './App';
 
 dotenv.config();
@@ -19,26 +20,29 @@ let server: any = new App(mongoDBConnection).expressApp;
 // Middleware: Cookie parser
 server.use(cookieParser());
 
-// Middleware: Express session
+// Middleware: Express session with MongoDB store
 server.use(
-    expressSession({
-        secret: '1234567890QWERTY', // Replace with a secure secret?
-        resave: false, 
-        saveUninitialized: true, 
-        cookie: { secure: false }, 
-    })
+  expressSession({
+    secret: '1234567890QWERTY', // Replace with a secure secret
+    cookie: { maxAge: 60 * 60 * 1000 }, // 1 hour expiration
+    resave: false, 
+    saveUninitialized: true, 
+    store: mongoStore.create({
+      mongoUrl: mongoDBConnection, 
+      collectionName: 'sessions', 
+    }),
+  })
 );
-
 // Serve Angular frontend files
 const angularDistPath = path.join(__dirname, '../frontend/recipes');
 server.use('/', express.static(angularDistPath));
 
 // Catch-all route for Angular app
 server.get('*', (req, res) => {
-    res.sendFile(path.join(angularDistPath, 'index.html'));
+  res.sendFile(path.join(angularDistPath, 'index.html'));
 });
 
 // Start the server
 server.listen(port, () => {
-    console.log(`server running on port ${port}`);
+  console.log(`server running on port ${port}`);
 });
