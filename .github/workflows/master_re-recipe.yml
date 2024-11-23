@@ -1,3 +1,4 @@
+
 name: Build and Deploy Re-Recipe App to Azure
 
 on:
@@ -21,16 +22,16 @@ jobs:
         with:
           node-version: '20.x'
 
-      # Step 3: Install Angular CLI Locally
-      - name: Install Angular CLI Locally
-        run: npm install @angular/cli
+      # Step 3: Install Angular CLI
+      - name: Install Angular CLI
+        run: npm install -g @angular/cli
 
       # Step 4: Build Angular Frontend
       - name: Install and Build Angular Frontend
         run: |
           cd cli/recipes
           npm install
-          npx ng build --configuration production
+          ng build --configuration production
         env:
           CI: true
 
@@ -40,7 +41,6 @@ jobs:
           cd MongooseDB
           npm install
           tsc AppServer.ts
-
       # Step 6: Prepare Deployment Artifact
       - name: Prepare Deployment Artifact
         run: |
@@ -51,7 +51,6 @@ jobs:
           cp -r MongooseDB/node_modules deploy/
           cd deploy
           zip -r release.zip .
-
       # Step 7: Upload Artifact for Deployment
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
@@ -77,7 +76,6 @@ jobs:
       - name: Unzip Deployment Artifact
         run: |
           unzip deploy/release.zip -d deploy
-
       # Step 3: Deploy to Azure Web App
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
