@@ -72,10 +72,12 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: re-recipe-app
+          path: artifact.zip  # Download as a single zip file
 
       # Step 2: Unzip Artifact
       - name: Unzip Deployment Artifact
-        run: unzip deploy/release.zip -d deploy
+        run: |
+          unzip artifact.zip -d deploy
 
       # Step 3: Deploy to Azure Web App
       - name: Deploy to Azure Web App
