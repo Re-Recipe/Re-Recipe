@@ -49,7 +49,6 @@ jobs:
           mkdir -p deploy/backend
           cp MongooseDB/AppServer.js deploy/backend
           cp MongooseDB/package.json deploy/backend
-          cp -r MongooseDB/node_modules deploy/backend
           cd deploy
           zip -r release.zip .
 
