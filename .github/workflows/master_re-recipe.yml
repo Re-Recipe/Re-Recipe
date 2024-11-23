@@ -30,23 +30,29 @@ jobs:
         with:
           node-version: '20.x'
 
-      # Step 4: Install and Build Angular Frontend
+      # Step 4: Install Angular CLI Globally
+      - name: Install Angular CLI
+        run: |
+          npm install -g @angular/cli
+          echo "$HOME/.npm-global/bin" >> $GITHUB_PATH
+
+      # Step 5: Install and Build Angular Frontend
       - name: Install and Build Angular Frontend
         run: |
           cd cli/recipes
           npm install
-          ng build --configuration production --build-cache
+          npx ng build --configuration production --build-cache
         env:
           CI: true
 
-      # Step 5: Compile Backend Server
+      # Step 6: Compile Backend Server
       - name: Compile Backend Server
         run: |
           cd MongooseDB
           npm install
           tsc --incremental AppServer.ts
 
-      # Step 6: Prepare Deployment Artifact
+      # Step 7: Prepare Deployment Artifact
       - name: Prepare Deployment Artifact
         run: |
           mkdir -p deploy/frontend
@@ -57,7 +63,7 @@ jobs:
           cd deploy
           zip -r release.zip frontend backend
 
-      # Step 7: Upload Artifact for Deployment
+      # Step 8: Upload Artifact for Deployment
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
