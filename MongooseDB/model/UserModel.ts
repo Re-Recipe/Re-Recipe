@@ -1,170 +1,134 @@
-/**
-* Some methods for a potential UserModel. 
-* We might want to clarify and change this what is in this file. 
-*/
-
 import * as mongoose from "mongoose";
-import { IUser } from '../interfaces/IUser';
+import { IUser } from "../interfaces/IUser";
 
 class UserModel {
-    public schema: any;
-    public model: any;
-    public dbConnectionString: string;
+  public schema: mongoose.Schema;
+  public model: mongoose.Model<any>;
+  public dbConnectionString: string;
 
-    /**
-     * Constructor to initialize the database connection and set up the schema and model.
-     * @param DB_CONNECTION_STRING - Connection string for MongoDB.
-     */
-    public constructor(DB_CONNECTION_STRING: string) {
-        this.dbConnectionString = DB_CONNECTION_STRING;
-        this.createSchema();
-        this.createModel();
-    }
+  /**
+   * Constructor to initialize the database connection and set up the schema and model.
+   * @param {string} DB_CONNECTION_STRING - MongoDB connection string.
+   */
+  public constructor(DB_CONNECTION_STRING: string) {
+    this.dbConnectionString = DB_CONNECTION_STRING;
+    this.createSchema();
+    this.createModel();
+  }
 
-    /**
-     * Creates the Mongoose schema for a user.
-     * Defines the structure for `user_ID`, `username`, `email`, `password`, `createdAt`, and `recipes`.
-     */
-    public createSchema() {
-        this.schema = new mongoose.Schema(
-            {
-                user_ID: { type: String, required: true, unique: true }, // unique identifier for the user
-                username: { type: String, required: true, unique: true }, // username of the user
-                email: { type: String, required: true, unique: true }, // email address of the user
-                password: { type: String, required: true }, // hashed password
-                createdAt: { type: Date, default: Date.now }, // account creation date
-                recipeIds: [ // array of recipe IDs associated with the user
-                    { type: mongoose.Schema.Types.ObjectId, ref: "RecipeList" }
-                ]
-            },
-            { collection: 'users' }
-        );
-    }
+  /**
+   * Defines the schema for a user.
+   */
+  public createSchema() {
+    this.schema = new mongoose.Schema(
+    {
+        user_ID: {type: String, required: true, unique: true},
+        username: { type: String, required: true, unique: true },
+        email: { type: String, required: true, unique: true },
+        password: { type: String, required: true }, 
+        hints: { type: String }, // Optional field
+        recipeIDs: [{ type: mongoose.Schema.Types.ObjectId, ref: "Recipe" }], 
+    },
+    { collection: "users", timestamps: true } // Timestamps are automatic 
+    );
+}
 
-    /**
-     * Connects to the MongoDB database and creates the Mongoose model based on the schema.
-     * The model is stored in `this.model`.
-     * @returns void
-     */
-    public async createModel() {
-        try {
-            await mongoose.connect(this.dbConnectionString, { useNewUrlParser: true, useUnifiedTopology: true });
-            this.model = mongoose.model<IUser>("User", this.schema);
-        } catch (e) {
-            console.error("Failed to connect to the database:", e);
-        }
+  /**
+   * Connects to the MongoDB database and creates the Mongoose model based on the schema.
+   */
+  public async createModel() {
+    try {
+      await mongoose.connect(this.dbConnectionString, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+      });
+      this.model = mongoose.model("User", this.schema);
+      console.log("Connected to MongoDB and created User model.");
+    } catch (error) {
+      console.error("Error creating User model:", error);
     }
+  }
 
-    /**
-     * Retrieves all users from the database.
-     * @param response - The response object to send data back to the client.
-     * @returns void - Sends a JSON array of all users in the response.
-     */
-    public async retrieveAllUsers(response: any) {
-        try {
-            const users = await this.model.find({}).exec();
-            response.json(users);
-        } catch (e) {
-            console.error("Failed to retrieve users:", e);
-            response.status(500).json({ error: "Failed to retrieve users" });
-        }
+  /**
+   * Finds a user by their ID.
+   * @param {string} userId - The ID of the user to find.
+   * @returns {Promise<IUser | null>}
+   */
+  public async findUserById(userId: string): Promise<IUser | null> {
+    try {
+      const user = await this.model.findOne({ Id: userId }).exec();
+      return user;
+    } catch (error) {
+      console.error("Error finding user by ID:", error);
+      throw error;
     }
+  }
 
-    /**
-     * Retrieves a single user by `user_ID`.
-     * @param response - The response object to send data back to the client.
-     * @param userId - The unique ID of the user to retrieve.
-     * @returns void - Sends a JSON object of the found user or an error if not found.
-     */
-    public async retrieveUser(response: any, userId: string) {
-        try {
-            const user = await this.model.findOne({ user_ID: userId }).exec();
-            response.json(user);
-        } catch (e) {
-            console.error("Failed to retrieve user:", e);
-            response.status(500).json({ error: "Failed to retrieve user" });
-        }
+  /**
+   * Creates a new user.
+   * @param {IUser} userData - The data for the new user.
+   * @returns {Promise<IUser>}
+   */
+  public async createUser(userData: IUser): Promise<IUser> {
+    try {
+      const newUser = new this.model(userData);
+      const savedUser = await newUser.save();
+      return savedUser;
+    } catch (error) {
+      console.error("Error creating user:", error);
+      throw error;
     }
+  }
 
-    /**
-     * Updates a user's email by `user_ID`.
-     * @param response - The response object to send data back to the client.
-     * @param userId - The unique ID of the user to update.
-     * @param newEmail - The new email address for the user.
-     * @returns void - Sends the updated user in JSON format.
-     */
-    public async updateEmail(response: any, userId: string, newEmail: string) {
-        try {
-            const updatedUser = await this.model.findOneAndUpdate(
-                { user_ID: userId },
-                { $set: { email: newEmail } },
-                { new: true }
-            ).exec();
-            response.json(updatedUser);
-        } catch (e) {
-            console.error("Failed to update email:", e);
-            response.status(500).json({ error: "Failed to update email" });
-        }
+  /**
+   * Updates a user's information.
+   * @param {string} userId - The ID of the user to update.
+   * @param {Partial<IUser>} updateData - The data to update.
+   * @returns {Promise<IUser | null>}
+   */
+  public async updateUser(
+    userId: string,
+    updateData: Partial<IUser>
+  ): Promise<IUser | null> {
+    try {
+      const updatedUser = await this.model
+        .findOneAndUpdate({ Id: userId }, updateData, { new: true })
+        .exec();
+      return updatedUser;
+    } catch (error) {
+      console.error("Error updating user:", error);
+      throw error;
     }
+  }
 
-    /**
-     * Updates a user's password by `user_ID`.
-     * Note: Ensure password is hashed before updating.
-     * @param response - The response object to send data back to the client.
-     * @param userId - The unique ID of the user to update.
-     * @param newPassword - The new hashed password for the user.
-     * @returns void - Sends the updated user in JSON format.
-     */
-    public async updatePassword(response: any, userId: string, newPassword: string) {
-        try {
-            const updatedUser = await this.model.findOneAndUpdate(
-                { user_ID: userId },
-                { $set: { password: newPassword } },
-                { new: true }
-            ).exec();
-            response.json(updatedUser);
-        } catch (e) {
-            console.error("Failed to update password:", e);
-            response.status(500).json({ error: "Failed to update password" });
-        }
+  /**
+   * Deletes a user by their ID.
+   * @param {string} userId - The ID of the user to delete.
+   * @returns {Promise<void>}
+   */
+  public async deleteUser(userId: string): Promise<void> {
+    try {
+      await this.model.deleteOne({ Id: userId }).exec();
+      console.log(`User with ID ${userId} deleted successfully.`);
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      throw error;
     }
+  }
 
-    /**
-     * Deletes a user by `user_ID`.
-     * @param response - The response object to send data back to the client.
-     * @param userId - The unique ID of the user to delete.
-     * @returns void - Sends a success message with the deletion result.
-     */
-    public async deleteUser(response: any, userId: string) {
-        try {
-            const result = await this.model.deleteOne({ user_ID: userId }).exec();
-            response.json({ message: `User ${userId} deleted`, result });
-        } catch (e) {
-            console.error("Failed to delete user:", e);
-            response.status(500).json({ error: "Failed to delete user" });
-        }
+  /**
+   * Lists all users in the database.
+   * @returns {Promise<IUser[]>}
+   */
+  public async listAllUsers(): Promise<IUser[]> {
+    try {
+      const users = await this.model.find({}).exec();
+      return users;
+    } catch (error) {
+      console.error("Error listing all users:", error);
+      throw error;
     }
-
-    /**
-     * Adds a recipe to a user's recipe list by `user_ID`.
-     * @param response - The response object to send data back to the client.
-     * @param userId - The unique ID of the user.
-     * @param recipeId - The ID of the recipe to add.
-     * @returns void - Sends the updated user in JSON format.
-     */
-    public async addRecipeToUser(response: any, userId: string, recipeId: string) {
-        try {
-            const updatedUser = await this.model.findOneAndUpdate(
-                { user_ID: userId },
-                { $push: { recipes: recipeId } },
-                { new: true }
-            ).exec();
-            response.json(updatedUser);
-        } catch (e) {
-            console.error("Failed to add recipe to user:", e);
-            response.status(500).json({ error: "Failed to add recipe to user" });
-        }
-    }
+  }
 }
 
 export { UserModel };
