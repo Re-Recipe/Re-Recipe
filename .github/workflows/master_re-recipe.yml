@@ -1,4 +1,3 @@
-
 name: Build and Deploy Re-Recipe App to Azure
 
 on:
@@ -22,11 +21,7 @@ jobs:
         with:
           node-version: '20.x'
 
-      # Step 3: Install Angular CLI
-      - name: Install Angular CLI
-        run: npm install -g @angular/cli
-
-      # Step 4: Install and Build Angular Frontend
+      # Step 3: Build Angular Frontend
       - name: Install and Build Angular Frontend
         run: |
           cd cli/recipes
@@ -35,13 +30,14 @@ jobs:
         env:
           CI: true
 
-      # Step 5: Compile Backend Server
-      - name: Compile Backend Server
+      # Step 4: Compile Backend Server
+      - name: Install and Compile Backend Server
         run: |
           cd MongooseDB
           npm install
           tsc AppServer.ts
-      # Step 6: Prepare Deployment Artifact
+
+      # Step 5: Prepare Deployment Artifact
       - name: Prepare Deployment Artifact
         run: |
           mkdir -p deploy/frontend
@@ -49,9 +45,11 @@ jobs:
           mkdir -p deploy/backend
           cp MongooseDB/AppServer.js deploy/backend
           cp MongooseDB/package.json deploy/backend
+          cp -r MongooseDB/node_modules deploy/backend
           cd deploy
           zip -r release.zip frontend backend
-      # Step 7: Upload Artifact for Deployment
+
+      # Step 6: Upload Artifact for Deployment
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -63,7 +61,6 @@ jobs:
     needs: build
     environment:
       name: 'Production'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
 
     steps:
       # Step 1: Download Artifact
@@ -71,12 +68,13 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: re-recipe-app
-          path: artifact.zip  # Download as a single zip file
+          path: artifact.zip
 
-      # Step 2: Unzip Artifact
+      # Step 2: Unzip Deployment Artifact
       - name: Unzip Deployment Artifact
         run: |
           unzip artifact.zip -d deploy
+
       # Step 3: Deploy to Azure Web App
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
@@ -84,5 +82,5 @@ jobs:
         with:
           app-name: 'Re-Recipe'
           slot-name: 'Production'
-          package: deploy
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: deploy/release.zip
