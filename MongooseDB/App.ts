@@ -4,6 +4,11 @@ import { RecipeModel } from "./model/RecipeModel";
 import { DiscoverModel } from "./model/DiscoverModel";
 import { CookbookModel } from "./model/CookbookModel";
 import { UserModel } from "./model/UserModel"; // Import the UserModel
+import * as cookieParser from 'cookie-parser';
+import * as session from 'express-session';
+import * as passport from 'passport';
+// TODO: make a data access file
+//import {DataAccess} from './DataAccess';
 
 /**
  * The main application class that sets up the Express server,
@@ -51,7 +56,13 @@ class App {
         next();
       }
     );
-  }
+  
+    this.expressApp.use(session({ secret: 'keyboard cat' }));
+    this.expressApp.use(cookieParser());
+    this.expressApp.use(passport.initialize());
+    this.expressApp.use(passport.session());
+  }  
+
 
   /**
    * Defines the routes/endpoints for the application and associates
