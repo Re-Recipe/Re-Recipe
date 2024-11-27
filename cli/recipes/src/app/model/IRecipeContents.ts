@@ -7,7 +7,7 @@ export interface IRecipeContents extends Document {
       ingredient_id?: string;
       name: string;
       unit: string;
-      quantity: Number;
+      quantity: number;
     }[];
     directions: {
       step: string;
