@@ -13,6 +13,7 @@ class RecipeContents {
 
   public createSchema() {
     const schemaDefinition: mongoose.SchemaDefinition<IRecipeContents> = {
+      recipe_ID: { type: mongoose.Schema.Types.ObjectId, ref: 'Recipe', required: true },
       version_number: { type: Number, default: 1, required: true },
       cooking_duration: { type: Number, required: true },
       serving_size: { type: Number, required: true },
