@@ -1,4 +1,5 @@
 export interface IRecipeContents extends Document {
+    recipe_ID?: string; 
     cooking_duration: number;
     version_number: number;
     serving_size: number;
