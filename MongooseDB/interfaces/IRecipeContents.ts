@@ -1,6 +1,7 @@
-import { Document } from "mongoose";
+import { Types, Document } from "mongoose";
 
 export interface IRecipeContents extends Document {
+  recipe_ID: Types.ObjectId; 
   cooking_duration: number;
   version_number: number;
   serving_size: number;
