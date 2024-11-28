@@ -64,4 +64,4 @@ jobs:
           username: ${{ secrets.FTPS_USERNAME }}
           password: ${{ secrets.FTPS_PASSWORD }}
           local-dir: './'
-          server-dir: '/site/wwwroot'
+          server-dir: '/site/wwwroot/'
