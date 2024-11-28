@@ -1,15 +1,4 @@
 "use strict";
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -49,10 +38,15 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.App = void 0;
 var express = require("express");
-var bodyParser = require("body-parser"); // for parsing URL requests and JSON
+var bodyParser = require("body-parser"); // For parsing URL requests and JSON
 var DiscoverModel_1 = require("./model/DiscoverModel");
 var CookbookModel_1 = require("./model/CookbookModel");
-var crypto = require("crypto"); // for unique ID generation
+var UserModel_1 = require("./model/UserModel"); // Import the UserModel
+var cookieParser = require("cookie-parser");
+var session = require("express-session");
+var passport = require("passport");
+// TODO: make a data access file
+//import {DataAccess} from './DataAccess';
 /**
  * The main application class that sets up the Express server,
  * middleware, routes, and database models.
@@ -67,6 +61,7 @@ var App = /** @class */ (function () {
         this.expressApp = express();
         this.DiscoverModel = new DiscoverModel_1.DiscoverModel(mongoDBConnection);
         this.Cookbook = new CookbookModel_1.CookbookModel(mongoDBConnection, DiscoverModel_1.DiscoverModel);
+        this.UserModel = new UserModel_1.UserModel(mongoDBConnection); // Initialize UserModel
         this.middleware();
         this.routes();
     }
@@ -82,6 +77,10 @@ var App = /** @class */ (function () {
             res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
             next();
         });
+        this.expressApp.use(session({ secret: 'keyboard cat' }));
+        this.expressApp.use(cookieParser());
+        this.expressApp.use(passport.initialize());
+        this.expressApp.use(passport.session());
     };
     /**
      * Defines the routes/endpoints for the application and associates
@@ -90,7 +89,12 @@ var App = /** @class */ (function () {
     App.prototype.routes = function () {
         var _this = this;
         var router = express.Router();
-        // Recipe CRUD Routes
+        /**
+         * ========================
+         * SECTION: DISCOVER ROUTES
+         * ========================
+         */
+        // Retrieve all recipes in the Discover collection
         router.get("/app/discover", function (req, res) { return __awaiter(_this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
@@ -101,13 +105,13 @@ var App = /** @class */ (function () {
                 }
             });
         }); });
+        // Retrieve a specific recipe from the Discover collection by recipeID
         router.get("/app/discover/:recipeID", function (req, res) { return __awaiter(_this, void 0, void 0, function () {
             var recipeID;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         recipeID = req.params.recipeID;
-                        console.log("Query recipe list with id:", recipeID);
                         return [4 /*yield*/, this.DiscoverModel.retrieveRecipe(res, recipeID)];
                     case 1:
                         _a.sent();
@@ -115,21 +119,21 @@ var App = /** @class */ (function () {
                 }
             });
         }); });
+        // Add a new recipe to the Discover collection
         router.post("/app/discover", function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-            var id, jsonObj;
+            var newRecipeData;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        id = crypto.randomBytes(16).toString("hex");
-                        jsonObj = __assign(__assign({}, req.body), { recipe_ID: id });
-                        return [4 /*yield*/, this.DiscoverModel.model.create(jsonObj)];
+                        newRecipeData = req.body;
+                        return [4 /*yield*/, this.DiscoverModel.createRecipe(res, newRecipeData)];
                     case 1:
                         _a.sent();
-                        res.status(201).json({ id: id });
                         return [2 /*return*/];
                 }
             });
         }); });
+        // Delete a recipe from the Discover collection by recipeID
         router.delete("/app/discover/:recipeID", function (req, res) { return __awaiter(_this, void 0, void 0, function () {
             var recipeID;
             return __generator(this, function (_a) {
@@ -143,111 +147,129 @@ var App = /** @class */ (function () {
                 }
             });
         }); });
-        // Cookbook Routes
+        /**
+         * ========================
+         * SECTION: COOKBOOK ROUTES
+         * ========================
+         */
         // Retrieve all recipes in a user's cookbook
         router.get("/app/cookbook/:userId", function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-            var userId, error_1;
+            var userId;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         userId = req.params.userId;
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 3, , 4]);
-                        // Fetch the user's cookbook
                         return [4 /*yield*/, this.Cookbook.listAllRecipes(res, userId)];
-                    case 2:
-                        // Fetch the user's cookbook
+                    case 1:
                         _a.sent();
-                        return [3 /*break*/, 4];
-                    case 3:
-                        error_1 = _a.sent();
-                        console.error("Failed to fetch cookbook:", error_1);
-                        res.status(500).json({ error: "Failed to fetch cookbook data" });
-                        return [3 /*break*/, 4];
-                    case 4: return [2 /*return*/];
+                        return [2 /*return*/];
                 }
             });
         }); });
-        // Delete a specific recipe from a user's cookbook
+        // Remove a specific recipe from a user's cookbook
         router.delete("/app/cookbook/:userId/recipes/:recipeId", function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-            var userId, recipeId, error_2;
+            var userId, recipeId;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         userId = req.params.userId;
                         recipeId = req.params.recipeId;
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 3, , 4]);
                         return [4 /*yield*/, this.Cookbook.removeRecipeFromCookbook(res, userId, recipeId)];
-                    case 2:
+                    case 1:
                         _a.sent();
-                        return [3 /*break*/, 4];
-                    case 3:
-                        error_2 = _a.sent();
-                        console.error("Failed to delete recipe:", error_2);
-                        res
-                            .status(500)
-                            .json({ error: "Failed to delete recipe from cookbook" });
-                        return [3 /*break*/, 4];
-                    case 4: return [2 /*return*/];
+                        return [2 /*return*/];
                 }
             });
         }); });
         // Add a new version to a recipe in a user's cookbook
         router.post("/app/cookbook/:userId/recipes/:recipeId/versions", function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-            var userId, recipeId, versionData, error_3;
+            var userId, recipeId, versionData;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         userId = req.params.userId;
                         recipeId = req.params.recipeId;
                         versionData = req.body.versionData;
-                        if (!versionData || typeof versionData !== "object") {
-                            res
-                                .status(400)
-                                .json({ error: "Version data must be a valid object." });
-                            return [2 /*return*/];
-                        }
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 3, , 4]);
                         return [4 /*yield*/, this.Cookbook.addRecipeVersion(res, userId, recipeId, versionData)];
-                    case 2:
+                    case 1:
                         _a.sent();
-                        return [3 /*break*/, 4];
-                    case 3:
-                        error_3 = _a.sent();
-                        console.error("Failed to add recipe version:", error_3);
-                        res.status(500).json({ error: "Failed to add recipe version" });
-                        return [3 /*break*/, 4];
-                    case 4: return [2 /*return*/];
+                        return [2 /*return*/];
                 }
             });
         }); });
-        // Retrieve all recipes in a user's cookbook
-        router.get("/app/cookbook/:userId/recipes", function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-            var userId, error_4;
+        /**
+         * ====================
+         * SECTION: USER ROUTES
+         * ====================
+         */
+        // Create a new user account
+        router.post("/app/user/signup", function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+            var userData;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        userData = req.body;
+                        return [4 /*yield*/, this.UserModel.signup(res, userData)];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        }); });
+        // Log in an existing user
+        router.post("/app/user/login", function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+            var _a, username, password;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        _a = req.body, username = _a.username, password = _a.password;
+                        return [4 /*yield*/, this.UserModel.login(res, username, password)];
+                    case 1:
+                        _b.sent();
+                        return [2 /*return*/];
+                }
+            });
+        }); });
+        // Retrieve a user's profile by userId
+        router.get("/app/user/profile/:userId", function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+            var userId;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         userId = req.params.userId;
-                        _a.label = 1;
+                        return [4 /*yield*/, this.UserModel.getUserProfile(res, userId)];
                     case 1:
-                        _a.trys.push([1, 3, , 4]);
-                        // Call the listAllRecipes method from CookbookModel
-                        return [4 /*yield*/, this.Cookbook.listAllRecipes(res, userId)];
-                    case 2:
-                        // Call the listAllRecipes method from CookbookModel
                         _a.sent();
-                        return [3 /*break*/, 4];
-                    case 3:
-                        error_4 = _a.sent();
-                        console.error("Failed to fetch recipes:", error_4);
-                        res.status(500).json({ error: "Failed to fetch recipes" });
-                        return [3 /*break*/, 4];
-                    case 4: return [2 /*return*/];
+                        return [2 /*return*/];
+                }
+            });
+        }); });
+        // Update a user's profile information
+        router.put("/app/user/profile/:userId", function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+            var userId, updateData;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        userId = req.params.userId;
+                        updateData = req.body;
+                        return [4 /*yield*/, this.UserModel.updateUser(res, userId, updateData)];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        }); });
+        // Delete a user's profile by userId
+        router.delete("/app/user/profile/:userId", function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+            var userId;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        userId = req.params.userId;
+                        return [4 /*yield*/, this.UserModel.deleteUser(res, userId)];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/];
                 }
             });
         }); });
