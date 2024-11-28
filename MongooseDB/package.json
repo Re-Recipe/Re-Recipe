@@ -21,9 +21,8 @@
   },
   "scripts": {
     "start": "node AppServer.js",
-    "dev": "nodemon AppServer.js",
-    "build": "tsc",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc AppServer.ts",
+    "serve": "npm run build && npm start"
   },
   "author": "",
   "license": "ISC",
