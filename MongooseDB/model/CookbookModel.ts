@@ -43,10 +43,8 @@ class CookbookModel {
    */
   public async createModel() {
     try {
-      await mongoose.connect(this.dbConnectionString, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-      });
+      await mongoose.connect(this.dbConnectionString);
+
       this.model = mongoose.model("Cookbook", this.schema);
       console.log("Connected to MongoDB and created Cookbook model.");
     } catch (error) {

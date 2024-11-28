@@ -38,10 +38,8 @@ class DiscoverModel {
    */
   public async createModel() {
     try {
-      await mongoose.connect(this.dbConnectionString, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-      }); // Connects to MongoDB database
+      await mongoose.connect(this.dbConnectionString);
+
       this.model = mongoose.model("Discover", this.schema);
       console.log("Connected to MongoDB and initialized Discover model.");
     } catch (e) {

@@ -84,10 +84,7 @@ var CookbookModel = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, mongoose.connect(this.dbConnectionString, {
-                                useNewUrlParser: true,
-                                useUnifiedTopology: true,
-                            })];
+                        return [4 /*yield*/, mongoose.connect(this.dbConnectionString)];
                     case 1:
                         _a.sent();
                         this.model = mongoose.model("Cookbook", this.schema);

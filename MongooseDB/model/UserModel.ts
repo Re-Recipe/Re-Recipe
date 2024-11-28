@@ -54,10 +54,8 @@ class UserModel {
    */
   public async createModel() {
     try {
-      await mongoose.connect(this.dbConnectionString, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-      });
+      await mongoose.connect(this.dbConnectionString);
+
       this.model = mongoose.model("User", this.schema);
       console.log("Connected to MongoDB and created User model.");
     } catch (error) {
