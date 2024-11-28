@@ -56,11 +56,11 @@ jobs:
         with:
           name: app-artifact
 
-      # Step 2: Deploy to Azure via FTP
-      - name: Deploy to Azure Web App via FTP
+      # Step 2: Deploy to Azure Web App via FTPS
+      - name: Deploy to Azure Web App via FTPS
         uses: SamKirkland/FTP-Deploy-Action@v4.3.3
         with:
-          server: 're-recipe-geh7akd0dsa2d4cj.westus-01.azurewebsites.net'
+          server: 'waws-prod-bay-269.ftp.azurewebsites.windows.net'
           username: ${{ secrets.FTPS_USERNAME }}
           password: ${{ secrets.FTPS_PASSWORD }}
           local-dir: './'
