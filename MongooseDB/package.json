@@ -1,7 +1,7 @@
 {
   "name": "expressmongoserver",
   "version": "1.0.0",
-  "description": "This directory contains two express servers: * AppServer.js - Combined Node/Express web server w/ Mongo Access * Server.js - Encapsulated Node/Express web server w/ Mongo Access",
+  "description": "Express server with MongoDB access",
   "main": "AppServer.js",
   "dependencies": {
     "@types/body-parser": "^1.19.2",
@@ -14,26 +14,23 @@
     "dotenv": "^16.3.2",
     "express": "^4.18.2",
     "express-session": "^1.18.1",
-    "mongo": "^0.1.0",
-    "mongod": "^2.0.0",
     "mongodb": "^5.9.2",
-    "mongoose": "^5.13.22",
-    "mongose": "^0.0.2-security",
+    "mongoose": "^7.6.1",
     "mongosh": "^2.3.3",
-    "node": "^22.11.0",
-    "passport": "^0.7.0",
-    "typescript": "^4.6.3"
+    "passport": "^0.7.0"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node AppServer.js",
-    "build": "tsc"
+    "dev": "nodemon AppServer.js",
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@types/cookie-parser": "^1.4.8",
     "@types/express-session": "^1.18.1",
-    "@types/passport": "^1.0.17"
+    "@types/passport": "^1.0.17",
+    "typescript": "^4.6.3"
   }
 }
