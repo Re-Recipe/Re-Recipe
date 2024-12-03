@@ -1,4 +1,4 @@
-export interface IRecipeContents extends Document {
+export interface IRecipeContents {
     recipe_ID?: string; 
     cooking_duration: number;
     version_number: number;
