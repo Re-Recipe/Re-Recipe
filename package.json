@@ -2,13 +2,13 @@
   "name": "Re-Recipe",
   "version": "0.0.0",
   "scripts": {
-    "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
-    "watch": "ng build --watch --configuration development",
-    "test": "ng test",
-    "serve:ssr:cook": "node dist/cook/server/server.mjs"
-  },
+  "ng": "cd cli/recipes && ng",
+  "start": "cd cli/recipes && ng serve",
+  "build": "cd cli/recipes && ng build",
+  "watch": "cd cli/recipes && ng build --watch --configuration development",
+  "test": "cd cli/recipes && ng test",
+  "serve:ssr:cook": "cd cli/recipes && node dist/cook/server/server.mjs"
+},
   "private": true,
   "dependencies": {
     "@angular/animations": "^18.2.0",
@@ -41,8 +41,7 @@
     "karma-jasmine-html-reporter": "~2.1.0",
     "typescript": "~5.5.2"
   },
-
   "engines": {
-  "node": ">=18.0.0"
-}
+    "node": ">=18.0.0"
+  }
 }
