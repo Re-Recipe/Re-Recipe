@@ -211,7 +211,7 @@ class App {
 
     // Fallback route for Angular SPA
     this.expressApp.get("*", (req: express.Request, res: express.Response): void => {
-      res.sendFile(`${__dirname}/recipes/index.html`);
+      res.sendFile(`${__dirname}/recipes/browser/index.html`);
     });
   }
 }
