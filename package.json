@@ -3,8 +3,8 @@
   "version": "0.0.0",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "cd MongooseDB && node AppServer.js",
-    "build": "cd MongooseDB && tsc AppServer.ts"
+    "start": "node MongooseDb/AppServer.js",
+    "build": "tsc MongooseDB/AppServer.ts"
   },
   "private": true,
   "dependencies": {
