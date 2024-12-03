@@ -8,7 +8,7 @@ const expressSession = require("express-session");
 const mongoStore = require('connect-mongo');
 const App_1 = require("./App");
 dotenv.config();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 8080;
 const mongoDBConnection = process.env.DB_INFO;
 console.log("server db connection URL " + mongoDBConnection);
 console.log("process.env.DB_INFO " + process.env.DB_INFO);
@@ -29,3 +29,4 @@ server.listen(port, () => {
     console.log(`server running on port ${port}`);
 });
 //# sourceMappingURL=AppServer.js.map
+
