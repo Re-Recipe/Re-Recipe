@@ -2,12 +2,9 @@
   "name": "Re-Recipe",
   "version": "0.0.0",
   "scripts": {
-    "ng": "cd cli/recipes && ng",
-    "start:frontend": "cd cli/recipes && ng serve --port 4400",
-    "build:frontend": "cd cli/recipes && ng build",
-    "start:backend": "cd MongooseDB/ && node AppServer.js",
-    "serve:ssr:recipe": "cd cli/recipes && node dist/recipes/server/server.mjs",
-    "serve:all": "concurrently \"npm run start:frontend\" \"npm run start:backend\""
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node MongooseDB/AppServer.js",
+    "build": "cd MongooseDB && tsc AppServer.ts"
   },
   "private": true,
   "dependencies": {

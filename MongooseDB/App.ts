@@ -205,6 +205,14 @@ class App {
     this.expressApp.use("/app/json/", express.static(`${__dirname}/app/json`));
     this.expressApp.use("/images", express.static(`${__dirname}/img`));
     this.expressApp.use("/", express.static(`${__dirname}/pages`));
+    
+    // Serve Angular static files from the `recipes` folder
+    this.expressApp.use("/", express.static(`${__dirname}/recipes/browser`));
+
+    // Fallback route for Angular SPA
+    this.expressApp.get("*", (req: express.Request, res: express.Response): void => {
+      res.sendFile(`${__dirname}/recipes/index.html`);
+    });
   }
 }
 
