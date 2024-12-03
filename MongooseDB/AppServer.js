@@ -14,7 +14,7 @@ console.log("server db connection URL " + mongoDBConnection);
 console.log("process.env.DB_INFO " + process.env.DB_INFO);
 var server = new App_1.App(mongoDBConnection).expressApp;
 server.use(cookieParser());
-// Todo : move this? 
+// Todo : move this?
 server.use(expressSession({
     secret: '1234567890QWERTY',
     cookie: { maxAge: 60 * 60 * 1000 },
@@ -25,14 +25,6 @@ server.use(expressSession({
         collectionName: 'sessions',
     }),
 }));
-// Path to the Angular production build
-var angularDistPath = path.join(__dirname, 'recipes');
-// Serve static files from the copied `dist/recipes` directory
-server.use('/', express.static(angularDistPath));
-// Fallback route for Angular's client-side routing
-server.get('*', function (req, res) {
-    res.sendFile(path.join(angularDistPath, 'index.html'));
-});
 server.listen(port, function () {
     console.log("server running on port ".concat(port));
 });
