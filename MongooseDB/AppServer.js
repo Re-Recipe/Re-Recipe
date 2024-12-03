@@ -8,7 +8,7 @@ var expressSession = require("express-session");
 var mongoStore = require('connect-mongo');
 var App_1 = require("./App");
 dotenv.config();
-var port = process.env.PORT || 3000;
+var port = process.env.PORT;
 var mongoDBConnection = process.env.DB_INFO;
 console.log("server db connection URL " + mongoDBConnection);
 console.log("process.env.DB_INFO " + process.env.DB_INFO);
