@@ -1,3 +1,4 @@
+"use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ListModel = void 0;
 const Mongoose = require("mongoose");
@@ -38,3 +39,4 @@ class ListModel {
     }
 }
 exports.ListModel = ListModel;
+//# sourceMappingURL=ListModel.js.map

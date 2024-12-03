@@ -2,14 +2,14 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RecipeContents = exports.recipeContentsInstance = void 0;
 // models/ModifiedRecipeModel.ts
-var mongoose = require("mongoose");
-var RecipeContents = /** @class */ (function () {
-    function RecipeContents() {
+const mongoose = require("mongoose");
+class RecipeContents {
+    constructor() {
         this.createSchema();
         this.createModel();
     }
-    RecipeContents.prototype.createSchema = function () {
-        var schemaDefinition = {
+    createSchema() {
+        const schemaDefinition = {
             recipe_ID: { type: mongoose.Schema.Types.ObjectId, ref: 'Recipe', required: true },
             version_number: { type: Number, default: 1, required: true },
             cooking_duration: { type: Number, required: true },
@@ -33,17 +33,17 @@ var RecipeContents = /** @class */ (function () {
             notes: { type: String },
         };
         this.schema = new mongoose.Schema(schemaDefinition);
-    };
+    }
     /**
      * Creates a mongoose model for the modified recipe.
      * This model is used for object validation
      */
-    RecipeContents.prototype.createModel = function () {
+    createModel() {
         this.contents = mongoose.model("Contents", this.schema);
-    };
-    return RecipeContents;
-}());
+    }
+}
 exports.RecipeContents = RecipeContents;
 // export { RecipeContents };
-var recipeContentsInstance = new RecipeContents();
+const recipeContentsInstance = new RecipeContents();
 exports.recipeContentsInstance = recipeContentsInstance;
+//# sourceMappingURL=RecipeContents.js.map

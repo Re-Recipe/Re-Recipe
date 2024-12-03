@@ -1,3 +1,4 @@
+"use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const googleOauth2_1 = require("./googleOauth2");
 let passport = require('passport');
@@ -33,3 +34,4 @@ class GooglePassport {
     }
 }
 exports.default = GooglePassport;
+//# sourceMappingURL=GooglePassport.js.map

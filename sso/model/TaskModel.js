@@ -1,3 +1,4 @@
+"use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TaskModel = void 0;
 const Mongoose = require("mongoose");
@@ -38,3 +39,4 @@ class TaskModel {
     }
 }
 exports.TaskModel = TaskModel;
+//# sourceMappingURL=TaskModel.js.map
