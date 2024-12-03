@@ -7,7 +7,7 @@
   "build": "cd cli/recipes && ng build",
   "watch": "cd cli/recipes && ng build --watch --configuration development",
   "test": "cd cli/recipes && ng test",
-  "serve:ssr:cook": "cd cli/recipes && node dist/cook/server/server.mjs"
+  "serve:ssr:recipes": "cd cli/recipes && node dist/recipes/server/server.mjs"
 },
   "private": true,
   "dependencies": {
