@@ -3,11 +3,11 @@
   "version": "0.0.0",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node MongooseDb/AppServer.js",
+    "start": "node MongooseDB/AppServer.js",
     "build": "tsc"
   },
   "private": true,
-  "dependencies": {
+  "dependencies": { 
     "@angular/animations": "^18.2.0",
     "@angular/common": "^18.2.0",
     "@angular/compiler": "^18.2.0",
