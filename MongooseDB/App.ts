@@ -206,13 +206,13 @@ class App {
     this.expressApp.use("/images", express.static(`${__dirname}/img`));
     this.expressApp.use("/", express.static(`${__dirname}/pages`));
     
-    // Adjusted path to point to the 'recipes' folder in the root
-    this.expressApp.use("/", express.static(`${__dirname}/../recipes/browser`)); 
 
-    // Fallback route for Angular SPA
+    // The static end point for angular and fallback 
+    this.expressApp.use("/", express.static(`${__dirname}/../recipes/browser`));
+
     this.expressApp.get("*", (req: express.Request, res: express.Response): void => {
-    res.sendFile(`${__dirname}/../recipes/browser/index.html`); 
-    });
+    res.sendFile(`${__dirname}/../recipes/browser/index.html`);
+  });
   }
 }
 
