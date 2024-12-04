@@ -10,5 +10,5 @@
   "typeRoots": ["node_modules/@types"]
 },
 "includes": ["**/*"],
-"exclude": ["node_modules", "MongooseDB/model2"]
+"exclude": ["node_modules", "MongooseDB/model2", "sso", "MongooseDB/DataAccess.ts", "cli"]
 }
