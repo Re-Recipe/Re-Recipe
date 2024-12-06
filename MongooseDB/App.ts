@@ -7,6 +7,7 @@ import { UserModel } from "./model/UserModel"; // Import the UserModel
 import * as cookieParser from 'cookie-parser';
 import * as session from 'express-session';
 import * as passport from 'passport';
+import GooglePassportObj from './GooglePassport';
 // TODO: make a data access file
 //import {DataAccess} from './DataAccess';
 
@@ -20,6 +21,7 @@ class App {
   public Cookbook: CookbookModel;
   public DiscoverModel: DiscoverModel;
   public UserModel: UserModel;
+  public googlePassportObj:GooglePassportObj;
 
   /**
    * Creates an instance of the App.
@@ -27,6 +29,7 @@ class App {
    * @param {string} mongoDBConnection - The MongoDB connection string.
    */
   constructor(mongoDBConnection: string) {
+    this.googlePassportObj = new GooglePassportObj();
     this.expressApp = express();
     this.DiscoverModel = new DiscoverModel(mongoDBConnection);
     this.Cookbook = new CookbookModel(mongoDBConnection, DiscoverModel);
@@ -34,7 +37,11 @@ class App {
     this.middleware();
     this.routes();
   }
-
+  private validateAuth(req, res, next):void {
+    if (req.isAuthenticated()) { console.log("user is authenticated"); return next(); }
+    console.log("user is not authenticated");
+    res.redirect('/');
+  }
   /**
    * Sets up middleware for the Express application, including
    * body parsing and CORS headers.
@@ -153,7 +160,22 @@ class App {
      * SECTION: USER ROUTES
      * ====================
      */
-
+        // Google SSO Sign - In
+        router.get('/app/auth/google', 
+        passport.authenticate('google', {scope: ['profile']})
+        );
+    
+    
+      router.get('/app/auth/google/callback', 
+        passport.authenticate('google', 
+          { failureRedirect: '/' }
+        ),
+        (req, res) => {
+          console.log("successfully authenticated user and returned to callback page.");
+          console.log("redirecting to Discover");
+          res.redirect('http://localhost:4200/discover');
+        } 
+      );
     // Create a new user account
     router.post(
       "/app/user/signup",
