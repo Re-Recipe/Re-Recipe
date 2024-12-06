@@ -29,7 +29,10 @@ export class RecipeservicesService {
   getRecipeContent(): Observable<IRecipeContents[]>{
     return this.http.get<IRecipeContents[]>(`${this.hostUrl}discover`);
   }
-
+  //login SSO - Google 
+  Login() {
+    window.location.href = (`${this.hostUrl}auth/google`);
+  }
  
   /**
    * Retrieves a single recipe by its unique ID.
