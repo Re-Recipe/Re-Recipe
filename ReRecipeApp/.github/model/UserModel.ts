@@ -24,6 +24,7 @@ class UserModel {
     this.schema = new mongoose.Schema(
       {
         user_ID: { type: String, required: true, unique: true },
+        ssoID: {type: String, required: true, unique: true },
         username: { type: String, required: true, unique: true },
         email: { type: String, required: true, unique: true },
         password: { type: String, required: true }, // Stores hashed password
