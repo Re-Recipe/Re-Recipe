@@ -9,12 +9,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
-    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (g && (g = 0, op[0] && (_ = 0)), _) try {
+        while (_) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -35,7 +35,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-Object.defineProperty(exports, "__esModule", { value: true });
+exports.__esModule = true;
 exports.DiscoverModel = void 0;
 var mongoose = require("mongoose");
 var RecipeModel_1 = require("./RecipeModel");
@@ -58,7 +58,7 @@ var DiscoverModel = /** @class */ (function () {
         this.schema = new mongoose.Schema({
             recipeList: [
                 { type: mongoose.Schema.Types.ObjectId, ref: "RecipeModel" },
-            ],
+            ]
         }, { collection: "discover" });
     };
     /**
@@ -125,7 +125,7 @@ var DiscoverModel = /** @class */ (function () {
                     case 2:
                         savedRecipe = _a.sent();
                         return [4 /*yield*/, this.model.findOneAndUpdate({}, // Assumes there's one document in the Discover collection. Adjust as needed.
-                            { $push: { recipeList: savedRecipe._id } }, { upsert: true, new: true })];
+                            { $push: { recipeList: savedRecipe._id } }, { upsert: true, "new": true })];
                     case 3:
                         discoverEntry = _a.sent();
                         console.log("Recipe added to Discover:", discoverEntry);
@@ -244,7 +244,7 @@ var DiscoverModel = /** @class */ (function () {
                         if (result.deletedCount && result.deletedCount > 0) {
                             response.json({
                                 message: "Recipe ".concat(recipe_ID, " deleted successfully."),
-                                result: result,
+                                result: result
                             });
                         }
                         else {
@@ -333,7 +333,7 @@ var DiscoverModel = /** @class */ (function () {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
                         return [4 /*yield*/, this.model
-                                .findOneAndUpdate({ recipe_ID: recipe_ID }, { $set: { image_url: image_url } }, { new: true, runValidators: true })
+                                .findOneAndUpdate({ recipe_ID: recipe_ID }, { $set: { image_url: image_url } }, { "new": true, runValidators: true })
                                 .exec()];
                     case 1:
                         result = _a.sent();
@@ -368,7 +368,7 @@ var DiscoverModel = /** @class */ (function () {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
                         return [4 /*yield*/, this.model
-                                .findOneAndUpdate({ recipe_ID: recipe_ID }, { $set: { is_visible: is_visible } }, { new: true, runValidators: true })
+                                .findOneAndUpdate({ recipe_ID: recipe_ID }, { $set: { is_visible: is_visible } }, { "new": true, runValidators: true })
                                 .exec()];
                     case 1:
                         result = _a.sent();
