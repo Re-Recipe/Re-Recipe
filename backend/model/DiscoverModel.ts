@@ -42,7 +42,7 @@ class DiscoverModel {
     try {
       await mongoose.connect(this.dbConnectionString);
 
-      this.model = mongoose.model("Discover", this.schema);
+      mongoose.models.Discover || mongoose.model<IDiscover>("Discover", this.schema);
       console.log("Connected to MongoDB and initialized Discover model.");
     } catch (e) {
       console.error(
