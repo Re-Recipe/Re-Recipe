@@ -24,6 +24,7 @@ class RecipeModel {
   public createSchema() {
     const schemaDefinition: mongoose.SchemaDefinition<IRecipe> = {
       modified_flag: Boolean,
+      user_ID: { type: String, required: true },
       recipe_ID: { type: String, required: true }, // ID of the original recipe
       recipe_name: { type: String, required: true },
       meal_category: {
