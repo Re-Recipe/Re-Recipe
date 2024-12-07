@@ -1,12 +1,14 @@
 import * as mongoose from "mongoose";
 import { IRecipe } from "../interfaces/IRecipe";
 import { RecipeModel } from "./RecipeModel";
+import { IDiscover } from "../interfaces/IDiscover";
 
 class DiscoverModel {
   public schema: mongoose.Schema;
-  public model: mongoose.Model<any>;
+  public model: mongoose.Model<IDiscover>;
   public dbConnectionString: string;
   public recipeModel = new RecipeModel();
+  
 
   /**
    * Constructor to initialize the database connection and set up the schema and model.
