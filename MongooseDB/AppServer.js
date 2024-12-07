@@ -1,18 +1,18 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const express = require('express');
-const path = require('path');
-const dotenv = require("dotenv");
-const cookieParser = require("cookie-parser");
-const expressSession = require("express-session");
-const mongoStore = require('connect-mongo');
-const App_1 = require("./App");
+var express = require('express');
+var path = require('path');
+var dotenv = require("dotenv");
+var cookieParser = require("cookie-parser");
+var expressSession = require("express-session");
+var mongoStore = require('connect-mongo');
+var App_1 = require("./App");
 dotenv.config();
-const port = process.env.PORT || 8080;
-const mongoDBConnection = process.env.DB_INFO;
+var port = process.env.PORT || 8080;
+var mongoDBConnection = process.env.DB_INFO;
 console.log("server db connection URL " + mongoDBConnection);
 console.log("process.env.DB_INFO " + process.env.DB_INFO);
-let server = new App_1.App(mongoDBConnection).expressApp;
+var server = new App_1.App(mongoDBConnection).expressApp;
 server.use(cookieParser());
 // Todo : move this?
 server.use(expressSession({
@@ -25,7 +25,6 @@ server.use(expressSession({
         collectionName: 'sessions',
     }),
 }));
-server.listen(port, () => {
-    console.log(`server running on port ${port}`);
+server.listen(port, function () {
+    console.log("server running on port ".concat(port));
 });
-//# sourceMappingURL=AppServer.js.map
