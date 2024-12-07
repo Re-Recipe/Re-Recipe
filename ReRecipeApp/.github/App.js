@@ -45,7 +45,8 @@ var UserModel_1 = require("./model/UserModel"); // Import the UserModel
 var cookieParser = require("cookie-parser");
 var session = require("express-session");
 var passport = require("passport");
-// TODO: make a data access file?
+var GooglePassport_1 = require("./GooglePassport");
+// TODO: make a data access file
 //import {DataAccess} from './DataAccess';
 /**
  * The main application class that sets up the Express server,
@@ -58,6 +59,7 @@ var App = /** @class */ (function () {
      * @param {string} mongoDBConnection - The MongoDB connection string.
      */
     function App(mongoDBConnection) {
+        this.googlePassportObj = new GooglePassport_1["default"]();
         this.expressApp = express();
         this.DiscoverModel = new DiscoverModel_1.DiscoverModel(mongoDBConnection);
         this.Cookbook = new CookbookModel_1.CookbookModel(mongoDBConnection, DiscoverModel_1.DiscoverModel);
@@ -65,6 +67,14 @@ var App = /** @class */ (function () {
         this.middleware();
         this.routes();
     }
+    App.prototype.validateAuth = function (req, res, next) {
+        if (req.isAuthenticated()) {
+            console.log("user is authenticated");
+            return next();
+        }
+        console.log("user is not authenticated");
+        res.redirect("/");
+    };
     /**
      * Sets up middleware for the Express application, including
      * body parsing and CORS headers.
@@ -77,7 +87,7 @@ var App = /** @class */ (function () {
             res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
             next();
         });
-        this.expressApp.use(session({ secret: 'keyboard cat' }));
+        this.expressApp.use(session({ secret: "keyboard cat" }));
         this.expressApp.use(cookieParser());
         this.expressApp.use(passport.initialize());
         this.expressApp.use(passport.session());
@@ -181,16 +191,15 @@ var App = /** @class */ (function () {
                 }
             });
         }); });
-        // Add a new version to a recipe in a user's cookbook
-        router.post("/app/cookbook/:userId/recipes/:recipeId/versions", function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-            var userId, recipeId, versionData;
+        // Add a new recipe in a user's cookbook
+        router.post("/app/cookbook/:userId/recipes/:recipeId", function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+            var userId, recipeId;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         userId = req.params.userId;
                         recipeId = req.params.recipeId;
-                        versionData = req.body.versionData;
-                        return [4 /*yield*/, this.Cookbook.addRecipeVersion(res, userId, recipeId, versionData)];
+                        return [4 /*yield*/, this.Cookbook.copyRecipeFromDiscover(res, recipeId, userId)];
                     case 1:
                         _a.sent();
                         return [2 /*return*/];
@@ -202,6 +211,13 @@ var App = /** @class */ (function () {
          * SECTION: USER ROUTES
          * ====================
          */
+        // Google SSO Sign - In
+        router.get("/app/auth/google", passport.authenticate("google", { scope: ["profile"] }));
+        router.get("/app/auth/google/callback", passport.authenticate("google", { failureRedirect: "/" }), function (req, res) {
+            console.log("successfully authenticated user and returned to callback page.");
+            console.log("redirecting to Discover");
+            res.redirect("http://re-recipe.azurewebsites.net/discover");
+        });
         // Create a new user account
         router.post("/app/user/signup", function (req, res) { return __awaiter(_this, void 0, void 0, function () {
             var userData;
@@ -273,12 +289,15 @@ var App = /** @class */ (function () {
                 }
             });
         }); });
-        // Mount the router
+        // Mount the router on the Express application
         this.expressApp.use("/", router);
-        // Serve additional static assets
-        this.expressApp.use("/app/json", express.static("".concat(__dirname, "/app/json")));
+        this.expressApp.use("/app/json/", express.static("".concat(__dirname, "/app/json")));
         this.expressApp.use("/images", express.static("".concat(__dirname, "/img")));
+        //The static end point for angular and fallback
         this.expressApp.use("/", express.static("".concat(__dirname, "/recipes/browser")));
+        this.expressApp.get("*", function (req, res) {
+            res.sendFile("".concat(__dirname, "/recipes/browser/index.html"));
+        });
     };
     return App;
 }());

@@ -11,15 +11,17 @@
     "connect-mongo": "^5.1.0",
     "cookie-parser": "^1.4.7",
     "crypto": "^1.0.1",
-    "dotenv": "^16.3.2",
-    "express": "^4.18.2",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
     "express-session": "^1.18.1",
-    "mongo-connect": "^0.0.6",
+    "googleapis": "^144.0.0",
     "mongodb": "^5.9.2",
-    "mongoose": "^7.6.1",
+    "mongoose": "^7.8.3",
     "mongosh": "^2.3.3",
     "passport": "^0.7.0",
-    "path": "^0.12.7"
+    "passport-google-oauth": "^2.0.0",
+    "passport-google-oauth20": "^2.0.0",
+    "passport-google-oauth20-with-people-api": "^2.0.0"
   },
   "scripts": {
     "start": "node AppServer.js",
@@ -35,6 +37,6 @@
     "typescript": "^4.6.3"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20"
   }
 }
