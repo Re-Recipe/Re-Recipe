@@ -2,6 +2,7 @@ import Mongoose = require("mongoose");
 
 interface IUser extends Mongoose.Document {
   user_ID: string; // System generated & unique user ID
+  ssoID: string; // sso ID
   username: string; // Unique username, system-generated
   email: string; // User's email address
   password: string; // Hashed password
