@@ -1,4 +1,5 @@
 export interface IRecipeContents {
+    user_ID: string;
     recipe_ID?: string; 
     cooking_duration: number;
     version_number: number;
