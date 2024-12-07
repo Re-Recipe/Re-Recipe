@@ -20,12 +20,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
-    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (g && (g = 0, op[0] && (_ = 0)), _) try {
+        while (_) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -46,7 +46,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-Object.defineProperty(exports, "__esModule", { value: true });
+exports.__esModule = true;
 exports.CookbookModel = void 0;
 var mongoose = require("mongoose");
 var RecipeModel_1 = require("./RecipeModel");
@@ -68,10 +68,10 @@ var CookbookModel = /** @class */ (function () {
     CookbookModel.prototype.createSchema = function () {
         this.schema = new mongoose.Schema({
             user_ID: { type: String, required: true, unique: true },
-            title: { type: String, default: "My Cookbook" },
+            title: { type: String, "default": "My Cookbook" },
             modified_recipes: [
                 { type: mongoose.Schema.Types.ObjectId, ref: "RecipeModel" },
-            ],
+            ]
         }, { collection: "cookbooks" });
     };
     /**
@@ -135,7 +135,7 @@ var CookbookModel = /** @class */ (function () {
                         if (!cookbook) {
                             cookbook = new this.model({
                                 user_ID: user_ID,
-                                modified_recipes: [newRecipe._id],
+                                modified_recipes: [newRecipe._id]
                             });
                         }
                         else {
@@ -189,7 +189,7 @@ var CookbookModel = /** @class */ (function () {
                     case 2:
                         _a.sent();
                         response.json({
-                            message: "Modified recipe with ID ".concat(recipeId, " deleted successfully."),
+                            message: "Modified recipe with ID ".concat(recipeId, " deleted successfully.")
                         });
                         return [3 /*break*/, 4];
                     case 3:
@@ -236,7 +236,7 @@ var CookbookModel = /** @class */ (function () {
                         firstVersion = versions[0];
                         mostRecentVersion = versions[versions.length - 1];
                         response.json({
-                            recipe: __assign(__assign({}, recipe.toObject()), { versions: [firstVersion, mostRecentVersion].filter(Boolean) }),
+                            recipe: __assign(__assign({}, recipe.toObject()), { versions: [firstVersion, mostRecentVersion].filter(Boolean) })
                         });
                         return [3 /*break*/, 3];
                     case 2:
@@ -265,7 +265,7 @@ var CookbookModel = /** @class */ (function () {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
                         return [4 /*yield*/, this.model
-                                .findOneAndUpdate({ user_ID: userId, "modified_recipes._id": recipeId }, { $push: { "modified_recipes.$.versions": versionData } }, { new: true })
+                                .findOneAndUpdate({ user_ID: userId, "modified_recipes._id": recipeId }, { $push: { "modified_recipes.$.versions": versionData } }, { "new": true })
                                 .exec()];
                     case 1:
                         result = _a.sent();
@@ -340,8 +340,8 @@ var CookbookModel = /** @class */ (function () {
                         updateQuery = versionNumber
                             ? {
                                 $pull: {
-                                    "modified_recipes.$.versions": { version_number: versionNumber },
-                                },
+                                    "modified_recipes.$.versions": { version_number: versionNumber }
+                                }
                             }
                             : { $pull: { modified_recipes: { _id: recipeId } } };
                         return [4 /*yield*/, this.model
@@ -353,7 +353,7 @@ var CookbookModel = /** @class */ (function () {
                             message: versionNumber
                                 ? "Version ".concat(versionNumber, " removed from recipe ").concat(recipeId)
                                 : "Recipe ".concat(recipeId, " and all versions removed"),
-                            result: result,
+                            result: result
                         });
                         return [3 /*break*/, 3];
                     case 2:
