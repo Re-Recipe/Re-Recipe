@@ -22,21 +22,21 @@ jobs:
 
       # Step 3: Install dependencies and build backend
       - name: Install and build backend
-        working-directory: MongooseDB
+        working-directory: backend
         run: |
           npm install
           npm run build
 
       # Step 4: Install dependencies and build frontend
       - name: Install and build frontend
-        working-directory: cli/recipes/src/app
+        working-directory: cli/recipes/frontend/app
         run: |
           npm install
           npm run build --if-present
 
       # Step 5: Zip built artifacts
       - name: Zip artifacts
-        run: zip -r app.zip ./MongooseDB ./cli/recipes/dist/recipes
+        run: zip -r app.zip ./backend ./cli/recipes/dist/recipes
 
       # Step 6: Upload artifact
       - name: Upload artifact

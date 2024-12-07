@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node MongooseDB/AppServer.js",
+    "start": "node backend/AppServer.js",
     "build": "tsc"
   },
   "private": true,
