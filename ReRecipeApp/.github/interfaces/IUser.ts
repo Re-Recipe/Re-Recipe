@@ -1,13 +1,9 @@
 import Mongoose = require("mongoose");
 
 interface IUser extends Mongoose.Document {
-  user_ID: string; // System generated & unique user ID
-  ssoID: string; // sso ID
-  username: string; // Unique username, system-generated
+  user_ID: string; // SSO ID 
   email: string; // User's email address
-  password: string; // Hashed password
-  createdAt?: Date; // Optional if timestamps are auto-managed
-  hints?: string; // Optional hints for the user
+  color: string//
   recipeIDs: Mongoose.Types.ObjectId[]; // Array of ObjectIds referencing Recipe model
 }
 
