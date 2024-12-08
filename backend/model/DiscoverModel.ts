@@ -42,7 +42,9 @@ class DiscoverModel {
     try {
       await mongoose.connect(this.dbConnectionString);
 
-      mongoose.models.Discover || mongoose.model<IDiscover>("Discover", this.schema);
+      this.model =
+        mongoose.models.Discover ||
+        mongoose.model<IDiscover>("Discover", this.schema);
       console.log("Connected to MongoDB and initialized Discover model.");
     } catch (e) {
       console.error(
@@ -104,34 +106,45 @@ class DiscoverModel {
    * Retrieves all recipes from the database.
    * @param response - The response object to send data back to the client.
    */
-  public async retrieveAllRecipes(response: any) {
-    try {
-      const itemArray = await this.model.find({}).exec();
-      response.json(itemArray);
-    } catch (e) {
-      console.error("Failed to retrieve recipes:", e);
-      response.status(500).json({ error: "Failed to retrieve recipes" });
+  public retrieveRecipe = async (response: any, recipe_ID: string) => {
+    console.log("this context in retrieveRecipe:", this);
+    console.log("this.model before findOne:", this.model);
+    if (!this.model) {
+        console.error("Discover model is not initialized.");
+        response.status(500).json({ error: "Discover model not initialized" });
+        return;
     }
-  }
+
+    try {
+        const result = await this.model.findOne({ recipe_ID }).exec();
+        if (result) {
+            response.json(result);
+        } else {
+            response.status(404).json({ error: "Recipe not found" });
+        }
+    } catch (e) {
+        console.error("Failed to retrieve recipe:", e);
+        response.status(500).json({ error: "Failed to retrieve recipe" });
+    }
+};
 
   /**
-   * Retrieves a single recipe by `recipe_ID`.
+   * Retrieves all recipes from the database.
    * @param response - The response object to send data back to the client.
-   * @param recipe_ID - The unique ID of the recipe to retrieve.
    */
-  public async retrieveRecipe(response: any, recipe_ID: string) {
+  public async retrieveAllRecipes(response: any) {
     try {
-      const result = await this.model.findOne({ recipe_ID }).exec();
-      if (result) {
-        response.json(result);
-      } else {
-        response.status(404).json({ error: "Recipe not found" });
-      }
-    } catch (e) {
-      console.error("Failed to retrieve recipe:", e);
-      response.status(500).json({ error: "Failed to retrieve recipe" });
+        if (!this.model) {
+            throw new Error("Discover model is not initialized.");
+        }
+
+        const itemArray = await this.model.find({}).exec();
+        response.json(itemArray);
+    } catch (error) {
+        console.error("Failed to retrieve recipes:", error);
+        response.status(500).json({ error: "Failed to retrieve recipes" });
     }
-  }
+}
 
   /**
    * Counts and retrieves the total number of recipes in the database.
