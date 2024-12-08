@@ -50,27 +50,27 @@ class App {
    * body parsing and CORS headers.
    */
   private middleware(): void {
-    this.expressApp.use(bodyParser.json());
-    this.expressApp.use(bodyParser.urlencoded({ extended: false }));
-    this.expressApp.use(
-      (
-        req: express.Request,
-        res: express.Response,
-        next: express.NextFunction
-      ) => {
-        res.header("Access-Control-Allow-Origin", "*");
-        res.header(
-          "Access-Control-Allow-Headers",
-          "Origin, X-Requested-With, Content-Type, Accept"
-        );
-        next();
-      }
-    );
+      // CORS headers to allow frontend (running on http://localhost:4200) to access the backend
+      this.expressApp.use(
+          (req: express.Request, res: express.Response, next: express.NextFunction) => {
+              res.header('Access-Control-Allow-Origin', 'http://localhost:4200');  // Allow frontend to access
+              res.header('Access-Control-Allow-Credentials', 'true');  // Allow cookies
+              res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+              next();
+          }
+      );
 
-    this.expressApp.use(session({ secret: "keyboard cat" }));
-    this.expressApp.use(cookieParser());
-    this.expressApp.use(passport.initialize());
-    this.expressApp.use(passport.session());
+      // Body parsing middleware
+      this.expressApp.use(bodyParser.json());
+      this.expressApp.use(bodyParser.urlencoded({ extended: false }));
+
+      // Session and cookie parsing middleware
+      this.expressApp.use(session({ secret: "keyboard cat", resave: false, saveUninitialized: true }));
+      this.expressApp.use(cookieParser());
+
+      // Passport initialization
+      this.expressApp.use(passport.initialize());
+      this.expressApp.use(passport.session());
   }
 
   /**
@@ -80,6 +80,21 @@ class App {
   private routes(): void {
     const router = express.Router();
 
+    router.get('/app/auth/check', (req, res) => {
+        if (req.isAuthenticated()) {
+            return res.json({ loggedIn: true });
+        }
+        res.json({ loggedIn: false });
+    });
+
+    router.get("/app/logout", (req, res) => {
+      req.logout((err) => {
+        if (err) {
+          return res.status(500).send("Error logging out.");
+        }
+        res.redirect("/");  // Redirect to the home page after logout
+      });
+  });
     /**
      * ========================
      * SECTION: DISCOVER ROUTES
@@ -161,23 +176,30 @@ class App {
      * SECTION: USER ROUTES
      * ====================
      */
+    router.get(
+        "/app/auth/google/callback",
+        passport.authenticate("google", { failureRedirect: "/" }),
+        (req, res) => {
+            console.log("User successfully authenticated");
+            console.log("Session User:", req.user);
+            res.redirect("http://localhost:4200/discover");
+        }
+    );
+      router.get('/app/auth/check', (req, res) => {
+          if (req.isAuthenticated()) {
+              console.log('User is authenticated:', req.user);
+              return res.json({ loggedIn: true });
+          }
+          console.log('User is not authenticated');
+          res.json({ loggedIn: false });
+      });
+
     // Google SSO Sign - In
     router.get(
       "/app/auth/google",
       passport.authenticate("google", { scope: ["profile"] })
     );
 
-    router.get(
-      "/app/auth/google/callback",
-      passport.authenticate("google", { failureRedirect: "/" }),
-      (req, res) => {
-        console.log(
-          "successfully authenticated user and returned to callback page."
-        );
-        console.log("redirecting to Discover");
-        res.redirect("http://localhost:4200/discover");
-      }
-    );
     // Create a new user account
     router.post(
       "/app/user/signup",

@@ -22,16 +22,16 @@ server.use(cookieParser());
 
 // Todo : move this?
 server.use(
-  expressSession({
-    secret: '1234567890QWERTY',
-    cookie: { maxAge: 60 * 60 * 1000 },
-    resave: false,
-    saveUninitialized: true,
-    store: mongoStore.create({
-      mongoUrl: mongoDBConnection,
-      collectionName: 'sessions',
-    }),
-  })
+    expressSession({
+        secret: '1234567890QWERTY',
+        cookie: {},
+        resave: false,
+        saveUninitialized: true,
+        store: mongoStore.create({
+            mongoUrl: mongoDBConnection,
+            collectionName: 'sessions',
+        }),
+    })
 );
 
 server.listen(port, () => {

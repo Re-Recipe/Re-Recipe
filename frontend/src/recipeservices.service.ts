@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 import { IRecipe } from './app/model/IRecipe';
 import { IRecipeContents } from './app/model/IRecipeContents';
+
 @Injectable({
   providedIn: 'root',
 })
@@ -23,7 +24,7 @@ export class RecipeservicesService {
    * Logs out the user and updates `isAuthenticated`
    */
   logout(): Observable<any> {
-    return this.http.get(`${this.hostUrl}logout`).pipe(
+    return this.http.get(`${this.hostUrl}logout`, { withCredentials: true }).pipe(
       tap(() => {
         this.isAuthenticated = false; // Update authentication state
       })
@@ -47,7 +48,6 @@ export class RecipeservicesService {
   isLoggedIn(): boolean {
     return this.isAuthenticated;
   }
-
 
   /**
    * ============================
