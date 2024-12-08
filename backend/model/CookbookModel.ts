@@ -76,10 +76,9 @@ class CookbookModel {
       }
 
       // Create a copy of the recipe and add user-specific data
-      const newRecipeData: IRecipe = {
+      const newRecipeData: { user_ID: string } = {
         ...originalRecipe.toObject(),
         user_ID,
-        isModified: true,
       };
 
       // Create a new recipe document using RecipeModel

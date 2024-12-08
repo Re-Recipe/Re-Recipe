@@ -1,5 +1,5 @@
 "use strict";
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 var express = require('express');
 var path = require('path');
 var dotenv = require("dotenv");
@@ -24,8 +24,8 @@ server.use(expressSession({
     saveUninitialized: true,
     store: mongoStore.create({
         mongoUrl: mongoDBConnection,
-        collectionName: 'sessions'
-    })
+        collectionName: 'sessions',
+    }),
 }));
 server.listen(port, function () {
     console.log("server running on port ".concat(port));

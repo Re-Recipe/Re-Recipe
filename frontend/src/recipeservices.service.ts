@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { IRecipe } from './app/model/IRecipe';
 import { IRecipeContents } from './app/model/IRecipeContents';
 @Injectable({
@@ -8,8 +8,46 @@ import { IRecipeContents } from './app/model/IRecipeContents';
 })
 export class RecipeservicesService {
   hostUrl: string = 'http://localhost:8080/app/';
+  isAuthenticated: boolean = false;
 
   constructor(private http: HttpClient) {}
+
+  /**
+   * Logs in the user via Google SSO
+   */
+  login(): void {
+    window.location.href = `${this.hostUrl}auth/google`;
+  }
+
+  /**
+   * Logs out the user and updates `isAuthenticated`
+   */
+  logout(): Observable<any> {
+    return this.http.get(`${this.hostUrl}logout`).pipe(
+      tap(() => {
+        this.isAuthenticated = false; // Update authentication state
+      })
+    );
+  }
+
+  /**
+   * Checks the user's session state and updates `isAuthenticated`
+   */
+  checkSession(): Observable<any> {
+    return this.http.get(`${this.hostUrl}auth/check`, { withCredentials: true }).pipe(
+      tap((response: any) => {
+        this.isAuthenticated = response.loggedIn;
+      })
+    );
+  }
+
+  /**
+   * Checks if the user is logged in
+   */
+  isLoggedIn(): boolean {
+    return this.isAuthenticated;
+  }
+
 
   /**
    * ============================
@@ -29,11 +67,8 @@ export class RecipeservicesService {
   getRecipeContent(): Observable<IRecipeContents[]>{
     return this.http.get<IRecipeContents[]>(`${this.hostUrl}discover`);
   }
-  //login SSO - Google 
-  Login() {
-    window.location.href = (`${this.hostUrl}auth/google`);
-  }
- 
+
+
   /**
    * Retrieves a single recipe by its unique ID.
    * @param recipeID - The ID of the recipe to be retrieved.

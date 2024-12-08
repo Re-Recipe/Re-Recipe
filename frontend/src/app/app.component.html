@@ -9,27 +9,37 @@
 </head>
 <body>
       <!-- Navbar -->
-<nav class="navbar navbar-dark">
-    <div class="container">
-      <!-- Logo and Site Name -->
-      <a class="navbar-brand d-flex align-items-center" href="#">
-        <img src="https://i.ibb.co/y5tNhjP/ChefRiRi.png" alt="ChefRiRi" width="40" height="40" class="me-2 rounded-circle">
-        Re-Recipe
-      </a>
-      <ul class="nav">
-        <li class="nav-item"><a  class="nav-link text-light" [routerLink]= "['/home']" routerLinkActive="active">Home</a></li>
-        <li class="nav-item"><a  class="nav-link text-light" [routerLink]= "['/discover']" routerLinkActive="active">Discover</a></li>
-        <li class="nav-item"><a class="nav-link text-light" [routerLink]="['/cookbook']" routerLinkActive="active">My Cookbook</a></li>
-        <li class="nav-item"><a class="nav-link text-light"[routerLink]="['/createrecipe']" routerLinkActive="active">Create Recipe</a></li>
-        <!-- <li class="nav-item">
-          <form class="d-flex">
-            <input class="form-control me-2 custom-search" type="search" placeholder="Search" aria-label="Search">
-          </form>
-        </li> -->
-        <li class="nav-item"> <a class="nav-link text-light button" (click)="login()">Login</a></li>
-      </ul>
-    </div>
-  </nav>
+    <nav class="navbar navbar-dark bg-dark">
+      <div class="container">
+        <!-- Logo and Site Name -->
+        <a class="navbar-brand d-flex align-items-center" href="#">
+          <img src="https://i.ibb.co/y5tNhjP/ChefRiRi.png" alt="ChefRiRi" width="40" height="40" class="me-2 rounded-circle">
+          Re-Recipe
+        </a>
+
+        <!-- Navigation Links -->
+        <ul class="nav">
+          <li class="nav-item"><a class="nav-link text-light" [routerLink]="['/home']" routerLinkActive="active">Home</a></li>
+          <li class="nav-item"><a class="nav-link text-light" [routerLink]="['/discover']" routerLinkActive="active">Discover</a></li>
+
+          <!-- My Cookbook Link (only visible when logged in) -->
+          <li class="nav-item" *ngIf="isLoggedIn">
+            <a class="nav-link text-light" [routerLink]="['/cookbook']" routerLinkActive="active">My Cookbook</a>
+          </li>
+
+          <li class="nav-item"><a class="nav-link text-light" [routerLink]="['/createrecipe']" routerLinkActive="active">Create Recipe</a></li>
+
+          <!-- Login/Logout Links -->
+          <li class="nav-item" *ngIf="!isLoggedIn">
+            <a class="nav-link text-light" (click)="login()">Login</a>
+          </li>
+
+          <li class="nav-item" *ngIf="isLoggedIn">
+            <a class="nav-link text-light" (click)="logout()">Logout</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
 </body>
 
   <!-- Footer -->
