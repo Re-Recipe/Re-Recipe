@@ -178,23 +178,7 @@ class App {
         res.redirect("http://re-recipe.azurewebsites.net/discover");
       }
     );
-    // Create a new user account
-    router.post(
-      "/app/user/signup",
-      async (req: express.Request, res: express.Response): Promise<void> => {
-        const userData = req.body;
-        await this.UserModel.signup(res, userData);
-      }
-    );
-
-    // Log in an existing user
-    router.post(
-      "/app/user/login",
-      async (req: express.Request, res: express.Response): Promise<void> => {
-        const { username, password } = req.body;
-        await this.UserModel.login(res, username, password);
-      }
-    );
+    
 
     // Retrieve a user's profile by userId
     router.get(

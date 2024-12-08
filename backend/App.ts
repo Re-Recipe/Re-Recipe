@@ -62,15 +62,22 @@ class App {
    * body parsing and CORS headers.
    */
   private middleware(): void {
-      // CORS headers to allow frontend (running on http://localhost:4200) to access the backend
-      this.expressApp.use(
-          (req: express.Request, res: express.Response, next: express.NextFunction) => {
-              res.header('Access-Control-Allow-Origin', 'http://localhost:4200');  // Allow frontend to access
-              res.header('Access-Control-Allow-Credentials', 'true');  // Allow cookies
-              res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-              next();
-          }
-      );
+    this.expressApp.use(bodyParser.json());
+    this.expressApp.use(bodyParser.urlencoded({ extended: false }));
+    this.expressApp.use(
+      (
+        req: express.Request,
+        res: express.Response,
+        next: express.NextFunction
+      ) => {
+        res.header("Access-Control-Allow-Origin", "*");
+        res.header(
+          "Access-Control-Allow-Headers",
+          "Origin, X-Requested-With, Content-Type, Accept"
+        );
+        next();
+      }
+    );
 
       // Body parsing middleware
       this.expressApp.use(bodyParser.json());
@@ -92,21 +99,6 @@ class App {
   private routes(): void {
     const router = express.Router();
 
-    router.get('/app/auth/check', (req, res) => {
-        if (req.isAuthenticated()) {
-            return res.json({ loggedIn: true });
-        }
-        res.json({ loggedIn: false });
-    });
-
-    router.get("/app/logout", (req, res) => {
-      req.logout((err) => {
-        if (err) {
-          return res.status(500).send("Error logging out.");
-        }
-        res.redirect("/");  // Redirect to the home page after logout
-      });
-  });
     /**
      * ========================
      * SECTION: DISCOVER ROUTES
@@ -265,18 +257,17 @@ class App {
     this.expressApp.use("/", router);
     this.expressApp.use("/app/json/", express.static(`${__dirname}/app/json`));
     this.expressApp.use("/images", express.static(`${__dirname}/img`));
-    this.expressApp.use("/", express.static(`${__dirname}/pages`));
 
-    // The static end point for angular and fallback
-    this.expressApp.use("/", express.static(`${__dirname}/../recipes/browser`));
+    //The static end point for angular and fallback
+    // Updated for root 
+    this.expressApp.use("/", express.static(`${__dirname}/recipes/browser`));
 
     this.expressApp.get(
       "*",
       (req: express.Request, res: express.Response): void => {
-        res.sendFile(`${__dirname}/../recipes/browser/index.html`);
+        res.sendFile(`${__dirname}/recipes/browser/index.html`);
       }
     );
   }
 }
-
 export { App };

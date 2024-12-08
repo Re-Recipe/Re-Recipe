@@ -17,6 +17,7 @@ class UserModel {
             {
                 user_ID: { type: String, required: true, unique: true },
                 email: { type: String, required: true, unique: true },
+                displayName: {type: String, required: true},
                 color: { type: String, required: true },
                 recipeIDs: [{ type: mongoose.Schema.Types.ObjectId, ref: "Recipe" }],
             },
