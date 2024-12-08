@@ -69,11 +69,11 @@ var App = /** @class */ (function () {
     }
     App.prototype.validateAuth = function (req, res, next) {
         if (req.isAuthenticated()) {
-            console.log("user is authenticated");
+            console.log("User is authenticated");
             return next();
         }
-        console.log("user is not authenticated");
-        res.redirect("/");
+        console.log("User is not authenticated");
+        res.status(401).json({ error: "Unauthorized" });
     };
     /**
      * Sets up middleware for the Express application, including
@@ -91,7 +91,7 @@ var App = /** @class */ (function () {
         this.expressApp.use(bodyParser.json());
         this.expressApp.use(bodyParser.urlencoded({ extended: false }));
         // Session and cookie parsing middleware
-        this.expressApp.use(session({ secret: "keyboard cat", resave: false, saveUninitialized: true }));
+        this.expressApp.use(session({ secret: "1234567890QWERTY", resave: false, saveUninitialized: true }));
         this.expressApp.use(cookieParser());
         // Passport initialization
         this.expressApp.use(passport.initialize());
@@ -233,9 +233,12 @@ var App = /** @class */ (function () {
         router.get("/app/auth/google/callback", passport.authenticate("google", { failureRedirect: "/" }), function (req, res) {
             console.log("User successfully authenticated");
             console.log("Session User:", req.user);
+            console.log("user info:" + JSON.stringify(req.user));
+            console.log("user info:" + JSON.stringify(req.user.id));
+            console.log("user info:" + JSON.stringify(req.user.displayName));
             res.redirect("http://localhost:4200/discover");
         });
-        router.get('/app/auth/check', function (req, res) {
+        router.get('/app/auth/check', this.validateAuth, function (req, res) {
             if (req.isAuthenticated()) {
                 console.log('User is authenticated:', req.user);
                 return res.json({ loggedIn: true });
@@ -243,36 +246,22 @@ var App = /** @class */ (function () {
             console.log('User is not authenticated');
             res.json({ loggedIn: false });
         });
+        router.get('/app/profile', this.validateAuth, function (req, res) {
+            console.log('Query All list');
+            console.log("user info:" + JSON.stringify(req.user));
+            console.log("user info:" + JSON.stringify(req.user.id));
+            console.log("user info:" + JSON.stringify(req.user.displayName));
+            res.json({ "username": req.user.displayName, "id": req.user.id });
+        });
         // Google SSO Sign - In
         router.get("/app/auth/google", passport.authenticate("google", { scope: ["profile"] }));
-        // Create a new user account
-        router.post("/app/user/signup", function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-            var userData;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        userData = req.body;
-                        return [4 /*yield*/, this.UserModel.signup(res, userData)];
-                    case 1:
-                        _a.sent();
-                        return [2 /*return*/];
-                }
-            });
-        }); });
-        // Log in an existing user
-        router.post("/app/user/login", function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-            var _a, username, password;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        _a = req.body, username = _a.username, password = _a.password;
-                        return [4 /*yield*/, this.UserModel.login(res, username, password)];
-                    case 1:
-                        _b.sent();
-                        return [2 /*return*/];
-                }
-            });
-        }); });
+        router.get('/app/auth/info', this.validateAuth, function (req, res) {
+            console.log('Query All list');
+            console.log("user info:" + JSON.stringify(req.user));
+            console.log("user info:" + JSON.stringify(req.user.id));
+            console.log("user info:" + JSON.stringify(req.user.displayName));
+            res.json({ "username": req.user.displayName, "id": req.user.id });
+        });
         // Retrieve a user's profile by userId
         router.get("/app/user/profile/:userId", function (req, res) { return __awaiter(_this, void 0, void 0, function () {
             var userId;

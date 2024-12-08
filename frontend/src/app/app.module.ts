@@ -10,7 +10,7 @@ import { SinglerecipeviewComponent } from './singlerecipeview/singlerecipeview.c
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { provideHttpClient } from '@angular/common/http';
 import { HomepageComponent } from './homepage/homepage.component';
-
+import { ProfileComponent } from './profile/profile.component';
 
 @NgModule({
   declarations: [
@@ -20,6 +20,7 @@ import { HomepageComponent } from './homepage/homepage.component';
     CreaterecipeComponent,
     SinglerecipeviewComponent,
     HomepageComponent,
+    ProfileComponent,
 
   ],
   imports: [

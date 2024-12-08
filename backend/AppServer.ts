@@ -20,6 +20,13 @@ let server: any = new App(mongoDBConnection).expressApp;
 
 server.use(cookieParser());
 
+const cors = require('cors');
+
+server.use(cors({
+  origin: 'http://localhost:4200', // Replace with your frontend URL
+  credentials: true // Allow sending cookies with requests
+}));
+
 // Todo : move this?
 server.use(
     expressSession({

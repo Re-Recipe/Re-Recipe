@@ -38,48 +38,20 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserModel = void 0;
 var mongoose = require("mongoose");
-var crypto = require("crypto");
 var UserModel = /** @class */ (function () {
-    /**
-     * Constructor to initialize the database connection and set up the schema and model.
-     * @param {string} DB_CONNECTION_STRING - MongoDB connection string.
-     */
     function UserModel(DB_CONNECTION_STRING) {
         this.dbConnectionString = DB_CONNECTION_STRING;
         this.createSchema();
         this.createModel();
     }
-    /**
-     * Defines the schema for a user.
-     */
     UserModel.prototype.createSchema = function () {
         this.schema = new mongoose.Schema({
             user_ID: { type: String, required: true, unique: true },
-            ssoID: { type: String, required: true, unique: true },
-            username: { type: String, required: true, unique: true },
             email: { type: String, required: true, unique: true },
-            password: { type: String, required: true }, // Stores hashed password
-            hints: { type: String }, // Optional field
+            color: { type: String, required: true },
             recipeIDs: [{ type: mongoose.Schema.Types.ObjectId, ref: "Recipe" }],
         }, { collection: "users", timestamps: true });
-        // Pre-save hook to hash the password
-        this.schema.pre("save", function (next) {
-            var user = this;
-            // Only hash the password if it's new or modified
-            if (!user.isModified("password"))
-                return next();
-            try {
-                user.password = UserModel.hashPW(user.password); // Hash the password
-                next();
-            }
-            catch (err) {
-                next(err);
-            }
-        });
     };
-    /**
-     * Connects to the MongoDB database and creates the Mongoose model based on the schema.
-     */
     UserModel.prototype.createModel = function () {
         return __awaiter(this, void 0, void 0, function () {
             var error_1;
@@ -102,97 +74,40 @@ var UserModel = /** @class */ (function () {
             });
         });
     };
-    /**
-     * Hashes a password using the crypto module.
-     * @param {string} password - The plain text password to hash.
-     * @returns {string} - The hashed password.
-     */
-    UserModel.hashPW = function (password) {
-        return crypto.createHash("sha256").update(password).digest("base64").toString();
-    };
-    /**
-     * Validates a user's password.
-     * @param {string} inputPassword - The password provided by the user.
-     * @param {string} storedPassword - The hashed password stored in the database.
-     * @returns {boolean} - Whether the passwords match.
-     */
-    UserModel.validatePassword = function (inputPassword, storedPassword) {
-        var hashedInput = UserModel.hashPW(inputPassword);
-        return hashedInput === storedPassword;
-    };
-    /**
-     * User Signup
-     * @param {any} response - The response object.
-     * @param {IUser} userData - The data for the new user.
-     */
-    UserModel.prototype.signup = function (response, userData) {
+    UserModel.prototype.findOrCreateUser = function (response, userData) {
         return __awaiter(this, void 0, void 0, function () {
-            var newUser, savedUser, error_2;
+            var user, newUser, savedUser, error_2;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        _a.trys.push([0, 2, , 3]);
-                        userData.password = UserModel.hashPW(userData.password);
-                        newUser = new this.model(userData);
-                        return [4 /*yield*/, newUser.save()];
-                    case 1:
-                        savedUser = _a.sent();
-                        response.status(201).json(savedUser);
-                        return [3 /*break*/, 3];
-                    case 2:
-                        error_2 = _a.sent();
-                        console.error("Error signing up user:", error_2);
-                        response.status(400).json({ error: "Error creating user. Please try again." });
-                        return [3 /*break*/, 3];
-                    case 3: return [2 /*return*/];
-                }
-            });
-        });
-    };
-    /**
-     * User Login
-     * @param {any} response - The response object.
-     * @param {string} username - The username provided by the user.
-     * @param {string} password - The password provided by the user.
-     */
-    UserModel.prototype.login = function (response, username, password) {
-        return __awaiter(this, void 0, void 0, function () {
-            var user, isPasswordValid, error_3;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        _a.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, this.model.findOne({ username: username }).exec()];
+                        _a.trys.push([0, 5, , 6]);
+                        return [4 /*yield*/, this.model.findOne({ email: userData.email }).exec()];
                     case 1:
                         user = _a.sent();
-                        if (!user) {
-                            return [2 /*return*/, response.status(404).json({ error: "User not found" })];
-                        }
-                        isPasswordValid = UserModel.validatePassword(password, user.password);
-                        if (!isPasswordValid) {
-                            return [2 /*return*/, response.status(401).json({ error: "Invalid credentials" })];
-                        }
-                        // Successful login
-                        response.json({ message: "Login successful", user: user });
-                        return [3 /*break*/, 3];
+                        if (!user) return [3 /*break*/, 2];
+                        response.json(user);
+                        return [3 /*break*/, 4];
                     case 2:
-                        error_3 = _a.sent();
-                        console.error("Error during login:", error_3);
-                        response.status(500).json({ error: "Error logging in. Please try again." });
-                        return [3 /*break*/, 3];
-                    case 3: return [2 /*return*/];
+                        newUser = new this.model(userData);
+                        return [4 /*yield*/, newUser.save()];
+                    case 3:
+                        savedUser = _a.sent();
+                        response.status(201).json(savedUser);
+                        _a.label = 4;
+                    case 4: return [3 /*break*/, 6];
+                    case 5:
+                        error_2 = _a.sent();
+                        console.error("Error during user lookup or creation:", error_2);
+                        response.status(500).json({ error: "Error processing user. Please try again." });
+                        return [3 /*break*/, 6];
+                    case 6: return [2 /*return*/];
                 }
             });
         });
     };
-    /**
-     * Get User Profile
-     * @param {any} response - The response object.
-     * @param {string} userId - The ID of the user to retrieve.
-     */
     UserModel.prototype.getUserProfile = function (response, userId) {
         return __awaiter(this, void 0, void 0, function () {
-            var user, error_4;
+            var user, error_3;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -206,8 +121,8 @@ var UserModel = /** @class */ (function () {
                         response.json(user);
                         return [3 /*break*/, 3];
                     case 2:
-                        error_4 = _a.sent();
-                        console.error("Error retrieving user profile:", error_4);
+                        error_3 = _a.sent();
+                        console.error("Error retrieving user profile:", error_3);
                         response.status(500).json({ error: "Error retrieving profile. Please try again." });
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
@@ -215,22 +130,13 @@ var UserModel = /** @class */ (function () {
             });
         });
     };
-    /**
-     * Update User Profile
-     * @param {any} response - The response object.
-     * @param {string} userId - The ID of the user to update.
-     * @param {Partial<IUser>} updateData - The data to update.
-     */
     UserModel.prototype.updateUser = function (response, userId, updateData) {
         return __awaiter(this, void 0, void 0, function () {
-            var updatedUser, error_5;
+            var updatedUser, error_4;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
-                        if (updateData.password) {
-                            updateData.password = UserModel.hashPW(updateData.password); // Hash the password if updated
-                        }
                         return [4 /*yield*/, this.model.findOneAndUpdate({ user_ID: userId }, updateData, { new: true }).exec()];
                     case 1:
                         updatedUser = _a.sent();
@@ -240,8 +146,8 @@ var UserModel = /** @class */ (function () {
                         response.json(updatedUser);
                         return [3 /*break*/, 3];
                     case 2:
-                        error_5 = _a.sent();
-                        console.error("Error updating user:", error_5);
+                        error_4 = _a.sent();
+                        console.error("Error updating user:", error_4);
                         response.status(500).json({ error: "Error updating profile. Please try again." });
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
@@ -249,14 +155,9 @@ var UserModel = /** @class */ (function () {
             });
         });
     };
-    /**
-     * Delete User Profile
-     * @param {any} response - The response object.
-     * @param {string} userId - The ID of the user to delete.
-     */
     UserModel.prototype.deleteUser = function (response, userId) {
         return __awaiter(this, void 0, void 0, function () {
-            var result, error_6;
+            var result, error_5;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -270,8 +171,8 @@ var UserModel = /** @class */ (function () {
                         response.json({ message: "User deleted successfully" });
                         return [3 /*break*/, 3];
                     case 2:
-                        error_6 = _a.sent();
-                        console.error("Error deleting user:", error_6);
+                        error_5 = _a.sent();
+                        console.error("Error deleting user:", error_5);
                         response.status(500).json({ error: "Error deleting profile. Please try again." });
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
@@ -279,13 +180,9 @@ var UserModel = /** @class */ (function () {
             });
         });
     };
-    /**
-     * List All Users
-     * @param {any} response - The response object.
-     */
     UserModel.prototype.listAllUsers = function (response) {
         return __awaiter(this, void 0, void 0, function () {
-            var users, error_7;
+            var users, error_6;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -296,8 +193,8 @@ var UserModel = /** @class */ (function () {
                         response.json(users);
                         return [3 /*break*/, 3];
                     case 2:
-                        error_7 = _a.sent();
-                        console.error("Error listing users:", error_7);
+                        error_6 = _a.sent();
+                        console.error("Error listing users:", error_6);
                         response.status(500).json({ error: "Error retrieving users. Please try again." });
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];

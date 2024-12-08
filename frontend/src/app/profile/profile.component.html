@@ -1,1 +1,9 @@
-<p>profile works!</p>
+<div *ngIf="user; else loading">
+    <h1>Welcome, {{ user.username }}!</h1>
+    <p>Your User ID: {{ user.id }}</p>
+  </div>
+  
+  <ng-template #loading>
+    <p>Loading user profile...</p>
+  </ng-template>
+  

@@ -16,6 +16,11 @@ console.log("server db connection URL " + mongoDBConnection);
 console.log("process.env.DB_INFO " + process.env.DB_INFO);
 var server = new App_1.App(mongoDBConnection).expressApp;
 server.use(cookieParser());
+var cors = require('cors');
+server.use(cors({
+    origin: 'http://localhost:4200', // Replace with your frontend URL
+    credentials: true // Allow sending cookies with requests
+}));
 // Todo : move this?
 server.use(expressSession({
     secret: '1234567890QWERTY',

@@ -19,7 +19,7 @@ var GooglePassport = /** @class */ (function () {
                 console.log('Validating Google profile:', JSON.stringify(profile));
                 console.log("userId:", profile.id);
                 console.log("displayName:", profile.displayName);
-                return done(null, profile);
+                return done(null, profile); // Return the `User` object
             });
         }));
         passport.serializeUser(function (user, done) {

@@ -45,7 +45,46 @@ var DiscoverModel = /** @class */ (function () {
      * @param DB_CONNECTION_STRING - Connection string for MongoDB.
      */
     function DiscoverModel(DB_CONNECTION_STRING) {
+        var _this = this;
         this.recipeModel = new RecipeModel_1.RecipeModel();
+        /**
+         * Retrieves all recipes from the database.
+         * @param response - The response object to send data back to the client.
+         */
+        this.retrieveRecipe = function (response, recipe_ID) { return __awaiter(_this, void 0, void 0, function () {
+            var result, e_1;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        console.log("this context in retrieveRecipe:", this);
+                        console.log("this.model before findOne:", this.model);
+                        if (!this.model) {
+                            console.error("Discover model is not initialized.");
+                            response.status(500).json({ error: "Discover model not initialized" });
+                            return [2 /*return*/];
+                        }
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 3, , 4]);
+                        return [4 /*yield*/, this.model.findOne({ recipe_ID: recipe_ID }).exec()];
+                    case 2:
+                        result = _a.sent();
+                        if (result) {
+                            response.json(result);
+                        }
+                        else {
+                            response.status(404).json({ error: "Recipe not found" });
+                        }
+                        return [3 /*break*/, 4];
+                    case 3:
+                        e_1 = _a.sent();
+                        console.error("Failed to retrieve recipe:", e_1);
+                        response.status(500).json({ error: "Failed to retrieve recipe" });
+                        return [3 /*break*/, 4];
+                    case 4: return [2 /*return*/];
+                }
+            });
+        }); };
         this.dbConnectionString = DB_CONNECTION_STRING;
         this.createSchema();
         this.createModel();
@@ -67,7 +106,7 @@ var DiscoverModel = /** @class */ (function () {
      */
     DiscoverModel.prototype.createModel = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var e_1;
+            var e_2;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -75,11 +114,13 @@ var DiscoverModel = /** @class */ (function () {
                         return [4 /*yield*/, mongoose.connect(this.dbConnectionString)];
                     case 1:
                         _a.sent();
-                        mongoose.models.Discover || mongoose.model("Discover", this.schema);
+                        this.model =
+                            mongoose.models.Discover ||
+                                mongoose.model("Discover", this.schema);
                         console.log("Connected to MongoDB and initialized Discover model.");
                         return [3 /*break*/, 3];
                     case 2:
-                        e_1 = _a.sent();
+                        e_2 = _a.sent();
                         console.error("Error connecting to MongoDB or initializing Discover model:");
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
@@ -147,52 +188,23 @@ var DiscoverModel = /** @class */ (function () {
      */
     DiscoverModel.prototype.retrieveAllRecipes = function (response) {
         return __awaiter(this, void 0, void 0, function () {
-            var itemArray, e_2;
+            var itemArray, error_2;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
+                        if (!this.model) {
+                            throw new Error("Discover model is not initialized.");
+                        }
                         return [4 /*yield*/, this.model.find({}).exec()];
                     case 1:
                         itemArray = _a.sent();
                         response.json(itemArray);
                         return [3 /*break*/, 3];
                     case 2:
-                        e_2 = _a.sent();
-                        console.error("Failed to retrieve recipes:", e_2);
+                        error_2 = _a.sent();
+                        console.error("Failed to retrieve recipes:", error_2);
                         response.status(500).json({ error: "Failed to retrieve recipes" });
-                        return [3 /*break*/, 3];
-                    case 3: return [2 /*return*/];
-                }
-            });
-        });
-    };
-    /**
-     * Retrieves a single recipe by `recipe_ID`.
-     * @param response - The response object to send data back to the client.
-     * @param recipe_ID - The unique ID of the recipe to retrieve.
-     */
-    DiscoverModel.prototype.retrieveRecipe = function (response, recipe_ID) {
-        return __awaiter(this, void 0, void 0, function () {
-            var result, e_3;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        _a.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, this.model.findOne({ recipe_ID: recipe_ID }).exec()];
-                    case 1:
-                        result = _a.sent();
-                        if (result) {
-                            response.json(result);
-                        }
-                        else {
-                            response.status(404).json({ error: "Recipe not found" });
-                        }
-                        return [3 /*break*/, 3];
-                    case 2:
-                        e_3 = _a.sent();
-                        console.error("Failed to retrieve recipe:", e_3);
-                        response.status(500).json({ error: "Failed to retrieve recipe" });
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
                 }
@@ -205,7 +217,7 @@ var DiscoverModel = /** @class */ (function () {
      */
     DiscoverModel.prototype.retrieveRecipeListCount = function (response) {
         return __awaiter(this, void 0, void 0, function () {
-            var numberOfRecipes, e_4;
+            var numberOfRecipes, e_3;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -216,8 +228,8 @@ var DiscoverModel = /** @class */ (function () {
                         response.json({ count: numberOfRecipes });
                         return [3 /*break*/, 3];
                     case 2:
-                        e_4 = _a.sent();
-                        console.error("Failed to retrieve recipe count:", e_4);
+                        e_3 = _a.sent();
+                        console.error("Failed to retrieve recipe count:", e_3);
                         response.status(500).json({ error: "Failed to retrieve recipe count" });
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
@@ -233,7 +245,7 @@ var DiscoverModel = /** @class */ (function () {
      */
     DiscoverModel.prototype.deleteRecipe = function (response, recipe_ID) {
         return __awaiter(this, void 0, void 0, function () {
-            var result, e_5;
+            var result, e_4;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -252,8 +264,8 @@ var DiscoverModel = /** @class */ (function () {
                         }
                         return [3 /*break*/, 3];
                     case 2:
-                        e_5 = _a.sent();
-                        console.error("Failed to delete recipe:", e_5);
+                        e_4 = _a.sent();
+                        console.error("Failed to delete recipe:", e_4);
                         response.status(500).json({ error: "Failed to delete recipe" });
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
@@ -327,7 +339,7 @@ var DiscoverModel = /** @class */ (function () {
      */
     DiscoverModel.prototype.updateImageUrl = function (response, recipe_ID, image_url) {
         return __awaiter(this, void 0, void 0, function () {
-            var result, e_6;
+            var result, e_5;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -345,8 +357,8 @@ var DiscoverModel = /** @class */ (function () {
                         }
                         return [3 /*break*/, 3];
                     case 2:
-                        e_6 = _a.sent();
-                        console.error("Failed to update image URL:", e_6);
+                        e_5 = _a.sent();
+                        console.error("Failed to update image URL:", e_5);
                         response.status(500).json({ error: "Failed to update image URL" });
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
@@ -362,7 +374,7 @@ var DiscoverModel = /** @class */ (function () {
      */
     DiscoverModel.prototype.updateVisibility = function (response, recipe_ID, is_visible) {
         return __awaiter(this, void 0, void 0, function () {
-            var result, e_7;
+            var result, e_6;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -380,8 +392,8 @@ var DiscoverModel = /** @class */ (function () {
                         }
                         return [3 /*break*/, 3];
                     case 2:
-                        e_7 = _a.sent();
-                        console.error("Failed to update visibility:", e_7);
+                        e_6 = _a.sent();
+                        console.error("Failed to update visibility:", e_6);
                         response.status(500).json({ error: "Failed to update visibility" });
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];

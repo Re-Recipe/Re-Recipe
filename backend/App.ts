@@ -8,6 +8,16 @@ import * as cookieParser from "cookie-parser";
 import * as session from "express-session";
 import * as passport from "passport";
 import GooglePassportObj from "./GooglePassport";
+
+
+declare global {
+  namespace Express {
+    interface User {
+      id: string,
+      displayName: string,
+    }
+  }
+}
 // TODO: make a data access file
 //import {DataAccess} from './DataAccess';
 
@@ -39,12 +49,14 @@ class App {
   }
   private validateAuth(req, res, next): void {
     if (req.isAuthenticated()) {
-      console.log("user is authenticated");
+      console.log("User is authenticated");
       return next();
     }
-    console.log("user is not authenticated");
-    res.redirect("/");
+  
+    console.log("User is not authenticated");
+    res.status(401).json({ error: "Unauthorized" });
   }
+  
   /**
    * Sets up middleware for the Express application, including
    * body parsing and CORS headers.
@@ -65,7 +77,7 @@ class App {
       this.expressApp.use(bodyParser.urlencoded({ extended: false }));
 
       // Session and cookie parsing middleware
-      this.expressApp.use(session({ secret: "keyboard cat", resave: false, saveUninitialized: true }));
+      this.expressApp.use(session({ secret: "1234567890QWERTY", resave: false, saveUninitialized: true }));
       this.expressApp.use(cookieParser());
 
       // Passport initialization
@@ -182,16 +194,26 @@ class App {
         (req, res) => {
             console.log("User successfully authenticated");
             console.log("Session User:", req.user);
+            console.log("user info:" + JSON.stringify(req.user));
+        console.log("user info:" + JSON.stringify(req.user.id));
+        console.log("user info:" + JSON.stringify(req.user.displayName));
             res.redirect("http://localhost:4200/discover");
         }
     );
       router.get('/app/auth/check', (req, res) => {
-          if (req.isAuthenticated()) {
+          if (this.validateAuth) {
               console.log('User is authenticated:', req.user);
               return res.json({ loggedIn: true });
           }
           console.log('User is not authenticated');
           res.json({ loggedIn: false });
+      });
+      router.get('/app/profile',this.validateAuth, (req, res) => {
+        console.log('Query All list');
+        console.log("user info:" + JSON.stringify(req.user));
+        console.log("user info:" + JSON.stringify(req.user.id));
+        console.log("user info:" + JSON.stringify(req.user.displayName));
+        res.json({"username" : req.user.displayName, "id" : req.user.id});
       });
 
     // Google SSO Sign - In
@@ -199,24 +221,16 @@ class App {
       "/app/auth/google",
       passport.authenticate("google", { scope: ["profile"] })
     );
+    
+    router.get('/app/auth/info', this.validateAuth, (req, res) => {
+    console.log('Query All list');
+    console.log("user info:" + JSON.stringify(req.user));
+    console.log("user info:" + JSON.stringify(req.user.id));
+    console.log("user info:" + JSON.stringify(req.user.displayName));
+    res.json({"username" : req.user.displayName, "id" : req.user.id});
+  });
 
-    // Create a new user account
-    router.post(
-      "/app/user/signup",
-      async (req: express.Request, res: express.Response): Promise<void> => {
-        const userData = req.body;
-        await this.UserModel.signup(res, userData);
-      }
-    );
-
-    // Log in an existing user
-    router.post(
-      "/app/user/login",
-      async (req: express.Request, res: express.Response): Promise<void> => {
-        const { username, password } = req.body;
-        await this.UserModel.login(res, username, password);
-      }
-    );
+    
 
     // Retrieve a user's profile by userId
     router.get(
@@ -245,6 +259,7 @@ class App {
         await this.UserModel.deleteUser(res, userId);
       }
     );
+
 
     // Mount the router on the Express application
     this.expressApp.use("/", router);
