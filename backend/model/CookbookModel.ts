@@ -252,12 +252,12 @@ class CookbookModel {
     }
   }
 
-  /**
-   * Retrieves all recipes from a user's cookbook.
-   * @param {any} response - The response object to send data back to the client.
-   * @param {string} userId - The ID of the user whose cookbook is being retrieved.
-   * @returns {Promise<void>}
-   */
+    /**
+    * Retrieves all recipes from a user's cookbook.
+    * @param {any} response - The response object to send data back to the client.
+    * @param {string} userId - The ID of the user whose cookbook is being retrieved.
+    * @returns {Promise<void>}
+    */
   public async getAllCookbookRecipes(
     response: any,
     userId: string
@@ -268,14 +268,13 @@ class CookbookModel {
         .findOne({ user_ID: userId })
         .populate("modified_recipes")
         .exec();
-
-      if (!cookbook || cookbook.modified_recipes.length === 0) {
-        return response
-          .status(404)
-          .json({ error: "No recipes found in the user's cookbook." });
+  
+      // If the cookbook doesn't exist, send an empty array
+      if (!cookbook) {
+        return response.json([]);
       }
-
-      // Return all recipes in the cookbook
+  
+      // Return all recipes in the cookbook (could be empty)
       response.json(cookbook.modified_recipes);
     } catch (error) {
       console.error("Failed to retrieve all recipes in the cookbook:", error);
