@@ -204,13 +204,24 @@ class App {
           console.log('User is not authenticated');
           res.json({ loggedIn: false });
       });
-      router.get('/app/profile',this.validateAuth, (req, res) => {
-        console.log('Query All list');
-        console.log("user info:" + JSON.stringify(req.user));
-        console.log("user id:" + JSON.stringify(req.user.id));
-        console.log("user displayName:" + JSON.stringify(req.user.displayName));
-        res.json({"username" : req.user.displayName, "id" : req.user.id});
-      });
+      
+      // Get the user profile 
+      router.get('/app/profile', this.validateAuth, async (req, res) => {
+        try {
+            // Extract user_ID from req.user
+            const userId = req.user?.id;
+            if (!userId) {
+                return res.status(401).json({ error: "Unauthorized" });
+            }
+    
+            // Call the getUserProfile method from the UserModel
+            await this.UserModel.getUserProfile(res, userId);
+        } catch (error) {
+            console.error("Error retrieving profile:", error);
+            res.status(500).json({ error: "An error occurred while retrieving the profile." });
+        }
+    });
+    
 
     // Google SSO Sign - In
     router.get(
@@ -226,16 +237,20 @@ class App {
     res.json({"username" : req.user.displayName, "id" : req.user.id});
   });
 
-    
 
-    // Retrieve a user's profile by userId
-    router.get(
-      "/app/user/profile/:userId",
-      async (req: express.Request, res: express.Response): Promise<void> => {
-        const userId: string = req.params.userId;
-        await this.UserModel.getUserProfile(res, userId);
-      }
-    );
+  // Logs the user out 
+  router.get('/app/logout', (req, res) => {
+    req.logout(() => { 
+        req.session.destroy((err) => { // Destroys the sesh
+            if (err) {
+                console.error("Error destroying session:", err);
+                return res.status(500).json({ error: "Logout failed" });
+            }
+            res.clearCookie('connect.sid'); // Clears the session cookie
+            console.log("User successfully logged out");
+            res.json({ message: "Logged out successfully" });
+        });
+    });
 
     // Update a user's profile information
     router.put(
