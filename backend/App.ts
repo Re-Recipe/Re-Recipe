@@ -9,7 +9,6 @@ import * as session from "express-session";
 import * as passport from "passport";
 import GooglePassportObj from "./GooglePassport";
 
-
 declare global {
   namespace Express {
     interface User {
@@ -183,13 +182,18 @@ class App {
     router.get(
         "/app/auth/google/callback",
         passport.authenticate("google", { failureRedirect: "/" }),
-        (req, res) => {
-            console.log("User successfully authenticated");
-            console.log("Session User:", req.user);
-            console.log("user info:" + JSON.stringify(req.user));
-        console.log("user info:" + JSON.stringify(req.user.id));
-        console.log("user info:" + JSON.stringify(req.user.displayName));
-            res.redirect("http://localhost:4200/discover");
+        async (req, res) => {
+
+          // Create a user profile if one doesn't exist 
+          const googleUser = req.user;
+          const user = await this.UserModel.findOrCreateUser(googleUser);
+
+          console.log("User successfully authenticated");
+          console.log("Session User:", req.user);
+          console.log("user info:" + JSON.stringify(req.user));
+          console.log("user id:" + JSON.stringify(req.user.id));
+          console.log("user displayName:" + JSON.stringify(req.user.displayName));
+          res.redirect("http://localhost:4200/discover");
         }
     );
       router.get('/app/auth/check', (req, res) => {
@@ -203,22 +207,22 @@ class App {
       router.get('/app/profile',this.validateAuth, (req, res) => {
         console.log('Query All list');
         console.log("user info:" + JSON.stringify(req.user));
-        console.log("user info:" + JSON.stringify(req.user.id));
-        console.log("user info:" + JSON.stringify(req.user.displayName));
+        console.log("user id:" + JSON.stringify(req.user.id));
+        console.log("user displayName:" + JSON.stringify(req.user.displayName));
         res.json({"username" : req.user.displayName, "id" : req.user.id});
       });
 
     // Google SSO Sign - In
     router.get(
       "/app/auth/google",
-      passport.authenticate("google", { scope: ["profile"] })
+      passport.authenticate("google", { scope: ["profile", "email"] })
     );
     
     router.get('/app/auth/info', this.validateAuth, (req, res) => {
     console.log('Query All list');
     console.log("user info:" + JSON.stringify(req.user));
-    console.log("user info:" + JSON.stringify(req.user.id));
-    console.log("user info:" + JSON.stringify(req.user.displayName));
+    console.log("user id:" + JSON.stringify(req.user.id));
+    console.log("user displayName:" + JSON.stringify(req.user.displayName));
     res.json({"username" : req.user.displayName, "id" : req.user.id});
   });
 
