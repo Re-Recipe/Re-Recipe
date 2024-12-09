@@ -5,7 +5,8 @@ import { IRecipe } from "../model/IRecipe";
 @Component({
   selector: 'app-discover',
   templateUrl: './discover.component.html',
-  styleUrls: ['./discover.component.css']
+  styleUrls: ['./discover.component.css', ]
+  
 })
 export class DiscoverComponent implements OnInit {
   recipeList: IRecipe[] = [];
@@ -63,7 +64,7 @@ export class DiscoverComponent implements OnInit {
     const selectedRecipeList = this.recipeList.filter(recipe =>
       this.selectedRecipes.has(recipe.recipe_ID)
     );
-
+  
     console.log('Saving recipes:', selectedRecipeList);
 
     // Placeholder for API call to save the selected recipes
