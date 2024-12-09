@@ -1,5 +1,5 @@
 .navbar { 
-    background-color: #000; 
+    background-color: #202642; 
     color: #fff; 
 }
 .navbar-brand { 
@@ -24,7 +24,7 @@
 }
 .nav-link.active {
     color: black !important;
-    background-color: blanchedalmond;
+    background-color: rgb(201, 226, 244);
     border-radius: 5px;
     padding: 8px 8px; 
     transition: background-color 0.9s ease-in, color 0.9s ease;
