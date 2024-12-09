@@ -240,17 +240,27 @@ class App {
 
   // Logs the user out 
   router.get('/app/logout', (req, res) => {
-    req.logout(() => { 
-        req.session.destroy((err) => { // Destroys the sesh
+    // Logs the user out using Passport's logout method
+    req.logout((err) => { 
+        if (err) {
+            console.error("Error during logout:", err);
+            return res.status(500).json({ error: "Logout failed" });
+        }
+
+        // Destroy the sesh on the server
+        req.session.destroy((err) => { 
             if (err) {
                 console.error("Error destroying session:", err);
-                return res.status(500).json({ error: "Logout failed" });
+                return res.status(500).json({ error: "Session destruction failed" });
             }
-            res.clearCookie('connect.sid'); // Clears the session cookie
+
+            // Clear the session cookie from the client's browser
+            res.clearCookie('connect.sid'); // Ensure this matches your session cookie name
             console.log("User successfully logged out");
             res.json({ message: "Logged out successfully" });
         });
     });
+});
 
     // Update a user's profile information
     router.put(
