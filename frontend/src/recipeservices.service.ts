@@ -24,27 +24,32 @@ export class RecipeservicesService {
    * Logs out the user and updates `isAuthenticated`
    */
   logout(): Observable<any> {
-    return this.http.get(`${this.hostUrl}logout`, { withCredentials: true }).pipe(
-      tap(() => {
-        this.isAuthenticated = false; // Update authentication state
-      })
-    );
+    return this.http
+      .get(`${this.hostUrl}logout`, { withCredentials: true })
+      .pipe(
+        tap(() => {
+          this.isAuthenticated = false; // Update authentication state
+        })
+      );
   }
 
   /**
    * Checks the user's session state and updates `isAuthenticated`
    */
   checkSession(): Observable<any> {
-    return this.http.get(`${this.hostUrl}auth/check`, { withCredentials: true }).pipe(
-      tap((response: any) => {
-        this.isAuthenticated = response.loggedIn;
-      })
-    );
+    return this.http
+      .get(`${this.hostUrl}auth/check`, { withCredentials: true })
+      .pipe(
+        tap((response: any) => {
+          this.isAuthenticated = response.loggedIn;
+        })
+      );
   }
   userProfile(): Observable<any> {
-    return this.http.get<any>(`${this.hostUrl}profile`, { withCredentials: true });
+    return this.http.get<any>(`${this.hostUrl}profile`, {
+      withCredentials: true,
+    });
   }
-  
 
   /**
    * Checks if the user is logged in
@@ -68,10 +73,9 @@ export class RecipeservicesService {
   getRecipes(): Observable<IRecipe[]> {
     return this.http.get<IRecipe[]>(`${this.hostUrl}discover`);
   }
-  getRecipeContent(): Observable<IRecipeContents[]>{
+  getRecipeContent(): Observable<IRecipeContents[]> {
     return this.http.get<IRecipeContents[]>(`${this.hostUrl}discover`);
   }
-
 
   /**
    * Retrieves a single recipe by its unique ID.
@@ -83,7 +87,9 @@ export class RecipeservicesService {
     return this.http.get<IRecipe>(`${this.hostUrl}discover/${recipeID}`);
   }
   getRecipeContentByID(recipeID: string): Observable<IRecipeContents> {
-    return this.http.get<IRecipeContents>(`${this.hostUrl}discover/${recipeID}`);
+    return this.http.get<IRecipeContents>(
+      `${this.hostUrl}discover/${recipeID}`
+    );
   }
 
   /**
@@ -195,8 +201,10 @@ export class RecipeservicesService {
    * @returns An Observable that emits an array of IRecipe objects from the
    *          user's cookbook.
    */
-  getAllCookbookRecipes(userId: string): Observable<IRecipe[]> {
-    return this.http.get<IRecipe[]>(`${this.hostUrl}listAllRecipes/${userId}`);
+  getAllCookbookRecipes(): Observable<IRecipe[]> {
+    return this.http.get<any[]>(`${this.hostUrl}listAllRecipes`, {
+      withCredentials: true,
+    });
   }
 
   /**

@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0",
+    "passport-google-oauth20-with-people-api": "^2.0.0"
+  }
+}

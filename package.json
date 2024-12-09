@@ -25,6 +25,7 @@
     "mongodb": "^5.0.0",
     "mongoose": "^7.0.0",
     "passport": "^0.5.0",
+    "passport-google-oauth20-with-people-api": "^2.0.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.14.10"

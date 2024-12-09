@@ -20,12 +20,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
-    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (g && (g = 0, op[0] && (_ = 0)), _) try {
+        while (_) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -46,7 +46,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-Object.defineProperty(exports, "__esModule", { value: true });
+exports.__esModule = true;
 exports.CookbookModel = void 0;
 var mongoose = require("mongoose");
 var RecipeModel_1 = require("./RecipeModel");
@@ -68,10 +68,10 @@ var CookbookModel = /** @class */ (function () {
     CookbookModel.prototype.createSchema = function () {
         this.schema = new mongoose.Schema({
             user_ID: { type: String, required: true, unique: true },
-            title: { type: String, default: "My Cookbook" },
+            title: { type: String, "default": "My Cookbook" },
             modified_recipes: [
                 { type: mongoose.Schema.Types.ObjectId, ref: "RecipeModel" },
-            ],
+            ]
         }, { collection: "cookbooks" });
     };
     /**
@@ -99,6 +99,40 @@ var CookbookModel = /** @class */ (function () {
             });
         });
     };
+    CookbookModel.prototype.createCookbook = function (response, user_Id, title) {
+        if (title === void 0) { title = "myCookbook"; }
+        return __awaiter(this, void 0, void 0, function () {
+            var user_Cookbook, new_user_Cookbook, error_2;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, this.model
+                                .findOne({ user_ID: user_Id })
+                                .exec()];
+                    case 1:
+                        user_Cookbook = _a.sent();
+                        if (!user_Cookbook) {
+                            new_user_Cookbook = new this.model({
+                                user_Id: user_Id,
+                                title: title,
+                                modified_recipes: []
+                            });
+                            new_user_Cookbook.save();
+                        }
+                        return [3 /*break*/, 3];
+                    case 2:
+                        error_2 = _a.sent();
+                        console.error("Error createing cookbook:", error_2);
+                        response
+                            .status(500)
+                            .json({ error: "Error createing cookbook. Please try again." });
+                        return [3 /*break*/, 3];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
     /**
      * Copies a recipe from the Discover collection and adds it to the user's cookbook.
      * @param {any} response - The response object to send data back to the client.
@@ -108,7 +142,7 @@ var CookbookModel = /** @class */ (function () {
      */
     CookbookModel.prototype.copyRecipeFromDiscover = function (response, recipe_ID, user_ID) {
         return __awaiter(this, void 0, void 0, function () {
-            var originalRecipe, newRecipeData, recipeModelInstance, newRecipe, cookbook, savedCookbook, error_2;
+            var originalRecipe, newRecipeData, recipeModelInstance, newRecipe, cookbook, savedCookbook, error_3;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -135,7 +169,7 @@ var CookbookModel = /** @class */ (function () {
                         if (!cookbook) {
                             cookbook = new this.model({
                                 user_ID: user_ID,
-                                modified_recipes: [newRecipe._id],
+                                modified_recipes: [newRecipe._id]
                             });
                         }
                         else {
@@ -147,8 +181,8 @@ var CookbookModel = /** @class */ (function () {
                         response.status(201).json(savedCookbook);
                         return [3 /*break*/, 6];
                     case 5:
-                        error_2 = _a.sent();
-                        console.error("Failed to copy recipe from Discover:", error_2);
+                        error_3 = _a.sent();
+                        console.error("Failed to copy recipe from Discover:", error_3);
                         response
                             .status(500)
                             .json({ error: "Failed to copy recipe from Discover" });
@@ -167,7 +201,7 @@ var CookbookModel = /** @class */ (function () {
      */
     CookbookModel.prototype.removeRecipeFromCookbook = function (response, userId, recipeId) {
         return __awaiter(this, void 0, void 0, function () {
-            var cookbook, recipeIndex, error_3;
+            var cookbook, recipeIndex, error_4;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -189,12 +223,12 @@ var CookbookModel = /** @class */ (function () {
                     case 2:
                         _a.sent();
                         response.json({
-                            message: "Modified recipe with ID ".concat(recipeId, " deleted successfully."),
+                            message: "Modified recipe with ID ".concat(recipeId, " deleted successfully.")
                         });
                         return [3 /*break*/, 4];
                     case 3:
-                        error_3 = _a.sent();
-                        console.error("Failed to remove recipe from the cookbook:", error_3);
+                        error_4 = _a.sent();
+                        console.error("Failed to remove recipe from the cookbook:", error_4);
                         response
                             .status(500)
                             .json({ error: "Failed to remove recipe from cookbook" });
@@ -205,50 +239,6 @@ var CookbookModel = /** @class */ (function () {
         });
     };
     // ############################### above is fixed
-    /**
-     * Retrieves a single modified recipe with the first and most recent versions.
-     * @param {any} response - The response object to send data back to the client.
-     * @param {string} userId - The ID of the user.
-     * @param {string} recipeId - The ID of the recipe to retrieve.
-     * @returns {Promise<void>}
-     */
-    CookbookModel.prototype.getSingleRecipeWithVersions = function (response, userId, recipeId) {
-        return __awaiter(this, void 0, void 0, function () {
-            var cookbook, recipe, versions, firstVersion, mostRecentVersion, error_4;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        _a.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, this.model
-                                .findOne({ user_ID: userId }, { modified_recipes: 1 })
-                                .populate("modified_recipes")
-                                .exec()];
-                    case 1:
-                        cookbook = _a.sent();
-                        if (!cookbook) {
-                            return [2 /*return*/, response.status(404).json({ error: "Cookbook not found" })];
-                        }
-                        recipe = cookbook.modified_recipes.find(function (r) { return r._id.toString() === recipeId; });
-                        if (!recipe) {
-                            return [2 /*return*/, response.status(404).json({ error: "Recipe not found" })];
-                        }
-                        versions = recipe.versions || [];
-                        firstVersion = versions[0];
-                        mostRecentVersion = versions[versions.length - 1];
-                        response.json({
-                            recipe: __assign(__assign({}, recipe.toObject()), { versions: [firstVersion, mostRecentVersion].filter(Boolean) }),
-                        });
-                        return [3 /*break*/, 3];
-                    case 2:
-                        error_4 = _a.sent();
-                        console.error("Failed to retrieve recipe:", error_4);
-                        response.status(500).json({ error: "Failed to retrieve recipe" });
-                        return [3 /*break*/, 3];
-                    case 3: return [2 /*return*/];
-                }
-            });
-        });
-    };
     /**
      * Adds a new version to an existing recipe in the user's cookbook.
      * @param {any} response - The response object to send data back to the client.
@@ -265,7 +255,7 @@ var CookbookModel = /** @class */ (function () {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
                         return [4 /*yield*/, this.model
-                                .findOneAndUpdate({ user_ID: userId, "modified_recipes._id": recipeId }, { $push: { "modified_recipes.$.versions": versionData } }, { new: true })
+                                .findOneAndUpdate({ user_ID: userId, "modified_recipes._id": recipeId }, { $push: { "modified_recipes.$.versions": versionData } }, { "new": true })
                                 .exec()];
                     case 1:
                         result = _a.sent();
@@ -282,47 +272,6 @@ var CookbookModel = /** @class */ (function () {
         });
     };
     /**
-     * Retrieves specific versions of a recipe.
-     * @param {any} response - The response object to send data back to the client.
-     * @param {string} userId - The ID of the user.
-     * @param {string} recipeId - The ID of the recipe to retrieve versions for.
-     * @param {number} [versionNumber] - The specific version number to retrieve, if provided.
-     * @returns {Promise<void>}
-     */
-    CookbookModel.prototype.retrieveRecipeVersion = function (response, userId, recipeId, versionNumber) {
-        return __awaiter(this, void 0, void 0, function () {
-            var cookbook, recipe, versions, error_6;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        _a.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, this.model
-                                .findOne({ user_ID: userId, "modified_recipes._id": recipeId })
-                                .exec()];
-                    case 1:
-                        cookbook = _a.sent();
-                        recipe = cookbook === null || cookbook === void 0 ? void 0 : cookbook.modified_recipes.find(function (r) { return r._id.toString() === recipeId; });
-                        if (recipe) {
-                            versions = versionNumber
-                                ? recipe.versions.filter(function (v) { return v.version_number === versionNumber; })
-                                : recipe.versions;
-                            response.json(versions);
-                        }
-                        else {
-                            response.status(404).json({ error: "Recipe not found" });
-                        }
-                        return [3 /*break*/, 3];
-                    case 2:
-                        error_6 = _a.sent();
-                        console.error("Failed to retrieve recipe version:", error_6);
-                        response.status(500).json({ error: "Failed to retrieve recipe version" });
-                        return [3 /*break*/, 3];
-                    case 3: return [2 /*return*/];
-                }
-            });
-        });
-    };
-    /**
      * Removes a version or the entire recipe.
      * @param {any} response - The response object to send data back to the client.
      * @param {string} userId - The ID of the user.
@@ -332,7 +281,7 @@ var CookbookModel = /** @class */ (function () {
      */
     CookbookModel.prototype.removeRecipeVersion = function (response, userId, recipeId, versionNumber) {
         return __awaiter(this, void 0, void 0, function () {
-            var updateQuery, result, error_7;
+            var updateQuery, result, error_6;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -340,8 +289,8 @@ var CookbookModel = /** @class */ (function () {
                         updateQuery = versionNumber
                             ? {
                                 $pull: {
-                                    "modified_recipes.$.versions": { version_number: versionNumber },
-                                },
+                                    "modified_recipes.$.versions": { version_number: versionNumber }
+                                }
                             }
                             : { $pull: { modified_recipes: { _id: recipeId } } };
                         return [4 /*yield*/, this.model
@@ -353,12 +302,12 @@ var CookbookModel = /** @class */ (function () {
                             message: versionNumber
                                 ? "Version ".concat(versionNumber, " removed from recipe ").concat(recipeId)
                                 : "Recipe ".concat(recipeId, " and all versions removed"),
-                            result: result,
+                            result: result
                         });
                         return [3 /*break*/, 3];
                     case 2:
-                        error_7 = _a.sent();
-                        console.error("Failed to remove recipe/version:", error_7);
+                        error_6 = _a.sent();
+                        console.error("Failed to remove recipe/version:", error_6);
                         response.status(500).json({ error: "Failed to remove recipe/version" });
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
@@ -372,9 +321,9 @@ var CookbookModel = /** @class */ (function () {
      * @param {string} userId - The ID of the user whose cookbook is being retrieved.
      * @returns {Promise<void>}
      */
-    CookbookModel.prototype.listAllRecipes = function (response, userId) {
+    CookbookModel.prototype.getAllCookbookRecipes = function (response, userId) {
         return __awaiter(this, void 0, void 0, function () {
-            var cookbook, error_8;
+            var cookbook, error_7;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -394,8 +343,8 @@ var CookbookModel = /** @class */ (function () {
                         response.json(cookbook.modified_recipes);
                         return [3 /*break*/, 3];
                     case 2:
-                        error_8 = _a.sent();
-                        console.error("Failed to retrieve all recipes in the cookbook:", error_8);
+                        error_7 = _a.sent();
+                        console.error("Failed to retrieve all recipes in the cookbook:", error_7);
                         response.status(500).json({ error: "Failed to retrieve recipes." });
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];

@@ -14,20 +14,18 @@ export class CookbookComponent implements OnInit {
   searchQuery: string = '';
   selectedCategory: string = '';
   maxCookingDuration: number | null = null;
+  user_id: any;
 
   constructor(private recipeService: RecipeservicesService) {}
 
   ngOnInit(): void {
     this.getRecipes();
-    // this.getAllCookbookRecipes(user_id) Use this
+
     this.getRecipeContent();
   }
 
   getRecipes(): void {
-    //Change this here
-    this.recipeService.getRecipes().subscribe(
-      // this.recipeService.getAllCookbookRecipes(user_id).subscribe( // needs to get userid How?
-
+    this.recipeService.getAllCookbookRecipes().subscribe(
       (data) => {
         this.recipeList = data;
         this.loading = false;
