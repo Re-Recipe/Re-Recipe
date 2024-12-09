@@ -24,20 +24,24 @@ class GooglePassport {
     (accessToken, refreshToken, profile, done) => {
       console.log("Inside new passport Google strategy");
       process.nextTick(() => {
-    
-        console.log('Validating Google profile:', JSON.stringify(profile));
+        const email = profile.emails?.[0]?.value; 
+        const user = {
+            id: profile.id,
+            user_ID: profile.id,
+            displayName: profile.displayName,
+            email: email || null, 
+        };
         console.log("userId:", profile.id);
         console.log("displayName:", profile.displayName);
 
-        return done(null, profile); // Return the `User` object
+        return done(null, user); 
       });
     }
   )
 );
 
-
         passport.serializeUser(function(user, done) {
-            done(null, user as Express.User);
+            done(null, user);
         });
 
         passport.deserializeUser(function(user, done) {

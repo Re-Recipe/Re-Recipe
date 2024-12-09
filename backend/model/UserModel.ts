@@ -34,20 +34,45 @@ class UserModel {
             console.error("Error creating User model:", error);
         }
     }
-
-    public async findOrCreateUser(response: any, userData: Partial<IUser>): Promise<void> {
+    
+    // Creates a user entry in the DB 
+    public async createUser(userData: Partial<IUser>): Promise<mongoose.Document> {
         try {
-            const user = await this.model.findOne({ email: userData.email }).exec();
-            if (user) {
-                response.json(user);
-            } else {
-                const newUser = new this.model(userData);
-                const savedUser = await newUser.save();
-                response.status(201).json(savedUser);
-            }
+            const defaultColor = "#000000"; 
+    
+            const newUser = new this.model({
+                user_ID: userData.user_ID, 
+                email: userData.email,
+                displayName: userData.displayName,
+                color: defaultColor,
+                recipeIDs: [], 
+            });
+    
+            const savedUser = await newUser.save();
+            console.log("New user created:", savedUser);
+            return savedUser;
         } catch (error) {
-            console.error("Error during user lookup or creation:", error);
-            response.status(500).json({ error: "Error processing user. Please try again." });
+            console.error("Error creating user:", error);
+            throw new Error("User creation failed.");
+        }
+    }
+
+    // Looks for a user in the db and if doesn't have one calls to the create 
+    public async findOrCreateUser(userData: Partial<IUser>): Promise<mongoose.Document> {
+        try {
+            // Check if the user already exists in the database
+            const user = await this.model.findOne({ user_ID: userData.user_ID}).exec();
+    
+            if (user) {
+                console.log("Existing user found:", user);
+                return user;
+            }
+    
+            // If no user exists, create a new one
+            return await this.createUser(userData);
+        } catch (error) {
+            console.error("Error during find or create user:", error);
+            throw new Error("User lookup or creation failed.");
         }
     }
 
