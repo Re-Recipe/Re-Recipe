@@ -180,27 +180,24 @@ var App = /** @class */ (function () {
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
-                        _b.trys.push([0, 3, , 4]);
+                        _b.trys.push([0, 2, , 3]);
                         userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
                         if (!userId) {
                             return [2 /*return*/, res.status(401).json({ error: "Unauthorized" })];
                         }
-                        console.log("creating cookbook");
-                        return [4 /*yield*/, this.Cookbook.createCookbook(res, userId)];
+                        console.log("Creating cookbook for: ".concat(userId));
+                        return [4 /*yield*/, this.Cookbook.getAllCookbookRecipes(res, userId)];
                     case 1:
                         _b.sent();
-                        return [4 /*yield*/, this.Cookbook.getAllCookbookRecipes(res, userId)];
+                        return [3 /*break*/, 3];
                     case 2:
-                        _b.sent();
-                        return [3 /*break*/, 4];
-                    case 3:
                         error_1 = _b.sent();
                         console.error("Error getting cookbook:", error_1);
                         res
                             .status(500)
                             .json({ error: "An error occurred while retrieving the cookbook." });
-                        return [3 /*break*/, 4];
-                    case 4: return [2 /*return*/];
+                        return [3 /*break*/, 3];
+                    case 3: return [2 /*return*/];
                 }
             });
         }); });

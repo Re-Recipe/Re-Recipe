@@ -164,9 +164,10 @@ class App {
         if (!userId) {
           return res.status(401).json({ error: "Unauthorized" });
         }
-        console.log("creating cookbook");
-        await this.Cookbook.createCookbook(res, userId);
+        console.log(`Creating cookbook for: ${userId}`);
+
         await this.Cookbook.getAllCookbookRecipes(res, userId);
+
       } catch (error) {
         console.error("Error getting cookbook:", error);
         res

@@ -50,6 +50,17 @@ let ProfileComponent = (() => {
     let _classExtraInitializers = [];
     let _classThis;
     var ProfileComponent = _classThis = class {
+        constructor(recipeService) {
+            this.recipeService = recipeService;
+        }
+        ngOnInit() {
+            this.recipeService.userProfile().subscribe((data) => {
+                this.user = data;
+                console.log('User Profile:', data);
+            }, (error) => {
+                console.error('Error fetching user profile:', error);
+            });
+        }
     };
     __setFunctionName(_classThis, "ProfileComponent");
     (() => {

@@ -38,9 +38,13 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 exports.__esModule = true;
 exports.UserModel = void 0;
 var mongoose = require("mongoose");
+var CookbookModel_1 = require("./CookbookModel");
+var DiscoverModel_1 = require("./DiscoverModel");
 var UserModel = /** @class */ (function () {
     function UserModel(DB_CONNECTION_STRING) {
         this.dbConnectionString = DB_CONNECTION_STRING;
+        var discoverModel = new DiscoverModel_1.DiscoverModel(this.dbConnectionString);
+        this.cookbookModel = new CookbookModel_1.CookbookModel(this.dbConnectionString, discoverModel);
         this.createSchema();
         this.createModel();
     }
@@ -81,7 +85,7 @@ var UserModel = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        _a.trys.push([0, 2, , 3]);
+                        _a.trys.push([0, 3, , 4]);
                         defaultColor = "#000000";
                         newUser = new this.model({
                             user_ID: userData.user_ID,
@@ -93,12 +97,17 @@ var UserModel = /** @class */ (function () {
                     case 1:
                         savedUser = _a.sent();
                         console.log("New user created:", savedUser);
-                        return [2 /*return*/, savedUser];
+                        // Create a default cookbook for the user
+                        return [4 /*yield*/, this.cookbookModel.createCookbook(userData.user_ID, "myCookbook")];
                     case 2:
+                        // Create a default cookbook for the user
+                        _a.sent();
+                        return [2 /*return*/, savedUser];
+                    case 3:
                         error_2 = _a.sent();
                         console.error("Error creating user:", error_2);
                         throw new Error("User creation failed.");
-                    case 3: return [2 /*return*/];
+                    case 4: return [2 /*return*/];
                 }
             });
         });

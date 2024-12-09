@@ -31,11 +31,12 @@ class CookbookModel {
       {
         user_ID: { type: String, required: true, unique: true },
         title: { type: String, default: "My Cookbook" },
-        modified_recipes: [
-          { type: mongoose.Schema.Types.ObjectId, ref: "RecipeModel" },
-        ],
+        modified_recipes: {
+          type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Recipe" }],
+          default: [], 
+        },
       },
-      { collection: "cookbooks" }
+      { collection: "cookbooks", timestamps: true }
     );
   }
 
@@ -44,12 +45,15 @@ class CookbookModel {
    */
   public async createModel() {
     try {
-      await mongoose.connect(this.dbConnectionString);
-
-      this.model = mongoose.model<ICookbook>("Cookbook", this.schema);
-      console.log("Connected to MongoDB and created Cookbook model.");
+      if (!mongoose.models.Cookbook) {
+        this.model = mongoose.model<ICookbook>("Cookbook", this.schema); // Define the model if it doesn't exist
+        console.log("Created Cookbook model.");
+      } else {
+        this.model = mongoose.models.Cookbook; // Use the existing model
+        console.log("Using existing Cookbook model.");
+      }
     } catch (error) {
-      console.error("Error creating model:", error);
+      console.error("Error creating Cookbook model:", error);
     }
   }
 

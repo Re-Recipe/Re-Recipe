@@ -40,16 +40,47 @@ var __setFunctionName = (this && this.__setFunctionName) || function (f, name, p
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppComponent = void 0;
 const core_1 = require("@angular/core");
+const operators_1 = require("rxjs/operators");
+const rxjs_1 = require("rxjs");
 let AppComponent = (() => {
     let _classDecorators = [(0, core_1.Component)({
             selector: 'app-root',
             templateUrl: './app.component.html',
-            styleUrl: './app.component.css'
+            styleUrls: ['./app.component.css'],
         })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;
     var AppComponent = _classThis = class {
+        constructor(recipeService) {
+            this.recipeService = recipeService;
+            this.isLoggedIn = false;
+        }
+        ngOnInit() {
+            this.recipeService.checkSession()
+                .pipe((0, operators_1.catchError)((error) => {
+                console.error('Session check error:', error);
+                return (0, rxjs_1.of)({ loggedIn: false });
+            }))
+                .subscribe((response) => {
+                console.log('Session check response:', response);
+                this.isLoggedIn = response.loggedIn;
+            });
+        }
+        login() {
+            this.recipeService.login();
+        }
+        logout() {
+            this.recipeService.logout()
+                .pipe((0, operators_1.catchError)((error) => {
+                console.error('Error during logout:', error);
+                return (0, rxjs_1.of)(null);
+            }))
+                .subscribe(() => {
+                console.log('Logged out successfully');
+                this.isLoggedIn = false;
+            });
+        }
     };
     __setFunctionName(_classThis, "AppComponent");
     (() => {

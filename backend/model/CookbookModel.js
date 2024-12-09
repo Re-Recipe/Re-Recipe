@@ -69,66 +69,66 @@ var CookbookModel = /** @class */ (function () {
         this.schema = new mongoose.Schema({
             user_ID: { type: String, required: true, unique: true },
             title: { type: String, "default": "My Cookbook" },
-            modified_recipes: [
-                { type: mongoose.Schema.Types.ObjectId, ref: "RecipeModel" },
-            ]
-        }, { collection: "cookbooks" });
+            modified_recipes: {
+                type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Recipe" }],
+                "default": []
+            }
+        }, { collection: "cookbooks", timestamps: true });
     };
     /**
      * Connects to the MongoDB database and creates the Mongoose model based on the schema.
      */
     CookbookModel.prototype.createModel = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var error_1;
             return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        _a.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, mongoose.connect(this.dbConnectionString)];
-                    case 1:
-                        _a.sent();
-                        this.model = mongoose.model("Cookbook", this.schema);
-                        console.log("Connected to MongoDB and created Cookbook model.");
-                        return [3 /*break*/, 3];
-                    case 2:
-                        error_1 = _a.sent();
-                        console.error("Error creating model:", error_1);
-                        return [3 /*break*/, 3];
-                    case 3: return [2 /*return*/];
+                try {
+                    if (!mongoose.models.Cookbook) {
+                        this.model = mongoose.model("Cookbook", this.schema); // Define the model if it doesn't exist
+                        console.log("Created Cookbook model.");
+                    }
+                    else {
+                        this.model = mongoose.models.Cookbook; // Use the existing model
+                        console.log("Using existing Cookbook model.");
+                    }
                 }
+                catch (error) {
+                    console.error("Error creating Cookbook model:", error);
+                }
+                return [2 /*return*/];
             });
         });
     };
-    CookbookModel.prototype.createCookbook = function (response, user_Id, title) {
+    CookbookModel.prototype.createCookbook = function (user_Id, title) {
         if (title === void 0) { title = "myCookbook"; }
         return __awaiter(this, void 0, void 0, function () {
-            var user_Cookbook, new_user_Cookbook, error_2;
+            var existingCookbook, newCookbook, error_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        _a.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, this.model
-                                .findOne({ user_ID: user_Id })
-                                .exec()];
+                        _a.trys.push([0, 3, , 4]);
+                        return [4 /*yield*/, this.model.findOne({ user_ID: user_Id }).exec()];
                     case 1:
-                        user_Cookbook = _a.sent();
-                        if (!user_Cookbook) {
-                            new_user_Cookbook = new this.model({
-                                user_Id: user_Id,
-                                title: title,
-                                modified_recipes: []
-                            });
-                            new_user_Cookbook.save();
+                        existingCookbook = _a.sent();
+                        // Exit if a cookbook already exists
+                        if (existingCookbook) {
+                            console.log("Cookbook already exists for user: ".concat(user_Id));
+                            return [2 /*return*/];
                         }
-                        return [3 /*break*/, 3];
+                        newCookbook = new this.model({
+                            user_ID: user_Id,
+                            title: title,
+                            recipes: []
+                        });
+                        return [4 /*yield*/, newCookbook.save()];
                     case 2:
-                        error_2 = _a.sent();
-                        console.error("Error createing cookbook:", error_2);
-                        response
-                            .status(500)
-                            .json({ error: "Error createing cookbook. Please try again." });
-                        return [3 /*break*/, 3];
-                    case 3: return [2 /*return*/];
+                        _a.sent();
+                        console.log("Cookbook \"".concat(title, "\" created for user: ").concat(user_Id));
+                        return [3 /*break*/, 4];
+                    case 3:
+                        error_1 = _a.sent();
+                        console.error("Error creating cookbook:", error_1);
+                        throw new Error("Cookbook creation failed.");
+                    case 4: return [2 /*return*/];
                 }
             });
         });
@@ -142,7 +142,7 @@ var CookbookModel = /** @class */ (function () {
      */
     CookbookModel.prototype.copyRecipeFromDiscover = function (response, recipe_ID, user_ID) {
         return __awaiter(this, void 0, void 0, function () {
-            var originalRecipe, newRecipeData, recipeModelInstance, newRecipe, cookbook, savedCookbook, error_3;
+            var originalRecipe, newRecipeData, recipeModelInstance, newRecipe, cookbook, savedCookbook, error_2;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -181,8 +181,8 @@ var CookbookModel = /** @class */ (function () {
                         response.status(201).json(savedCookbook);
                         return [3 /*break*/, 6];
                     case 5:
-                        error_3 = _a.sent();
-                        console.error("Failed to copy recipe from Discover:", error_3);
+                        error_2 = _a.sent();
+                        console.error("Failed to copy recipe from Discover:", error_2);
                         response
                             .status(500)
                             .json({ error: "Failed to copy recipe from Discover" });
@@ -201,7 +201,7 @@ var CookbookModel = /** @class */ (function () {
      */
     CookbookModel.prototype.removeRecipeFromCookbook = function (response, userId, recipeId) {
         return __awaiter(this, void 0, void 0, function () {
-            var cookbook, recipeIndex, error_4;
+            var cookbook, recipeIndex, error_3;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -227,8 +227,8 @@ var CookbookModel = /** @class */ (function () {
                         });
                         return [3 /*break*/, 4];
                     case 3:
-                        error_4 = _a.sent();
-                        console.error("Failed to remove recipe from the cookbook:", error_4);
+                        error_3 = _a.sent();
+                        console.error("Failed to remove recipe from the cookbook:", error_3);
                         response
                             .status(500)
                             .json({ error: "Failed to remove recipe from cookbook" });
@@ -249,7 +249,7 @@ var CookbookModel = /** @class */ (function () {
      */
     CookbookModel.prototype.addRecipeVersion = function (response, userId, recipeId, versionData) {
         return __awaiter(this, void 0, void 0, function () {
-            var result, error_5;
+            var result, error_4;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -262,8 +262,8 @@ var CookbookModel = /** @class */ (function () {
                         response.json(result);
                         return [3 /*break*/, 3];
                     case 2:
-                        error_5 = _a.sent();
-                        console.error("Failed to add recipe version:", error_5);
+                        error_4 = _a.sent();
+                        console.error("Failed to add recipe version:", error_4);
                         response.status(500).json({ error: "Failed to add recipe version" });
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
@@ -281,7 +281,7 @@ var CookbookModel = /** @class */ (function () {
      */
     CookbookModel.prototype.removeRecipeVersion = function (response, userId, recipeId, versionNumber) {
         return __awaiter(this, void 0, void 0, function () {
-            var updateQuery, result, error_6;
+            var updateQuery, result, error_5;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -306,8 +306,8 @@ var CookbookModel = /** @class */ (function () {
                         });
                         return [3 /*break*/, 3];
                     case 2:
-                        error_6 = _a.sent();
-                        console.error("Failed to remove recipe/version:", error_6);
+                        error_5 = _a.sent();
+                        console.error("Failed to remove recipe/version:", error_5);
                         response.status(500).json({ error: "Failed to remove recipe/version" });
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
@@ -323,7 +323,7 @@ var CookbookModel = /** @class */ (function () {
      */
     CookbookModel.prototype.getAllCookbookRecipes = function (response, userId) {
         return __awaiter(this, void 0, void 0, function () {
-            var cookbook, error_7;
+            var cookbook, error_6;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -343,8 +343,8 @@ var CookbookModel = /** @class */ (function () {
                         response.json(cookbook.modified_recipes);
                         return [3 /*break*/, 3];
                     case 2:
-                        error_7 = _a.sent();
-                        console.error("Failed to retrieve all recipes in the cookbook:", error_7);
+                        error_6 = _a.sent();
+                        console.error("Failed to retrieve all recipes in the cookbook:", error_6);
                         response.status(500).json({ error: "Failed to retrieve recipes." });
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
