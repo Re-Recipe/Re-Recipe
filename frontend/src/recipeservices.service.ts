@@ -202,7 +202,7 @@ export class RecipeservicesService {
    *          user's cookbook.
    */
   getAllCookbookRecipes(): Observable<IRecipe[]> {
-    return this.http.get<any[]>(`${this.hostUrl}CookBook`, {
+    return this.http.get<any[]>(`${this.hostUrl}Cookbook`, {
       withCredentials: true,
     });
   }
