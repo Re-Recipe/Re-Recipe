@@ -2,10 +2,11 @@ import * as mongoose from "mongoose";
 import { IRecipe } from "../interfaces/IRecipe";
 import { RecipeModel } from "./RecipeModel";
 import { DiscoverModel } from "./DiscoverModel";
+import { ICookbook } from "../interfaces/ICookbook";
 
 class CookbookModel {
   public schema: mongoose.Schema;
-  public model: mongoose.Model<any>;
+  public model: mongoose.Model<ICookbook>;
   public dbConnectionString: string;
   private discoverModel: DiscoverModel;
   private recipeModel: RecipeModel;
@@ -30,11 +31,12 @@ class CookbookModel {
       {
         user_ID: { type: String, required: true, unique: true },
         title: { type: String, default: "My Cookbook" },
-        modified_recipes: [
-          { type: mongoose.Schema.Types.ObjectId, ref: "RecipeModel" },
-        ],
+        modified_recipes: {
+          type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Recipe" }],
+          default: [], 
+        },
       },
-      { collection: "cookbooks" }
+      { collection: "cookbooks", timestamps: true }
     );
   }
 
@@ -43,14 +45,44 @@ class CookbookModel {
    */
   public async createModel() {
     try {
-      await mongoose.connect(this.dbConnectionString);
-
-      this.model = mongoose.model("Cookbook", this.schema);
-      console.log("Connected to MongoDB and created Cookbook model.");
+      if (!mongoose.models.Cookbook) {
+        this.model = mongoose.model<ICookbook>("Cookbook", this.schema); // Define the model if it doesn't exist
+        console.log("Created Cookbook model.");
+      } else {
+        this.model = mongoose.models.Cookbook; // Use the existing model
+        console.log("Using existing Cookbook model.");
+      }
     } catch (error) {
-      console.error("Error creating model:", error);
+      console.error("Error creating Cookbook model:", error);
     }
   }
+
+  public async createCookbook(user_Id: string, title: string = "myCookbook"): Promise<void> {
+    try {
+      // Check if a cookbook already exists for the user
+      const existingCookbook = await this.model.findOne({ user_ID: user_Id }).exec();
+      
+      // Exit if a cookbook already exists
+      if (existingCookbook) {
+        console.log(`Cookbook already exists for user: ${user_Id}`);
+        return; 
+      }
+  
+      // Create a new cookbook
+      const newCookbook = new this.model({
+        user_ID: user_Id,
+        title,
+        recipes: [],
+      });
+  
+      await newCookbook.save();
+      console.log(`Cookbook "${title}" created for user: ${user_Id}`);
+    } catch (error) {
+      console.error("Error creating cookbook:", error);
+      throw new Error("Cookbook creation failed.");
+    }
+  }
+  
 
   /**
    * Copies a recipe from the Discover collection and adds it to the user's cookbook.
@@ -150,56 +182,7 @@ class CookbookModel {
     }
   }
 
-
-// ############################### above is fixed
-
-
-
-  /**
-   * Retrieves a single modified recipe with the first and most recent versions.
-   * @param {any} response - The response object to send data back to the client.
-   * @param {string} userId - The ID of the user.
-   * @param {string} recipeId - The ID of the recipe to retrieve.
-   * @returns {Promise<void>}
-   */
-  public async getSingleRecipeWithVersions(
-    response: any,
-    userId: string,
-    recipeId: string
-  ): Promise<void> {
-    try {
-      const cookbook = await this.model
-        .findOne({ user_ID: userId }, { modified_recipes: 1 })
-        .populate("modified_recipes")
-        .exec();
-
-      if (!cookbook) {
-        return response.status(404).json({ error: "Cookbook not found" });
-      }
-
-      const recipe = cookbook.modified_recipes.find(
-        (r: any) => r._id.toString() === recipeId
-      );
-
-      if (!recipe) {
-        return response.status(404).json({ error: "Recipe not found" });
-      }
-
-      const versions = recipe.versions || [];
-      const firstVersion = versions[0];
-      const mostRecentVersion = versions[versions.length - 1];
-
-      response.json({
-        recipe: {
-          ...recipe.toObject(),
-          versions: [firstVersion, mostRecentVersion].filter(Boolean),
-        },
-      });
-    } catch (error) {
-      console.error("Failed to retrieve recipe:", error);
-      response.status(500).json({ error: "Failed to retrieve recipe" });
-    }
-  }
+  // ############################### above is fixed
 
   /**
    * Adds a new version to an existing recipe in the user's cookbook.
@@ -227,45 +210,6 @@ class CookbookModel {
     } catch (error) {
       console.error("Failed to add recipe version:", error);
       response.status(500).json({ error: "Failed to add recipe version" });
-    }
-  }
-
-  /**
-   * Retrieves specific versions of a recipe.
-   * @param {any} response - The response object to send data back to the client.
-   * @param {string} userId - The ID of the user.
-   * @param {string} recipeId - The ID of the recipe to retrieve versions for.
-   * @param {number} [versionNumber] - The specific version number to retrieve, if provided.
-   * @returns {Promise<void>}
-   */
-  public async retrieveRecipeVersion(
-    response: any,
-    userId: string,
-    recipeId: string,
-    versionNumber: number
-  ): Promise<void> {
-    try {
-      const cookbook = await this.model
-        .findOne({ user_ID: userId, "modified_recipes._id": recipeId })
-        .exec();
-
-      const recipe = cookbook?.modified_recipes.find(
-        (r: any) => r._id.toString() === recipeId
-      );
-
-      if (recipe) {
-        const versions = versionNumber
-          ? recipe.versions.filter(
-              (v: any) => v.version_number === versionNumber
-            )
-          : recipe.versions;
-        response.json(versions);
-      } else {
-        response.status(404).json({ error: "Recipe not found" });
-      }
-    } catch (error) {
-      console.error("Failed to retrieve recipe version:", error);
-      response.status(500).json({ error: "Failed to retrieve recipe version" });
     }
   }
 
@@ -308,27 +252,29 @@ class CookbookModel {
     }
   }
 
-  /**
-   * Retrieves all recipes from a user's cookbook.
-   * @param {any} response - The response object to send data back to the client.
-   * @param {string} userId - The ID of the user whose cookbook is being retrieved.
-   * @returns {Promise<void>}
-   */
-  public async listAllRecipes(response: any, userId: string): Promise<void> {
+    /**
+    * Retrieves all recipes from a user's cookbook.
+    * @param {any} response - The response object to send data back to the client.
+    * @param {string} userId - The ID of the user whose cookbook is being retrieved.
+    * @returns {Promise<void>}
+    */
+  public async getAllCookbookRecipes(
+    response: any,
+    userId: string
+  ): Promise<void> {
     try {
       // Find the user's cookbook and populate the `modified_recipes` field
       const cookbook = await this.model
         .findOne({ user_ID: userId })
         .populate("modified_recipes")
         .exec();
-
-      if (!cookbook || cookbook.modified_recipes.length === 0) {
-        return response
-          .status(404)
-          .json({ error: "No recipes found in the user's cookbook." });
+  
+      // If the cookbook doesn't exist, send an empty array
+      if (!cookbook) {
+        return response.json([]);
       }
-
-      // Return all recipes in the cookbook
+  
+      // Return all recipes in the cookbook (could be empty)
       response.json(cookbook.modified_recipes);
     } catch (error) {
       console.error("Failed to retrieve all recipes in the cookbook:", error);
