@@ -1,15 +1,15 @@
 import { Component, OnInit } from "@angular/core";
 import { RecipeservicesService } from "../../recipeservices.service";
 import { IRecipe } from "../model/IRecipe";
+
 @Component({
   selector: 'app-discover',
   templateUrl: './discover.component.html',
   styleUrls: ['./discover.component.css']
 })
-
 export class DiscoverComponent implements OnInit {
   recipeList: IRecipe[] = [];
-  recipeList_1: IRecipe[] = [];
+  selectedRecipes: Set<string> = new Set(); // Track selected recipes by their IDs
   loading: boolean = true;
   error: string | null = null;
   searchQuery: string = '';
@@ -20,7 +20,6 @@ export class DiscoverComponent implements OnInit {
 
   ngOnInit(): void {
     this.getRecipes();
-    this.getRecipeContent();
   }
 
   getRecipes(): void {
@@ -32,22 +31,6 @@ export class DiscoverComponent implements OnInit {
       (error) => {
         this.error = 'Failed to load recipes.';
         this.loading = false;
-      }
-    );
-  }
-
-  getRecipeContent(): void {
-    this.recipeService.getRecipeContent().subscribe(
-      (data: any) => {
-        this.recipeList_1 = data.map((recipe: any) => ({
-          ...recipe,
-          recipe_versions: recipe.recipe_versions || [],
-          meal_category: recipe.meal_category || [],
-          image_url: recipe.image_url || 'assets/placeholder.png',
-        }));
-      },
-      (error) => {
-        this.error = 'Failed to load additional recipes.';
       }
     );
   }
@@ -67,6 +50,27 @@ export class DiscoverComponent implements OnInit {
       return matchesSearch && matchesCategory;
     });
   }
-  
-  
+
+  toggleRecipeSelection(recipeId: string): void {
+    if (this.selectedRecipes.has(recipeId)) {
+      this.selectedRecipes.delete(recipeId); // Remove from selection
+    } else {
+      this.selectedRecipes.add(recipeId); // Add to selection
+    }
+  }
+
+  saveSelectedRecipes(): void {
+    const selectedRecipeList = this.recipeList.filter(recipe =>
+      this.selectedRecipes.has(recipe.recipe_ID)
+    );
+
+    console.log('Saving recipes:', selectedRecipeList);
+
+    // Placeholder for API call to save the selected recipes
+    // Example:
+    // this.recipeService.saveSelectedRecipes(selectedRecipeList).subscribe(
+    //   response => console.log('Save successful:', response),
+    //   error => console.error('Save failed:', error)
+    // );
+  }
 }
