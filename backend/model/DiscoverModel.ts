@@ -2,306 +2,160 @@ import * as mongoose from "mongoose";
 import { IRecipe } from "../interfaces/IRecipe";
 import { RecipeModel } from "./RecipeModel";
 import { IDiscover } from "../interfaces/IDiscover";
+import { RecipeContentsModel } from "./RecipeContents";
 
 class DiscoverModel {
-  public schema: mongoose.Schema;
-  public model: mongoose.Model<IDiscover>;
-  public dbConnectionString: string;
-  public recipeModel = new RecipeModel();
-  
+    public schema: mongoose.Schema;
+    public model: mongoose.Model<IDiscover>;
+    public dbConnectionString: string;
+    public recipeModel = new RecipeModel();
 
-  /**
-   * Constructor to initialize the database connection and set up the schema and model.
-   * @param DB_CONNECTION_STRING - Connection string for MongoDB.
-   */
-  public constructor(DB_CONNECTION_STRING: string) {
-    this.dbConnectionString = DB_CONNECTION_STRING;
-    this.createSchema();
-    this.createModel();
-  }
-
-  /**
-   * Creates the Mongoose schema for a recipe.
-   * Defines the structure for `recipe_ID`, `recipeName`, `category`, etc.
-   */
-  public createSchema() {
-    this.schema = new mongoose.Schema(
-      {
-        recipeList: [
-          { type: mongoose.Schema.Types.ObjectId, ref: "RecipeModel" },
-        ],
-      },
-      { collection: "discover" }
-    );
-  }
-  /**
-   * Connects to the MongoDB database and creates the Mongoose model based on the schema.
-   * The model is stored in `this.model`.
-   */
-  public async createModel() {
-    try {
-      await mongoose.connect(this.dbConnectionString);
-
-      this.model =
-        mongoose.models.Discover ||
-        mongoose.model<IDiscover>("Discover", this.schema);
-      console.log("Connected to MongoDB and initialized Discover model.");
-    } catch (e) {
-      console.error(
-        "Error connecting to MongoDB or initializing Discover model:"
-      );
-    }
-  }
-
-  // /**
-  //  * Adds a new recipe to the database.
-  //  * @param response - The response object to send data back to the client.
-  //  * @param newRecipeData - The new recipe data from the user.
-  //  */
-  // public async createRecipe(response: any, newRecipeData: IRecipe) {
-  //   try {
-  //     // Create a new Mongoose document
-  //     // const newRecipe = new this.model(newRecipeData);
-  //     const newRecipe = this.recipeModel.createRecipe(newRecipeData);
-
-  //     // Save the document to the database
-  //     const savedRecipe = await newRecipe.save();
-  //     //const savedRecipe = await this.recipeModel.createRecipe(newRecipeData);
-
-  //     // Send the saved recipe as the response
-  //     response.status(201).json(savedRecipe);
-  //   } catch (e) {
-  //     console.error("Failed to create new recipe:", e);
-  //     response.status(500).json({ error: "Failed to create new recipe" });
-  //   }
-  // }
-
-  /**
-   * Creates a new recipe and adds it to the Discover collection.
-   * @param recipeData - Data for the new recipe.
-   */
-  public async createRecipe(response: any, recipeData: IRecipe) {
-    try {
-      // Create a new recipe
-      const newRecipe = await this.recipeModel.createRecipe(recipeData);
-      const savedRecipe = await newRecipe.save();
-
-      // Add the recipe to Discover
-      const discoverEntry = await this.model.findOneAndUpdate(
-        {}, // Assumes there's one document in the Discover collection. Adjust as needed.
-        { $push: { recipeList: savedRecipe._id } },
-        { upsert: true, new: true }
-      );
-
-      console.log("Recipe added to Discover:", discoverEntry);
-      response.status(201).json(savedRecipe);
-      // return discoverEntry;
-    } catch (error) {
-      console.error("Error adding recipe to Discover:", error);
-      response.status(500).json({ error: "Failed to create new recipe" });
-      throw error;
-    }
-  }
-  /**
-   * Retrieves all recipes from the database.
-   * @param response - The response object to send data back to the client.
-   */
-  public retrieveRecipe = async (response: any, recipe_ID: string) => {
-    console.log("this context in retrieveRecipe:", this);
-    console.log("this.model before findOne:", this.model);
-    if (!this.model) {
-        console.error("Discover model is not initialized.");
-        response.status(500).json({ error: "Discover model not initialized" });
-        return;
+    public constructor(DB_CONNECTION_STRING: string) {
+        this.dbConnectionString = DB_CONNECTION_STRING;
+        this.createSchema();
+        this.createModel();
     }
 
-    try {
-        const result = await this.model.findOne({ recipe_ID }).exec();
-        if (result) {
-            response.json(result);
-        } else {
-            response.status(404).json({ error: "Recipe not found" });
+    public createSchema() {
+        this.schema = new mongoose.Schema(
+            {
+                recipeList: [{ type: mongoose.Schema.Types.ObjectId, ref: "Recipe" }],
+                modified_flag: { type: Boolean, default: false },
+                user_ID: { type: String, required: true },
+                recipe_ID: { type: mongoose.Schema.Types.ObjectId, required: true }, // Change from String to ObjectId
+                recipe_name: { type: String, required: true },
+                meal_category: [{ type: String }],
+                recipe_versions: [{ type: mongoose.Schema.Types.ObjectId, ref: "RecipeContents" }],
+                image_url: { type: String, required: true },
+                is_visible: { type: Boolean, default: false },
+            },
+            { collection: "discover" }
+        );
+    }
+
+    public async createModel() {
+        try {
+            await mongoose.connect(this.dbConnectionString);
+            this.model =
+                mongoose.models.Discover || mongoose.model<IDiscover>("Discover", this.schema);
+            console.log("Connected to MongoDB and initialized Discover model.");
+        } catch (e) {
+            console.error("Error connecting to MongoDB or initializing Discover model:", e);
         }
-    } catch (e) {
-        console.error("Failed to retrieve recipe:", e);
-        response.status(500).json({ error: "Failed to retrieve recipe" });
     }
-};
 
-  /**
-   * Retrieves all recipes from the database.
-   * @param response - The response object to send data back to the client.
-   */
-  public async retrieveAllRecipes(response: any) {
-    try {
-        if (!this.model) {
-            throw new Error("Discover model is not initialized.");
+    public async createRecipe(response: any, recipeData: IRecipe) {
+        try {
+            console.log("Creating recipe with data:", recipeData);
+
+            let savedRecipe;
+
+            // Use ObjectId for recipe_ID (MongoDB's native identifier)
+            const recipeIdObjectId = new mongoose.Types.ObjectId();  // Generate new ObjectId
+
+            let existingRecipe = await this.recipeModel.recipe.findOne({
+                recipe_ID: recipeIdObjectId,  // Search with ObjectId
+            });
+
+            if (existingRecipe) {
+                savedRecipe = existingRecipe;
+                console.log("Recipe already exists:", savedRecipe);
+            } else {
+                const newRecipe = new this.recipeModel.recipe({
+                    ...recipeData,
+                    recipe_ID: recipeIdObjectId,  // Use ObjectId here
+                    modified_flag: false,
+                });
+
+                console.log("Saving new recipe:", newRecipe);
+                savedRecipe = await newRecipe.save();
+                console.log("New Recipe saved:", savedRecipe);
+
+                // Ensure user_ID is passed in the recipe contents
+                const recipeVersion = new RecipeContentsModel({
+                    recipe_ID: savedRecipe._id,
+                    user_ID: recipeData.user_ID, // Include user_ID
+                    cooking_duration: recipeData.cooking_duration || 25,
+                    serving_size: recipeData.serving_size || 4,
+                    ingredients: recipeData.ingredients || [],
+                    directions: recipeData.directions || [],
+                    version_number: 0, // Assuming it's the first version
+                });
+
+                console.log("Creating new recipe version:", recipeVersion);
+                const savedRecipeContents = await recipeVersion.save();
+                console.log("New Recipe version saved:", savedRecipeContents);
+
+                // Add the saved recipe contents to the recipe's versions array
+                savedRecipe.recipe_versions.push(savedRecipeContents._id);
+                await savedRecipe.save();
+                console.log("Recipe version added to recipe:", savedRecipe.recipe_versions);
+            }
+
+            // Now, create the Discover document linking to the saved recipe
+            const newDiscoverDocument = new this.model({
+                recipeList: [savedRecipe._id],  // Ensure the recipeList contains the saved recipe ID
+                modified_flag: false,
+                user_ID: recipeData.user_ID || "user005",  // Ensure user_ID is passed here
+                recipe_ID: recipeIdObjectId,  // Use ObjectId here
+                recipe_name: recipeData.recipe_name || savedRecipe.recipe_name,
+                meal_category: recipeData.meal_category || [],
+                recipe_versions: savedRecipe.recipe_versions || [],
+                image_url: recipeData.image_url || "assets/placeholder.png",
+                is_visible: recipeData.is_visible !== undefined ? recipeData.is_visible : false,
+            });
+
+            console.log("Creating new Discover document:", newDiscoverDocument);
+            await newDiscoverDocument.save();
+            console.log("New Discover document saved:", newDiscoverDocument);
+
+            response.status(201).json(savedRecipe);
+        } catch (error) {
+            console.error("Error adding recipe to Discover:", error);
+            response.status(500).json({ error: "Failed to create new recipe" });
         }
-
-        const itemArray = await this.model.find({}).exec();
-        response.json(itemArray);
-    } catch (error) {
-        console.error("Failed to retrieve recipes:", error);
-        response.status(500).json({ error: "Failed to retrieve recipes" });
     }
-}
 
-  /**
-   * Counts and retrieves the total number of recipes in the database.
-   * @param response - The response object to send data back to the client.
-   */
-  public async retrieveRecipeListCount(response: any) {
-    try {
-      const numberOfRecipes = await this.model.estimatedDocumentCount().exec();
-      response.json({ count: numberOfRecipes });
-    } catch (e) {
-      console.error("Failed to retrieve recipe count:", e);
-      response.status(500).json({ error: "Failed to retrieve recipe count" });
+    public async retrieveAllRecipes(response: any) {
+        try {
+            console.log("Fetching all Discover documents...");
+            const itemArray = await this.model.find({}).exec();
+            console.log("Fetched Discover documents:", itemArray);
+            response.json(itemArray);
+        } catch (error) {
+            console.error("Failed to retrieve all recipes:", error);
+            response.status(500).json({ error: "Failed to retrieve all recipes" });
+        }
     }
-  }
 
-  // BEN: I DONT THINK THESE NEED TO EXIST
-  /**
-   * Deletes a recipe by its `recipe_ID`.
-   * @param response - The response object to send data back to the client.
-   * @param recipe_ID - The unique ID of the recipe to delete.
-   */
-  public async deleteRecipe(response: any, recipe_ID: string) {
-    try {
-      const result = await this.model.deleteOne({ recipe_ID }).exec();
-      if (result.deletedCount && result.deletedCount > 0) {
-        response.json({
-          message: `Recipe ${recipe_ID} deleted successfully.`,
-          result,
-        });
-      } else {
-        response.status(404).json({ error: "Recipe not found" });
-      }
-    } catch (e) {
-      console.error("Failed to delete recipe:", e);
-      response.status(500).json({ error: "Failed to delete recipe" });
+    public async retrieveRecipe(response: any, recipe_ID: string) {
+        try {
+            console.log("Fetching Discover document for recipe_ID:", recipe_ID);
+            const result = await this.model.findOne({ recipe_ID }).exec();
+            if (result) {
+                response.json(result);
+            } else {
+                response.status(404).json({ error: "Recipe not found" });
+            }
+        } catch (e) {
+            console.error("Failed to retrieve recipe:", e);
+            response.status(500).json({ error: "Failed to retrieve recipe" });
+        }
     }
-  }
 
-  // /**
-  //  * Updates the `directions` of a recipe by `recipe_ID`.
-  //  * @param response - The response object to send data back to the client.
-  //  * @param recipe_ID - The unique ID of the recipe to update.
-  //  * @param directions - An array of objects containing the new steps for directions.
-  //  */
-  // public async updateDirections(
-  //   response: any,
-  //   recipe_ID: string,
-  //   directions: { step: string }[]
-  // ) {
-  //   try {
-  //     const result = await this.model
-  //       .findOneAndUpdate(
-  //         { recipe_ID },
-  //         { $set: { directions } },
-  //         { new: true, runValidators: true }
-  //       )
-  //       .exec();
-  //     if (result) {
-  //       response.json(result);
-  //     } else {
-  //       response.status(404).json({ error: "Recipe not found" });
-  //     }
-  //   } catch (e) {
-  //     console.error("Failed to update directions:", e);
-  //     response.status(500).json({ error: "Failed to update directions" });
-  //   }
-  // }
-
-  // /**
-  //  * Updates the `ingredients` of a recipe by `recipe_ID`.
-  //  * @param response - The response object to send data back to the client.
-  //  * @param recipe_ID - The unique ID of the recipe to update.
-  //  * @param ingredients - An array of objects containing `name`, `quantity`, and `unit` for each ingredient.
-  //  */
-  // public async updateIngredients(
-  //   response: any,
-  //   recipe_ID: string,
-  //   ingredients: { name: string; quantity: number; unit: string }[]
-  // ) {
-  //   try {
-  //     const result = await this.model
-  //       .findOneAndUpdate(
-  //         { recipe_ID },
-  //         { $set: { ingredients } },
-  //         { new: true, runValidators: true }
-  //       )
-  //       .exec();
-  //     if (result) {
-  //       response.json(result);
-  //     } else {
-  //       response.status(404).json({ error: "Recipe not found" });
-  //     }
-  //   } catch (e) {
-  //     console.error("Failed to update ingredients:", e);
-  //     response.status(500).json({ error: "Failed to update ingredients" });
-  //   }
-  // }
-
-  /**
-   * Updates the `image_url` of a recipe by `recipe_ID`.
-   * @param response - The response object to send data back to the client.
-   * @param recipe_ID - The unique ID of the recipe to update.
-   * @param image_url - The new image URL for the recipe.
-   */
-  public async updateImageUrl(
-    response: any,
-    recipe_ID: string,
-    image_url: string
-  ) {
-    try {
-      const result = await this.model
-        .findOneAndUpdate(
-          { recipe_ID },
-          { $set: { image_url } },
-          { new: true, runValidators: true }
-        )
-        .exec();
-      if (result) {
-        response.json(result);
-      } else {
-        response.status(404).json({ error: "Recipe not found" });
-      }
-    } catch (e) {
-      console.error("Failed to update image URL:", e);
-      response.status(500).json({ error: "Failed to update image URL" });
+    public async deleteRecipe(response: any, recipe_ID: string) {
+        try {
+            const result = await this.model.deleteOne({ recipe_ID }).exec();
+            if (result.deletedCount > 0) {
+                response.json({ message: `Recipe ${recipe_ID} deleted successfully.` });
+            } else {
+                response.status(404).json({ error: "Recipe not found" });
+            }
+        } catch (e) {
+            console.error("Failed to delete recipe:", e);
+            response.status(500).json({ error: "Failed to delete recipe" });
+        }
     }
-  }
-
-  /**
-   * Updates the `isVisible` field of a recipe by `recipe_ID`.
-   * @param response - The response object to send data back to the client.
-   * @param recipe_ID - The unique ID of the recipe to update.
-   * @param is_visible
-   */
-  public async updateVisibility(
-    response: any,
-    recipe_ID: string,
-    is_visible: boolean
-  ) {
-    try {
-      const result = await this.model
-        .findOneAndUpdate(
-          { recipe_ID },
-          { $set: { is_visible } },
-          { new: true, runValidators: true }
-        )
-        .exec();
-      if (result) {
-        response.json(result);
-      } else {
-        response.status(404).json({ error: "Recipe not found" });
-      }
-    } catch (e) {
-      console.error("Failed to update visibility:", e);
-      response.status(500).json({ error: "Failed to update visibility" });
-    }
-  }
 }
 
 export { DiscoverModel };

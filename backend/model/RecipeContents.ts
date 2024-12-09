@@ -1,4 +1,3 @@
-// models/ModifiedRecipeModel.ts
 import * as mongoose from "mongoose";
 import { IRecipeContents } from "../interfaces/IRecipeContents";
 
@@ -39,16 +38,11 @@ class RecipeContents {
     this.schema = new mongoose.Schema(schemaDefinition);
   }
 
-  /**
-   * Creates a mongoose model for the modified recipe.
-   * This model is used for object validation
-   */
   public createModel() {
-    this.contents = mongoose.model<IRecipeContents>("Contents", this.schema);
+    this.contents = mongoose.model<IRecipeContents>("RecipeContents", this.schema, "recipe_contents");
   }
 }
 
-// export { RecipeContents };
-const recipeContentsInstance = new RecipeContents();
+const RecipeContentsModel = mongoose.model<IRecipeContents>("RecipeContents", new RecipeContents().schema, "recipe_contents");
 
-export { recipeContentsInstance, RecipeContents };
+export { RecipeContentsModel };

@@ -1,115 +1,67 @@
-import * as mongoose from "mongoose";
+import mongoose from "mongoose";
 import { IRecipe } from "../interfaces/IRecipe";
-import { RecipeContents, recipeContentsInstance } from "./RecipeContents";
-import { IRecipeContents } from "../interfaces/IRecipeContents";
-import { v4 as uuidv4 } from "uuid";
-import { isReadable } from "stream";
+import {IRecipeContents} from "../interfaces/IRecipeContents";  // Correct import
+import { RecipeContentsModel } from "./RecipeContents";
 
-class RecipeModel {
+export class RecipeModel {
   public schema: mongoose.Schema<IRecipe>;
   public recipe: mongoose.Model<IRecipe>;
 
-  /**
-   * Constructor to initialize the database connection and set up the schema and model.
-   */
   public constructor() {
     this.createSchema();
     this.createModel();
   }
 
-  /**
-   * Creates the Mongoose schema for a  recipe.
-   * Includes fields for user-specific modifications and version control.
-   */
+  // Create the schema for the Recipe model
   public createSchema() {
     const schemaDefinition: mongoose.SchemaDefinition<IRecipe> = {
-      modified_flag: Boolean,
-      user_ID: { type: String, required: true },
-      recipe_ID: { type: String, required: true }, // ID of the original recipe
-      recipe_name: { type: String, required: true },
-      meal_category: {
-        enum: [
-          "breakfast",
-          "lunch",
-          "dinner",
-          "dessert",
-          "vegetarian",
-          "vegan",
-          "gluten-free",
-        ],
+      recipe_ID: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        ref: "Recipe"
       },
-
+      recipe_name: { type: String, required: true },
+      meal_category: { type: [String], required: true },
       recipe_versions: [
-        { type: mongoose.Schema.Types.ObjectId, ref: "RecipeContents" },
-      ], // this is recipe_contents
+        { type: mongoose.Schema.Types.ObjectId, ref: "RecipeContents" }
+      ],
       image_url: { type: String },
       is_visible: { type: Boolean, default: false },
+      modified_flag: { type: Boolean },
+      user_ID: { type: String, required: true }
     };
-    this.schema = new mongoose.Schema(schemaDefinition);
+
+    this.schema = new mongoose.Schema<IRecipe>(schemaDefinition);
   }
 
-  /**
-   * Creates a mongoose model for the modified recipe.
-   * This model is used for object validation
-   */
+  // Create the Recipe model
   public createModel() {
-    this.recipe =
-      mongoose.models.Recipe || mongoose.model<IRecipe>("Recipe", this.schema);
+    this.recipe = mongoose.models.Recipe || mongoose.model<IRecipe>("Recipe", this.schema);
   }
 
-  /**
-   * TODO
-   * Creates a new recipe. To set modified recipe: set param flag to true
-   * @param
-   * @param
-   * @param
-   * @param
-   */
-  public async createRecipe(recipeData: IRecipe, isModified: boolean = false) {
-    const newRecipe = new this.recipe({
-      ...recipeData,
-      modified_flag: isModified,
+  // Create a new recipe version
+  public async createRecipeVersion(recipe: IRecipe, recipe_contents_data: IRecipeContents) {
+    const new_version_number = recipe.recipe_versions.length + 1;
+
+    const existingRecipeContents = await RecipeContentsModel.findOne({
+      recipe_ID: recipe.recipe_ID,
+      version_number: new_version_number,
     });
 
-    return newRecipe;
-  }
-  // Update?
-  // Delete?
+    if (existingRecipeContents) {
+      console.log(`Recipe version ${new_version_number} already exists for recipe ${recipe.recipe_ID}`);
+      return recipe;  // Skip creating a new version
+    }
 
-  /**
-   * PRE:CONDITION : needs to have correct recipe_contents_data
-   * Fetch modified recipe
-   * create new recipe contents obj
-   * add it to the recipe version list
-   * return it back
-   * @param recipe
-   * @param recipe_contents_data
-   */
-  public createRecipeVersion(recipe: IRecipe, recipe_contents_data: IRecipeContents) {
-    const new_version_number = recipe.recipe_versions.length;
-    const newRecipeContents = new recipeContentsInstance.contents({
+    const newRecipeContents = new RecipeContentsModel({
       ...recipe_contents_data,
       version_number: new_version_number,
     });
-    recipe.recipe_versions.push(newRecipeContents);
+
+    const savedRecipeContents = await newRecipeContents.save();
+
+    recipe.recipe_versions.push(savedRecipeContents._id);
 
     return recipe;
   }
 }
-
-export { RecipeModel };
-
-// /**
-//  * Create A Modified Recipe for the cookbook
-//  */
-// public createModifiedRecipe(recipe_data: IRecipe, user_ID) {
-
-//   // copy recipe data
-//   const newModRecipe = new this.recipe({
-//     userID: user_ID,
-//     ...recipe_data,
-//     modified_flag: true,
-//   });
-
-//   return newModRecipe;
-// }

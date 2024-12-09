@@ -48,100 +48,65 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RecipeModel = void 0;
-var mongoose = require("mongoose");
+var mongoose_1 = require("mongoose");
 var RecipeContents_1 = require("./RecipeContents");
 var RecipeModel = /** @class */ (function () {
-    /**
-     * Constructor to initialize the database connection and set up the schema and model.
-     */
     function RecipeModel() {
         this.createSchema();
         this.createModel();
     }
-    /**
-     * Creates the Mongoose schema for a  recipe.
-     * Includes fields for user-specific modifications and version control.
-     */
+    // Create the schema for the Recipe model
     RecipeModel.prototype.createSchema = function () {
         var schemaDefinition = {
-            modified_flag: Boolean,
-            user_ID: { type: String, required: true },
-            recipe_ID: { type: String, required: true }, // ID of the original recipe
-            recipe_name: { type: String, required: true },
-            meal_category: {
-                enum: [
-                    "breakfast",
-                    "lunch",
-                    "dinner",
-                    "dessert",
-                    "vegetarian",
-                    "vegan",
-                    "gluten-free",
-                ],
+            recipe_ID: {
+                type: mongoose_1.default.Schema.Types.ObjectId,
+                required: true,
+                ref: "Recipe"
             },
+            recipe_name: { type: String, required: true },
+            meal_category: { type: [String], required: true },
             recipe_versions: [
-                { type: mongoose.Schema.Types.ObjectId, ref: "RecipeContents" },
-            ], // this is recipe_contents
+                { type: mongoose_1.default.Schema.Types.ObjectId, ref: "RecipeContents" }
+            ],
             image_url: { type: String },
             is_visible: { type: Boolean, default: false },
+            modified_flag: { type: Boolean },
+            user_ID: { type: String, required: true }
         };
-        this.schema = new mongoose.Schema(schemaDefinition);
+        this.schema = new mongoose_1.default.Schema(schemaDefinition);
     };
-    /**
-     * Creates a mongoose model for the modified recipe.
-     * This model is used for object validation
-     */
+    // Create the Recipe model
     RecipeModel.prototype.createModel = function () {
-        this.recipe =
-            mongoose.models.Recipe || mongoose.model("Recipe", this.schema);
+        this.recipe = mongoose_1.default.models.Recipe || mongoose_1.default.model("Recipe", this.schema);
     };
-    /**
-     * TODO
-     * Creates a new recipe. To set modified recipe: set param flag to true
-     * @param
-     * @param
-     * @param
-     * @param
-     */
-    RecipeModel.prototype.createRecipe = function (recipeData_1) {
-        return __awaiter(this, arguments, void 0, function (recipeData, isModified) {
-            var newRecipe;
-            if (isModified === void 0) { isModified = false; }
+    // Create a new recipe version
+    RecipeModel.prototype.createRecipeVersion = function (recipe, recipe_contents_data) {
+        return __awaiter(this, void 0, void 0, function () {
+            var new_version_number, existingRecipeContents, newRecipeContents, savedRecipeContents;
             return __generator(this, function (_a) {
-                newRecipe = new this.recipe(__assign(__assign({}, recipeData), { modified_flag: isModified }));
-                return [2 /*return*/, newRecipe];
+                switch (_a.label) {
+                    case 0:
+                        new_version_number = recipe.recipe_versions.length + 1;
+                        return [4 /*yield*/, RecipeContents_1.RecipeContentsModel.findOne({
+                                recipe_ID: recipe.recipe_ID,
+                                version_number: new_version_number,
+                            })];
+                    case 1:
+                        existingRecipeContents = _a.sent();
+                        if (existingRecipeContents) {
+                            console.log("Recipe version ".concat(new_version_number, " already exists for recipe ").concat(recipe.recipe_ID));
+                            return [2 /*return*/, recipe]; // Skip creating a new version
+                        }
+                        newRecipeContents = new RecipeContents_1.RecipeContentsModel(__assign(__assign({}, recipe_contents_data), { version_number: new_version_number }));
+                        return [4 /*yield*/, newRecipeContents.save()];
+                    case 2:
+                        savedRecipeContents = _a.sent();
+                        recipe.recipe_versions.push(savedRecipeContents._id);
+                        return [2 /*return*/, recipe];
+                }
             });
         });
-    };
-    // Update?
-    // Delete?
-    /**
-     * PRE:CONDITION : needs to have correct recipe_contents_data
-     * Fetch modified recipe
-     * create new recipe contents obj
-     * add it to the recipe version list
-     * return it back
-     * @param recipe
-     * @param recipe_contents_data
-     */
-    RecipeModel.prototype.createRecipeVersion = function (recipe, recipe_contents_data) {
-        var new_version_number = recipe.recipe_versions.length;
-        var newRecipeContents = new RecipeContents_1.recipeContentsInstance.contents(__assign(__assign({}, recipe_contents_data), { version_number: new_version_number }));
-        recipe.recipe_versions.push(newRecipeContents);
-        return recipe;
     };
     return RecipeModel;
 }());
 exports.RecipeModel = RecipeModel;
-// /**
-//  * Create A Modified Recipe for the cookbook
-//  */
-// public createModifiedRecipe(recipe_data: IRecipe, user_ID) {
-//   // copy recipe data
-//   const newModRecipe = new this.recipe({
-//     userID: user_ID,
-//     ...recipe_data,
-//     modified_flag: true,
-//   });
-//   return newModRecipe;
-// }

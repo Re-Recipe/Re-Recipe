@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, Validators, AbstractControl } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { RecipeservicesService } from '../../recipeservices.service';
+import { v4 as uuidv4 } from 'uuid';
 
 @Component({
   selector: 'app-createrecipe',
@@ -26,9 +27,11 @@ export class CreaterecipeComponent implements OnInit {
       ingredients: this.fb.array([], this.minimumOneItemValidator),
       directions: this.fb.array([], this.minimumOneItemValidator),
       image_url: [''],
-      is_visible: [false]
+      is_visible: [false],
+      serving_size: [null, [Validators.required, Validators.min(1)]], // Add serving_size field
     });
   }
+
 
   get ingredients(): FormArray {
     return this.recipeForm.get('ingredients') as FormArray;
@@ -73,22 +76,39 @@ export class CreaterecipeComponent implements OnInit {
    */
   onSubmit(): void {
     if (this.recipeForm.valid) {
-      // Use RecipeservicesService for submitting the recipe
-      this.recipeService.addRecipe(this.recipeForm.value).subscribe({
+      const recipeData = {
+        recipe_ID: uuidv4(),
+        recipe_name: this.recipeForm.value.recipe_name,
+        category: this.recipeForm.value.category,
+        cooking_duration: this.recipeForm.value.cooking_duration,
+        ingredients: this.recipeForm.value.ingredients,
+        directions: this.recipeForm.value.directions,
+        image_url: this.recipeForm.value.image_url,
+        is_visible: this.recipeForm.value.is_visible,
+        modified_flag: false,
+        user_ID: 'placeholder-user-id', // Placeholder until authentication is handled
+        meal_category: [this.recipeForm.value.category],
+        recipe_versions: [],
+        serving_size: this.recipeForm.value.serving_size, // Add serving_size to the data
+      };
+
+      console.log('Submitting recipe data:', recipeData);
+
+      this.recipeService.addRecipe(recipeData).subscribe({
         next: (response) => {
-          console.log('Recipe submitted successfully:', response);
-          this.recipeForm.reset();
-          this.ingredients.clear();
-          this.directions.clear();
+          console.log('Recipe added successfully:', response);
+          this.onReset();
+          window.location.reload();
         },
         error: (error) => {
-          console.error('Error submitting recipe:', error);
-        }
+          console.error('Error adding recipe:', error);
+        },
       });
-    } else {
-      console.error('Form is invalid');
     }
   }
+
+
+
 
   /**
    * Example of making a direct API call using HttpClient

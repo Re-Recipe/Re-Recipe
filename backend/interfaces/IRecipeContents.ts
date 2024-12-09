@@ -2,15 +2,14 @@ import { Types, Document } from "mongoose";
 
 export interface IRecipeContents extends Document {
   user_ID: string;
-  recipe_ID: Types.ObjectId; 
-  cooking_duration: number;
+  recipe_ID: Types.ObjectId;
   version_number: number;
+  cooking_duration: number;
   serving_size: number;
   ingredients: {
-    ingredient_id?: string;
     name: string;
+    quantity: number;
     unit: string;
-    quantity: Number,
   }[];
   directions: {
     step: string;

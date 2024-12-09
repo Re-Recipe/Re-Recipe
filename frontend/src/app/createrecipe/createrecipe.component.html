@@ -40,6 +40,28 @@
       </div>
     </div>
 
+    <!-- Serving Size -->
+    <div class="form-group">
+      <label for="serving_size">Serving Size</label>
+      <input
+        id="serving_size"
+        type="number"
+        formControlName="serving_size"
+        placeholder="Enter serving size"
+        step="1"
+        oninput="this.value = Math.floor(this.value) || ''"
+      />
+      <div *ngIf="recipeForm.get('serving_size')?.invalid && recipeForm.get('serving_size')?.touched">
+        <div *ngIf="recipeForm.get('serving_size')?.errors?.['required']">
+          Serving size is required.
+        </div>
+        <div *ngIf="recipeForm.get('serving_size')?.errors?.['min']">
+          Serving size must be at least 1.
+        </div>
+      </div>
+    </div>
+
+
     <!-- Ingredients Section -->
     <div class="form-group">
       <label>Ingredients</label>

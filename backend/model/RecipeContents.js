@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.RecipeContents = exports.recipeContentsInstance = void 0;
-// models/ModifiedRecipeModel.ts
+exports.RecipeContentsModel = void 0;
 var mongoose = require("mongoose");
 var RecipeContents = /** @class */ (function () {
     function RecipeContents() {
@@ -35,16 +34,10 @@ var RecipeContents = /** @class */ (function () {
         };
         this.schema = new mongoose.Schema(schemaDefinition);
     };
-    /**
-     * Creates a mongoose model for the modified recipe.
-     * This model is used for object validation
-     */
     RecipeContents.prototype.createModel = function () {
-        this.contents = mongoose.model("Contents", this.schema);
+        this.contents = mongoose.model("RecipeContents", this.schema, "recipe_contents");
     };
     return RecipeContents;
 }());
-exports.RecipeContents = RecipeContents;
-// export { RecipeContents };
-var recipeContentsInstance = new RecipeContents();
-exports.recipeContentsInstance = recipeContentsInstance;
+var RecipeContentsModel = mongoose.model("RecipeContents", new RecipeContents().schema, "recipe_contents");
+exports.RecipeContentsModel = RecipeContentsModel;

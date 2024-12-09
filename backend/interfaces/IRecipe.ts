@@ -1,16 +1,22 @@
-import { Document } from "mongoose";
-import { EnumType } from "typescript";
-import { IRecipeContents } from "./IRecipeContents";
+import mongoose from "mongoose";
 
-export interface IRecipe extends Document {
-  modified_flag: boolean;
-  user_ID: string;
-  recipe_ID: string;
+export interface IRecipe {
+  recipe_ID: mongoose.Schema.Types.ObjectId;
   recipe_name: string;
-  meal_category: [EnumType];
-  recipe_versions: [IRecipeContents]; // THESE ARE THE RECIPE CONTENTS OBJECTS
-  image_url?: string;
-  is_visible?: boolean;
-
-  // Fields specific to ModifiedRecipeModel
+  meal_category: string[];
+  recipe_versions: mongoose.Schema.Types.ObjectId[];
+  image_url: string;
+  is_visible: boolean;
+  modified_flag?: boolean;
+  user_ID: string;
+  cooking_duration?: number;
+  serving_size?: number;
+  ingredients?: {
+    name: string;
+    quantity: number;
+    unit: string;
+  }[];
+  directions?: {
+    step: string;
+  }[];
 }
