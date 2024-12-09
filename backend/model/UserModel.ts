@@ -75,14 +75,22 @@ class UserModel {
             throw new Error("User lookup or creation failed.");
         }
     }
-
+    
+    // Get user profile 
     public async getUserProfile(response: any, userId: string): Promise<void> {
         try {
-            const user = await this.model.findOne({ user_ID: userId }).exec();
+            const user = await this.model.findOne({ user_ID: userId })
+                .select("displayName email") // Only fetch displayName and email
+                .exec();
+    
             if (!user) {
                 return response.status(404).json({ error: "User not found" });
             }
-            response.json(user);
+    
+            response.json({
+                name: user.displayName,
+                email: user.email,
+            });
         } catch (error) {
             console.error("Error retrieving user profile:", error);
             response.status(500).json({ error: "Error retrieving profile. Please try again." });
