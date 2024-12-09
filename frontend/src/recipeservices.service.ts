@@ -41,8 +41,8 @@ export class RecipeservicesService {
       })
     );
   }
-  userProfile(): Observable<{ username: string; id: string }> {
-    return this.http.get<{ username: string; id: string }>(`${this.hostUrl}profile`, { withCredentials: true });
+  userProfile(): Observable<any> {
+    return this.http.get<any>(`${this.hostUrl}profile`, { withCredentials: true });
   }
   
 

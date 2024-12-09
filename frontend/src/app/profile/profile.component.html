@@ -1,9 +1,11 @@
-<div *ngIf="user; else loading">
-    <h1>Welcome, {{ user.username }}!</h1>
-    <p>Your User ID: {{ user.id }}</p>
-  </div>
-  
-  <ng-template #loading>
-    <p>Loading user profile...</p>
-  </ng-template>
-  
+
+<div *ngIf="user">
+  <h2>Profile</h2>
+  <p><strong>Name:</strong> {{ user.name }}</p>
+  <p><strong>Email:</strong> {{ user.email }}</p>
+  <p><Strong>UserId:</Strong> {{user.user_id}}</p>
+</div>
+
+<div *ngIf="!user">
+  <p> Please Login.... to check tour profile </p>
+</div>

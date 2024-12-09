@@ -41,7 +41,7 @@ class GooglePassport {
 );
 
         passport.serializeUser(function(user, done) {
-            done(null, user);
+            done(null, user as Express.User);
         });
 
         passport.deserializeUser(function(user, done) {

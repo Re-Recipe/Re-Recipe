@@ -48,6 +48,7 @@ var UserModel = /** @class */ (function () {
         this.schema = new mongoose.Schema({
             user_ID: { type: String, required: true, unique: true },
             email: { type: String, required: true, unique: true },
+            displayName: { type: String, required: true },
             color: { type: String, required: true },
             recipeIDs: [{ type: mongoose.Schema.Types.ObjectId, ref: "Recipe" }],
         }, { collection: "users", timestamps: true });
@@ -74,55 +75,89 @@ var UserModel = /** @class */ (function () {
             });
         });
     };
-    UserModel.prototype.findOrCreateUser = function (response, userData) {
+    // Creates a user entry in the DB 
+    UserModel.prototype.createUser = function (userData) {
         return __awaiter(this, void 0, void 0, function () {
-            var user, newUser, savedUser, error_2;
+            var defaultColor, newUser, savedUser, error_2;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        _a.trys.push([0, 5, , 6]);
-                        return [4 /*yield*/, this.model.findOne({ email: userData.email }).exec()];
-                    case 1:
-                        user = _a.sent();
-                        if (!user) return [3 /*break*/, 2];
-                        response.json(user);
-                        return [3 /*break*/, 4];
-                    case 2:
-                        newUser = new this.model(userData);
+                        _a.trys.push([0, 2, , 3]);
+                        defaultColor = "#000000";
+                        newUser = new this.model({
+                            user_ID: userData.user_ID,
+                            email: userData.email,
+                            displayName: userData.displayName,
+                            color: defaultColor,
+                            recipeIDs: [],
+                        });
                         return [4 /*yield*/, newUser.save()];
-                    case 3:
+                    case 1:
                         savedUser = _a.sent();
-                        response.status(201).json(savedUser);
-                        _a.label = 4;
-                    case 4: return [3 /*break*/, 6];
-                    case 5:
+                        console.log("New user created:", savedUser);
+                        return [2 /*return*/, savedUser];
+                    case 2:
                         error_2 = _a.sent();
-                        console.error("Error during user lookup or creation:", error_2);
-                        response.status(500).json({ error: "Error processing user. Please try again." });
-                        return [3 /*break*/, 6];
-                    case 6: return [2 /*return*/];
+                        console.error("Error creating user:", error_2);
+                        throw new Error("User creation failed.");
+                    case 3: return [2 /*return*/];
                 }
             });
         });
     };
-    UserModel.prototype.getUserProfile = function (response, userId) {
+    // Looks for a user in the db and if doesn't have one calls to the create 
+    UserModel.prototype.findOrCreateUser = function (userData) {
         return __awaiter(this, void 0, void 0, function () {
             var user, error_3;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
+                        _a.trys.push([0, 3, , 4]);
+                        return [4 /*yield*/, this.model.findOne({ user_ID: userData.user_ID }).exec()];
+                    case 1:
+                        user = _a.sent();
+                        if (user) {
+                            console.log("Existing user found:", user);
+                            return [2 /*return*/, user];
+                        }
+                        return [4 /*yield*/, this.createUser(userData)];
+                    case 2: 
+                    // If no user exists, create a new one
+                    return [2 /*return*/, _a.sent()];
+                    case 3:
+                        error_3 = _a.sent();
+                        console.error("Error during find or create user:", error_3);
+                        throw new Error("User lookup or creation failed.");
+                    case 4: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    // Get user profile 
+    UserModel.prototype.getUserProfile = function (response, userId) {
+        return __awaiter(this, void 0, void 0, function () {
+            var user, error_4;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
                         _a.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, this.model.findOne({ user_ID: userId }).exec()];
+                        return [4 /*yield*/, this.model.findOne({ user_ID: userId })
+                                .select("displayName email user_ID") // Only fetch displayName and email
+                                .exec()];
                     case 1:
                         user = _a.sent();
                         if (!user) {
                             return [2 /*return*/, response.status(404).json({ error: "User not found" })];
                         }
-                        response.json(user);
+                        response.json({
+                            name: user.displayName,
+                            email: user.email,
+                            user_id: user.user_ID
+                        });
                         return [3 /*break*/, 3];
                     case 2:
-                        error_3 = _a.sent();
-                        console.error("Error retrieving user profile:", error_3);
+                        error_4 = _a.sent();
+                        console.error("Error retrieving user profile:", error_4);
                         response.status(500).json({ error: "Error retrieving profile. Please try again." });
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
@@ -132,7 +167,7 @@ var UserModel = /** @class */ (function () {
     };
     UserModel.prototype.updateUser = function (response, userId, updateData) {
         return __awaiter(this, void 0, void 0, function () {
-            var updatedUser, error_4;
+            var updatedUser, error_5;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -146,8 +181,8 @@ var UserModel = /** @class */ (function () {
                         response.json(updatedUser);
                         return [3 /*break*/, 3];
                     case 2:
-                        error_4 = _a.sent();
-                        console.error("Error updating user:", error_4);
+                        error_5 = _a.sent();
+                        console.error("Error updating user:", error_5);
                         response.status(500).json({ error: "Error updating profile. Please try again." });
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
@@ -157,7 +192,7 @@ var UserModel = /** @class */ (function () {
     };
     UserModel.prototype.deleteUser = function (response, userId) {
         return __awaiter(this, void 0, void 0, function () {
-            var result, error_5;
+            var result, error_6;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -171,8 +206,8 @@ var UserModel = /** @class */ (function () {
                         response.json({ message: "User deleted successfully" });
                         return [3 /*break*/, 3];
                     case 2:
-                        error_5 = _a.sent();
-                        console.error("Error deleting user:", error_5);
+                        error_6 = _a.sent();
+                        console.error("Error deleting user:", error_6);
                         response.status(500).json({ error: "Error deleting profile. Please try again." });
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
@@ -182,7 +217,7 @@ var UserModel = /** @class */ (function () {
     };
     UserModel.prototype.listAllUsers = function (response) {
         return __awaiter(this, void 0, void 0, function () {
-            var users, error_6;
+            var users, error_7;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -193,8 +228,8 @@ var UserModel = /** @class */ (function () {
                         response.json(users);
                         return [3 /*break*/, 3];
                     case 2:
-                        error_6 = _a.sent();
-                        console.error("Error listing users:", error_6);
+                        error_7 = _a.sent();
+                        console.error("Error listing users:", error_7);
                         response.status(500).json({ error: "Error retrieving users. Please try again." });
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];

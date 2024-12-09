@@ -7,12 +7,12 @@ import { RecipeservicesService } from '../../recipeservices.service';
   styleUrl: './profile.component.css'
 })
 export class ProfileComponent {
-  user: { username: string; id: string; } | undefined;
+  user: any;
   constructor(private recipeService: RecipeservicesService){}
   ngOnInit(): void {
     this.recipeService.userProfile().subscribe(
-      (data) => {
-        this.user = data;
+      (data: { name: string; email: string }) => { // Ensure the type matches the API response
+       this.user = data
         console.log('User Profile:', data);
       },
       (error) => {

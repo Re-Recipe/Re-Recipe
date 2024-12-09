@@ -80,7 +80,7 @@ class UserModel {
     public async getUserProfile(response: any, userId: string): Promise<void> {
         try {
             const user = await this.model.findOne({ user_ID: userId })
-                .select("displayName email") // Only fetch displayName and email
+                .select("displayName email user_ID") // Only fetch displayName and email
                 .exec();
     
             if (!user) {
@@ -90,6 +90,7 @@ class UserModel {
             response.json({
                 name: user.displayName,
                 email: user.email,
+                user_id:user.user_ID
             });
         } catch (error) {
             console.error("Error retrieving user profile:", error);

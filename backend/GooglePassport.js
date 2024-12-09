@@ -16,10 +16,17 @@ var GooglePassport = /** @class */ (function () {
         }, function (accessToken, refreshToken, profile, done) {
             console.log("Inside new passport Google strategy");
             process.nextTick(function () {
-                console.log('Validating Google profile:', JSON.stringify(profile));
+                var _a, _b;
+                var email = (_b = (_a = profile.emails) === null || _a === void 0 ? void 0 : _a[0]) === null || _b === void 0 ? void 0 : _b.value;
+                var user = {
+                    id: profile.id,
+                    user_ID: profile.id,
+                    displayName: profile.displayName,
+                    email: email || null,
+                };
                 console.log("userId:", profile.id);
                 console.log("displayName:", profile.displayName);
-                return done(null, profile); // Return the `User` object
+                return done(null, user);
             });
         }));
         passport.serializeUser(function (user, done) {
