@@ -3,7 +3,6 @@ const path = require('path');
 import * as dotenv from 'dotenv';
 import * as cookieParser from 'cookie-parser';
 import * as expressSession from 'express-session';
-const mongoStore = require('connect-mongo');
 import { App } from './App';
 
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
@@ -20,19 +19,13 @@ let server: any = new App(mongoDBConnection).expressApp;
 
 server.use(cookieParser());
 
-// Todo : move this?
-server.use(
-    expressSession({
-        secret: '1234567890QWERTY',
-        cookie: {},
-        resave: false,
-        saveUninitialized: true,
-        store: mongoStore.create({
-            mongoUrl: mongoDBConnection,
-            collectionName: 'sessions',
-        }),
-    })
-);
+const cors = require('cors');
+
+server.use(cors({
+  origin: 'http://localhost:4200', // Replace with your frontend URL
+  credentials: true // Allow sending cookies with requests
+}));
+
 
 server.listen(port, () => {
   console.log(`server running on port ${port}`);

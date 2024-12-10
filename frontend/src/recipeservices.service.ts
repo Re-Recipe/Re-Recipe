@@ -8,7 +8,7 @@ import { IRecipeContents } from './app/model/IRecipeContents';
   providedIn: 'root',
 })
 export class RecipeservicesService {
-  hostUrl: string = 'http://localhost:8080/app/';
+  hostUrl: string = 'https://re-recipe.azurewebsites.net/app/';
   isAuthenticated: boolean = false;
 
   constructor(private http: HttpClient) {}

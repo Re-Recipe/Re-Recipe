@@ -8,6 +8,15 @@ import * as cookieParser from "cookie-parser";
 import * as session from "express-session";
 import * as passport from "passport";
 import GooglePassportObj from "./GooglePassport";
+
+declare global {
+  namespace Express {
+    interface User {
+      id: string;
+      displayName: string;
+    }
+  }
+}
 // TODO: make a data access file
 //import {DataAccess} from './DataAccess';
 
@@ -39,38 +48,58 @@ class App {
   }
   private validateAuth(req, res, next): void {
     if (req.isAuthenticated()) {
-      console.log("user is authenticated");
+      console.log("User is authenticated");
       return next();
     }
-    console.log("user is not authenticated");
-    res.redirect("/");
+
+    console.log("User is not authenticated");
+    res.status(401).json({ error: "Unauthorized" });
   }
+
   /**
    * Sets up middleware for the Express application, including
    * body parsing and CORS headers.
    */
   private middleware(): void {
-      // CORS headers to allow frontend (running on http://localhost:4200) to access the backend
-      this.expressApp.use(
-          (req: express.Request, res: express.Response, next: express.NextFunction) => {
-              res.header('Access-Control-Allow-Origin', 'http://localhost:4200');  // Allow frontend to access
-              res.header('Access-Control-Allow-Credentials', 'true');  // Allow cookies
-              res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-              next();
-          }
-      );
+    this.expressApp.use(bodyParser.json());
+    this.expressApp.use(bodyParser.urlencoded({ extended: false }));
+    this.expressApp.use(
+      (
+        req: express.Request,
+        res: express.Response,
+        next: express.NextFunction
+      ) => {
+        res.header("Access-Control-Allow-Origin", "http://localhost:4200");
+        res.header(
+          "Access-Control-Allow-Headers",
+          "Origin, X-Requested-With, Content-Type, Accept"
+        );
+        res.header("Access-Control-Allow-Credentials", "true"); // Allow cookies
+        res.header(
+          "Access-Control-Allow-Headers",
+          "Origin, X-Requested-With, Content-Type, Accept"
+        );
+        next();
+      }
+    );
 
-      // Body parsing middleware
-      this.expressApp.use(bodyParser.json());
-      this.expressApp.use(bodyParser.urlencoded({ extended: false }));
+    // Body parsing middleware
+    this.expressApp.use(bodyParser.json());
+    this.expressApp.use(bodyParser.urlencoded({ extended: false }));
 
-      // Session and cookie parsing middleware
-      this.expressApp.use(session({ secret: "keyboard cat", resave: false, saveUninitialized: true }));
-      this.expressApp.use(cookieParser());
+    // Session and cookie parsing middleware
+    this.expressApp.use(
+      session({
+        secret: "1234567890QWERTY",
+        resave: false,
+        saveUninitialized: true,
+      })
+    );
+    this.expressApp.use(cookieParser());
 
-      // Passport initialization
-      this.expressApp.use(passport.initialize());
-      this.expressApp.use(passport.session());
+    // Passport initialization
+    this.expressApp.use(passport.initialize());
+    this.expressApp.use(passport.session());
   }
 
   /**
@@ -80,21 +109,6 @@ class App {
   private routes(): void {
     const router = express.Router();
 
-    router.get('/app/auth/check', (req, res) => {
-        if (req.isAuthenticated()) {
-            return res.json({ loggedIn: true });
-        }
-        res.json({ loggedIn: false });
-    });
-
-    router.get("/app/logout", (req, res) => {
-      req.logout((err) => {
-        if (err) {
-          return res.status(500).send("Error logging out.");
-        }
-        res.redirect("/");  // Redirect to the home page after logout
-      });
-  });
     /**
      * ========================
      * SECTION: DISCOVER ROUTES
@@ -143,13 +157,24 @@ class App {
      */
 
     // Retrieve all recipes in a user's cookbook
-    router.get(
-      "/app/cookbook/:userId",
-      async (req: express.Request, res: express.Response): Promise<void> => {
-        const userId: string = req.params.userId;
-        await this.Cookbook.listAllRecipes(res, userId);
+    router.get("/app/cookbook", this.validateAuth, async (req, res) => {
+      try {
+        // Extract user_ID from req.user
+        const userId = req.user?.id;
+        if (!userId) {
+          return res.status(401).json({ error: "Unauthorized" });
+        }
+        
+        // Get cookbook recipes 
+        await this.Cookbook.getAllCookbookRecipes(res, userId);
+
+      } catch (error) {
+        console.error("Error getting cookbook:", error);
+        res
+          .status(500)
+          .json({ error: "An error occurred while retrieving the cookbook." });
       }
-    );
+    });
 
     // Remove a specific recipe from a user's cookbook
     router.delete(
@@ -177,55 +202,88 @@ class App {
      * ====================
      */
     router.get(
-        "/app/auth/google/callback",
-        passport.authenticate("google", { failureRedirect: "/" }),
-        (req, res) => {
-            console.log("User successfully authenticated");
-            console.log("Session User:", req.user);
-            res.redirect("http://localhost:4200/discover");
-        }
+      "/app/auth/google/callback",
+      passport.authenticate("google", { failureRedirect: "/" }),
+      async (req, res) => {
+        // Create a user profile if one doesn't exist
+        const googleUser = req.user;
+        const user = await this.UserModel.findOrCreateUser(googleUser);
+
+        console.log("User successfully authenticated");
+        console.log("Session User:", req.user);
+        console.log("user info:" + JSON.stringify(req.user));
+        console.log("user id:" + JSON.stringify(req.user.id));
+        console.log("user displayName:" + JSON.stringify(req.user.displayName));
+        res.redirect("http://localhost:4200/discover");
+      }
     );
-      router.get('/app/auth/check', (req, res) => {
-          if (req.isAuthenticated()) {
-              console.log('User is authenticated:', req.user);
-              return res.json({ loggedIn: true });
-          }
-          console.log('User is not authenticated');
-          res.json({ loggedIn: false });
-      });
+    router.get("/app/auth/check", (req, res) => {
+      if (this.validateAuth) {
+        console.log("User is authenticated:", req.user);
+        return res.json({ loggedIn: true });
+      }
+      console.log("User is not authenticated");
+      res.json({ loggedIn: false });
+    });
+
+    // Get the user profile
+    router.get("/app/profile", this.validateAuth, async (req, res) => {
+      try {
+        // Extract user_ID from req.user
+        const userId = req.user?.id;
+        if (!userId) {
+          return res.status(401).json({ error: "Unauthorized" });
+        }
+
+        // Call the getUserProfile method from the UserModel
+        await this.UserModel.getUserProfile(res, userId);
+      } catch (error) {
+        console.error("Error retrieving profile:", error);
+        res
+          .status(500)
+          .json({ error: "An error occurred while retrieving the profile." });
+      }
+    });
 
     // Google SSO Sign - In
     router.get(
       "/app/auth/google",
-      passport.authenticate("google", { scope: ["profile"] })
+      passport.authenticate("google", { scope: ["profile", "email"] })
     );
 
-    // Create a new user account
-    router.post(
-      "/app/user/signup",
-      async (req: express.Request, res: express.Response): Promise<void> => {
-        const userData = req.body;
-        await this.UserModel.signup(res, userData);
-      }
-    );
+    router.get("/app/auth/info", this.validateAuth, (req, res) => {
+      console.log("Query All list");
+      console.log("user info:" + JSON.stringify(req.user));
+      console.log("user id:" + JSON.stringify(req.user.id));
+      console.log("user displayName:" + JSON.stringify(req.user.displayName));
+      res.json({ username: req.user.displayName, id: req.user.id });
+    });
 
-    // Log in an existing user
-    router.post(
-      "/app/user/login",
-      async (req: express.Request, res: express.Response): Promise<void> => {
-        const { username, password } = req.body;
-        await this.UserModel.login(res, username, password);
-      }
-    );
+    // Logs the user out
+    router.get("/app/logout", (req, res) => {
+      // Logs the user out using Passport's logout method
+      req.logout((err) => {
+        if (err) {
+          console.error("Error during logout:", err);
+          return res.status(500).json({ error: "Logout failed" });
+        }
 
-    // Retrieve a user's profile by userId
-    router.get(
-      "/app/user/profile/:userId",
-      async (req: express.Request, res: express.Response): Promise<void> => {
-        const userId: string = req.params.userId;
-        await this.UserModel.getUserProfile(res, userId);
-      }
-    );
+        // Destroy the sesh on the server
+        req.session.destroy((err) => {
+          if (err) {
+            console.error("Error destroying session:", err);
+            return res
+              .status(500)
+              .json({ error: "Session destruction failed" });
+          }
+
+          // Clear the session cookie from the client's browser
+          res.clearCookie("connect.sid"); // Ensure this matches your session cookie name
+          console.log("User successfully logged out");
+          res.json({ message: "Logged out successfully" });
+        });
+      });
+    });
 
     // Update a user's profile information
     router.put(
@@ -250,18 +308,17 @@ class App {
     this.expressApp.use("/", router);
     this.expressApp.use("/app/json/", express.static(`${__dirname}/app/json`));
     this.expressApp.use("/images", express.static(`${__dirname}/img`));
-    this.expressApp.use("/", express.static(`${__dirname}/pages`));
 
-    // The static end point for angular and fallback
-    this.expressApp.use("/", express.static(`${__dirname}/../recipes/browser`));
+    //The static end point for angular and fallback
+    // Updated for root
+    this.expressApp.use("/", express.static(`${__dirname}/recipes/browser`));
 
     this.expressApp.get(
       "*",
       (req: express.Request, res: express.Response): void => {
-        res.sendFile(`${__dirname}/../recipes/browser/index.html`);
+        res.sendFile(`${__dirname}/recipes/browser/index.html`);
       }
     );
   }
 }
-
 export { App };
