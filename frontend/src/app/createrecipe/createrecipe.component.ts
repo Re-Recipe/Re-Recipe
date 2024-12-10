@@ -15,8 +15,8 @@ export class CreaterecipeComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private http: HttpClient, // Keep HttpClient for direct API calls if needed
-    private recipeService: RecipeservicesService // Use the service for modular recipe-related API calls
+    private http: HttpClient,
+    private recipeService: RecipeservicesService
   ) {}
 
   ngOnInit(): void {
@@ -24,14 +24,13 @@ export class CreaterecipeComponent implements OnInit {
       recipe_name: ['', Validators.required],
       category: ['', Validators.required],
       cooking_duration: [null, [Validators.required, Validators.min(1), Validators.pattern('^[0-9]+$')]],
+      serving_size: [null, [Validators.required, Validators.min(1)]],
       ingredients: this.fb.array([], this.minimumOneItemValidator),
       directions: this.fb.array([], this.minimumOneItemValidator),
       image_url: [''],
       is_visible: [false],
-      serving_size: [null, [Validators.required, Validators.min(1)]], // Add serving_size field
     });
   }
-
 
   get ingredients(): FormArray {
     return this.recipeForm.get('ingredients') as FormArray;
@@ -49,7 +48,7 @@ export class CreaterecipeComponent implements OnInit {
     this.ingredients.push(
       this.fb.group({
         name: ['', Validators.required],
-        quantity: [null, [Validators.required, Validators.min(1)]],
+        quantity: [null, [Validators.required, Validators.min(0.1)]], // Allow decimals for quantities
         unit: ['', Validators.required]
       })
     );
@@ -81,15 +80,15 @@ export class CreaterecipeComponent implements OnInit {
         recipe_name: this.recipeForm.value.recipe_name,
         category: this.recipeForm.value.category,
         cooking_duration: this.recipeForm.value.cooking_duration,
+        serving_size: this.recipeForm.value.serving_size,
         ingredients: this.recipeForm.value.ingredients,
         directions: this.recipeForm.value.directions,
         image_url: this.recipeForm.value.image_url,
         is_visible: this.recipeForm.value.is_visible,
         modified_flag: false,
-        user_ID: 'placeholder-user-id', // Placeholder until authentication is handled
+        user_ID: 'placeholder-user-id', // Placeholder for authenticated user ID
         meal_category: [this.recipeForm.value.category],
         recipe_versions: [],
-        serving_size: this.recipeForm.value.serving_size, // Add serving_size to the data
       };
 
       console.log('Submitting recipe data:', recipeData);
@@ -98,7 +97,6 @@ export class CreaterecipeComponent implements OnInit {
         next: (response) => {
           console.log('Recipe added successfully:', response);
           this.onReset();
-          window.location.reload();
         },
         error: (error) => {
           console.error('Error adding recipe:', error);
@@ -106,9 +104,6 @@ export class CreaterecipeComponent implements OnInit {
       });
     }
   }
-
-
-
 
   /**
    * Example of making a direct API call using HttpClient
@@ -129,6 +124,7 @@ export class CreaterecipeComponent implements OnInit {
       recipe_name: '',
       category: '',
       cooking_duration: null,
+      serving_size: null,
       image_url: '',
       is_visible: false
     });
