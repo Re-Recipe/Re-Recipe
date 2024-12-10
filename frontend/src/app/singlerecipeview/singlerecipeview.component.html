@@ -8,7 +8,7 @@
   <!-- Recipe Details Section (Right) -->
   <div class="recipe-details-section flex-grow-1 overflow-auto">
     <div class="recipe-details">
-      <!-- Category and Serving Size Row -->
+      <!-- Category, Serving Size, and Cooking Time Row -->
       <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
           <h3 class="text-primary">Category:</h3>
@@ -17,6 +17,10 @@
         <div>
           <h3 class="text-primary">Serving Size:</h3>
           <p class="text-muted">{{ recipe.recipe_versions[0]?.serving_size }}</p>
+        </div>
+        <div>
+          <h3 class="text-primary">Cooking Time:</h3>
+          <p class="text-muted">{{ recipe.recipe_versions[0]?.cooking_duration }} minutes</p>
         </div>
       </div>
 
