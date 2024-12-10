@@ -60,23 +60,17 @@
           <p class="card-text text-muted">
             <strong>Category:</strong> {{ recipe.meal_category[0] || 'N/A' }}
           </p>
-
-          <!-- Cooking Time -->
-          <p class="card-text text-muted">
-            <strong>Cooking Time:</strong>
-            {{ recipe.recipe_versions[0].cooking_duration }} minutes
-          </p>
         </div>
       </div>
     </div>
   </div>
-<button
-  class="fab btn btn-primary"
-  [disabled]="selectedRecipes.size === 0"
-  (click)="saveSelectedRecipes()"
-  aria-label="Save Selected Recipes"
-  title="Click to save selected recipes"
->
-  <span class="material-symbols-outlined">add</span>
-</button>
+  <button
+    class="fab btn btn-primary"
+    [disabled]="selectedRecipes.size === 0"
+    (click)="saveSelectedRecipes()"
+    aria-label="Save Selected Recipes"
+    title="Click to save selected recipes"
+  >
+    <span class="material-symbols-outlined">add</span>
+  </button>
 </div>
