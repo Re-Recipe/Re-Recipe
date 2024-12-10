@@ -1,4 +1,3 @@
-
 <div *ngIf="recipe; else loadingOrError" class="container my-5 d-flex">
   <!-- Image Section (Left) -->
   <div class="image-section me-4">
@@ -9,14 +8,24 @@
   <!-- Recipe Details Section (Right) -->
   <div class="recipe-details-section flex-grow-1 overflow-auto">
     <div class="recipe-details">
-      <h3 class="text-primary">Category:</h3>
-      <p class="text-muted">{{ recipe.meal_category[0] }} - Serving: {{ recipe.recipe_versions[0]?.serving_size }}</p>
+      <!-- Category and Serving Size Row -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h3 class="text-primary">Category:</h3>
+          <p class="text-muted">{{ recipe.meal_category[0] }}</p>
+        </div>
+        <div>
+          <h3 class="text-primary">Serving Size:</h3>
+          <p class="text-muted">{{ recipe.recipe_versions[0]?.serving_size }}</p>
+        </div>
+      </div>
 
+      <!-- Ingredients Section -->
       <h3 class="text-primary">Ingredients:</h3>
       <div class="row">
         <div class="col-md-6">
           <ul class="list-group">
-            <li *ngFor="let ingredient of recipe.recipe_versions[0]?.ingredients.slice(0, recipe.recipe_versions[0]?.ingredients.length / 2)" 
+            <li *ngFor="let ingredient of recipe.recipe_versions[0]?.ingredients.slice(0, recipe.recipe_versions[0]?.ingredients.length / 2)"
                 class="list-group-item d-flex justify-content-between align-items-center">
               <b>{{ ingredient.quantity }} {{ ingredient.unit }}</b> - <span>{{ ingredient.name }}</span>
             </li>
@@ -24,7 +33,7 @@
         </div>
         <div class="col-md-6">
           <ul class="list-group">
-            <li *ngFor="let ingredient of recipe.recipe_versions[0]?.ingredients.slice(recipe.recipe_versions[0]?.ingredients.length / 2)" 
+            <li *ngFor="let ingredient of recipe.recipe_versions[0]?.ingredients.slice(recipe.recipe_versions[0]?.ingredients.length / 2)"
                 class="list-group-item d-flex justify-content-between align-items-center">
               <b>{{ ingredient.quantity }} {{ ingredient.unit }}</b> - <span>{{ ingredient.name }}</span>
             </li>
@@ -32,6 +41,7 @@
         </div>
       </div>
 
+      <!-- Directions Section -->
       <h3 class="text-primary">Directions:</h3>
       <ol class="list-group list-group-numbered">
         <li *ngFor="let direction of recipe.recipe_versions[0]?.directions" class="list-group-item p-3">
