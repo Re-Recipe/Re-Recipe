@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, FormArray, Validators, AbstractControl } from '
 import { HttpClient } from '@angular/common/http';
 import { RecipeservicesService } from '../../recipeservices.service';
 import { v4 as uuidv4 } from 'uuid';
+import { IRecipe } from '../model/IRecipe';
 
 @Component({
   selector: 'app-createrecipe',
@@ -77,6 +78,8 @@ export class CreaterecipeComponent implements OnInit {
   onSubmit(): void {
     if (this.recipeForm.valid) {
       const recipeData = {
+        _id: uuidv4(),
+        recipe_version_details: [<IRecipeContents>],
         recipe_ID: uuidv4(),
         recipe_name: this.recipeForm.value.recipe_name,
         category: this.recipeForm.value.category,

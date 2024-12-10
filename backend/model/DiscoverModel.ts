@@ -101,7 +101,7 @@ class DiscoverModel {
                 recipe_name: recipeData.recipe_name || savedRecipe.recipe_name,
                 meal_category: recipeData.meal_category || [],
                 recipe_versions: savedRecipe.recipe_versions || [],
-                image_url: recipeData.image_url || "assets/placeholder.png",
+                image_url: recipeData.image_url || "https://www.the-sun.com/wp-content/uploads/sites/6/2020/08/tp-graphic-rihanna-chef.jpg",
                 is_visible: recipeData.is_visible !== undefined ? recipeData.is_visible : false,
             });
 
@@ -116,22 +116,41 @@ class DiscoverModel {
         }
     }
 
-    public async retrieveAllRecipes(response: any) {
+    public async retrieveAllRecipes(response: any): Promise<void> {
         try {
-            console.log("Fetching all Discover documents...");
-            const itemArray = await this.model.find({}).exec();
-            console.log("Fetched Discover documents:", itemArray);
-            response.json(itemArray);
+            console.log("Fetching all Discover documents with recipe_versions...");
+    
+            const recipes = await this.model.aggregate([
+                {
+                  $match: {
+                    recipe_versions: { $exists: true, $ne: [] } // Ensures non-empty recipe_versions
+                  }
+                },
+                {
+                  $lookup: {
+                    from: "recipe_contents",
+                    localField: "recipe_versions",
+                    foreignField: "_id",
+                    as: "recipe_versions_details",
+                  },
+                },
+              ]);
+              console.log("Matched and Populated Documents:", JSON.stringify(recipes, null, 2));
+            response.json(recipes);
         } catch (error) {
-            console.error("Failed to retrieve all recipes:", error);
-            response.status(500).json({ error: "Failed to retrieve all recipes" });
+            console.error("Failed to retrieve all recipes with versions:", error);
+            response.status(500).json({ error: "Failed to retrieve recipes with versions." });
         }
     }
 
     public async retrieveRecipe(response: any, recipe_ID: string) {
         try {
-            console.log("Fetching Discover document for recipe_ID:", recipe_ID);
-            const result = await this.model.findOne({ recipe_ID }).exec();
+            console.log("Fetching Discover document for recipe_ID with populated recipe versions:", recipe_ID);
+            const result = await this.model
+                .findOne({ recipe_ID })
+                .populate("recipe_versions") 
+                .exec();
+    
             if (result) {
                 response.json(result);
             } else {
@@ -142,7 +161,6 @@ class DiscoverModel {
             response.status(500).json({ error: "Failed to retrieve recipe" });
         }
     }
-
     public async deleteRecipe(response: any, recipe_ID: string) {
         try {
             const result = await this.model.deleteOne({ recipe_ID }).exec();

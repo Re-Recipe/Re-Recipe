@@ -12,8 +12,8 @@ class RecipeContents {
 
   public createSchema() {
     const schemaDefinition: mongoose.SchemaDefinition<IRecipeContents> = {
-      user_ID: { type: String, required: true, unique: true },
-      recipe_ID: { type: mongoose.Schema.Types.ObjectId, ref: 'Recipe', required: true },
+      user_ID: { type: String, required: true },
+      recipe_ID: { type: mongoose.Schema.Types.ObjectId, ref: "Recipe", required: true },
       version_number: { type: Number, default: 1, required: true },
       cooking_duration: { type: Number, required: true },
       serving_size: { type: Number, required: true },
@@ -35,14 +35,30 @@ class RecipeContents {
       ],
       notes: { type: String },
     };
-    this.schema = new mongoose.Schema(schemaDefinition);
+
+    // Attach schema definition to the Mongoose schema
+    this.schema = new mongoose.Schema(schemaDefinition, { collection: "recipe_contents" });
   }
 
   public createModel() {
     this.contents = mongoose.model<IRecipeContents>("RecipeContents", this.schema, "recipe_contents");
   }
+
+  // Static methods for querying
+  public static async findByRecipeID(recipe_ID: string): Promise<IRecipeContents[]> {
+    return RecipeContentsModel.find({ recipe_ID }).exec();
+  }
+
+  public static async findByUserID(user_ID: string): Promise<IRecipeContents[]> {
+    return RecipeContentsModel.find({ user_ID }).exec();
+  }
 }
 
-const RecipeContentsModel = mongoose.model<IRecipeContents>("RecipeContents", new RecipeContents().schema, "recipe_contents");
+// Initialize the model
+const RecipeContentsModel = mongoose.model<IRecipeContents>(
+  "RecipeContents",
+  new RecipeContents().schema,
+  "recipe_contents"
+);
 
 export { RecipeContentsModel };
