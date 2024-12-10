@@ -119,23 +119,13 @@ class DiscoverModel {
     public async retrieveAllRecipes(response: any): Promise<void> {
         try {
             console.log("Fetching all Discover documents with recipe_versions...");
-    
-            const recipes = await this.model.aggregate([
-                {
-                  $match: {
-                    recipe_versions: { $exists: true, $ne: [] } // Ensures non-empty recipe_versions
-                  }
-                },
-                {
-                  $lookup: {
-                    from: "recipe_contents",
-                    localField: "recipe_versions",
-                    foreignField: "_id",
-                    as: "recipe_versions_details",
-                  },
-                },
-              ]);
-              console.log("Matched and Populated Documents:", JSON.stringify(recipes, null, 2));
+          
+            // Using the RecipeModel to aggregate request 
+            const recipes = await this.recipeModel.getRecipesWithContents(this.model, {
+                recipe_versions: { $exists: true, $ne: [] }  
+            });
+            
+            console.log("Matched and Populated Documents:", JSON.stringify(recipes, null, 2));
             response.json(recipes);
         } catch (error) {
             console.error("Failed to retrieve all recipes with versions:", error);

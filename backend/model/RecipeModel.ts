@@ -64,4 +64,36 @@ export class RecipeModel {
 
     return recipe;
   }
+
+  // Reusable method for aggregation across different collections
+  public async getRecipesWithContents(collection: mongoose.Model<any>, matchConditions: any) {
+    return await collection.aggregate([
+      {
+        $match: matchConditions 
+      },
+      {
+        $lookup: {
+          from: "recipe_contents",  
+          localField: "recipe_versions",  
+          foreignField: "recipe_ID",  
+          as: "recipe_contents"  
+        }
+      },
+      {
+        $unwind: {
+          path: "$recipe_contents",
+          preserveNullAndEmptyArrays: true 
+        }
+      },
+      {
+        $project: {
+          _id: 1,
+          recipe_name: 1,
+          meal_category: 1,
+          recipe_versions: 1,
+          recipe_contents: 1
+        }
+      }
+    ]);
+  }
 }

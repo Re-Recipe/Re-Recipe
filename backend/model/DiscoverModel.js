@@ -178,21 +178,9 @@ var DiscoverModel = /** @class */ (function () {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
                         console.log("Fetching all Discover documents with recipe_versions...");
-                        return [4 /*yield*/, this.model.aggregate([
-                                {
-                                    $match: {
-                                        recipe_versions: { $exists: true, $ne: [] } // Ensures non-empty recipe_versions
-                                    }
-                                },
-                                {
-                                    $lookup: {
-                                        from: "recipe_contents",
-                                        localField: "recipe_versions",
-                                        foreignField: "_id",
-                                        as: "recipe_versions_details"
-                                    }
-                                },
-                            ])];
+                        return [4 /*yield*/, this.recipeModel.getRecipesWithContents(this.model, {
+                                recipe_versions: { $exists: true, $ne: [] }
+                            })];
                     case 1:
                         recipes = _a.sent();
                         console.log("Matched and Populated Documents:", JSON.stringify(recipes, null, 2));
