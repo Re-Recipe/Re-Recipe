@@ -60,6 +60,10 @@
           <p class="card-text text-muted">
             <strong>Category:</strong> {{ recipe.meal_category[0] || 'N/A' }}
           </p>
+          <p class="card-text text-muted">
+            <strong>Cooking Time:</strong>
+            {{ recipe.recipe_versions[0]?.cooking_duration || 'N/A' }} minutes
+          </p>
         </div>
       </div>
     </div>
