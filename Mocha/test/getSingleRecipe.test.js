@@ -13,8 +13,8 @@ describe("Test Single Recipe Retrieval", function () {
   // Pre-fetch the single recipe before running tests
   before(function (done) {
     chai
-      .request("http://localhost:8080")
-      .get("/app/discover/recipe002") // Endpoint for a specific recipe
+      .request("https://re-recipe.azurewebsites.net")
+      .get("/app/discover/6758fde40425bcc380f4d640") // Endpoint for a specific recipe
       .end(function (err, res) {
         requestResult = res.body;
         response = res;
@@ -29,6 +29,8 @@ describe("Test Single Recipe Retrieval", function () {
     expect(response).to.have.status(200); // Ensure a successful response
     expect(response.body).to.be.an("object"); // The response should be an object
     expect(response.body).to.include.keys(
+      'recipeList',
+      '_id',
       "recipe_ID",
       "recipe_name",
       "meal_category",
@@ -40,7 +42,7 @@ describe("Test Single Recipe Retrieval", function () {
 
   // Test 2: Validate the top-level properties of the recipe
   it("The recipe should have the correct top-level property types", function () {
-    expect(requestResult.recipe_ID).to.equal("recipe002");
+    expect(requestResult.recipe_ID).to.equal("6758fde40425bcc380f4d640");
     expect(requestResult.recipe_name).to.be.a("string");
     expect(requestResult.meal_category).to.be.an("array");
     expect(requestResult.recipe_versions).to.be.an("array");
@@ -48,7 +50,7 @@ describe("Test Single Recipe Retrieval", function () {
     expect(requestResult.is_visible).to.be.a("boolean");
   });
 
-  // Test 3: Validate the properties of recipe versions
+  // Test 3: Validate the inner properties of recipe versions
   it("Each recipe version should have the expected properties", function () {
     requestResult.recipe_versions.forEach((version) => {
       expect(version).to.include.keys(
@@ -80,13 +82,13 @@ describe("Test Single Recipe Retrieval", function () {
     });
   });
 
-  // Test 4: Does it match expected written content in DB? for this specific recipe 
-  it("Should match the unique fields for recipe002", function () {
-    expect(requestResult.recipe_ID).to.equal("recipe002");
-    expect(requestResult.recipe_name).to.equal("Spaghetti Bolognese");
-    expect(requestResult.meal_category).to.deep.equal(["Dinner"]);
+  // Test 4: Does it match expected written content in DB? (for this specific recipe) 
+  it("Should match the unique fields for 6758fde40425bcc380f4d640", function () {
+    expect(requestResult.recipe_ID).to.equal("6758fde40425bcc380f4d640");
+    expect(requestResult.recipe_name).to.equal("Avocado Toast");
+    expect(requestResult.meal_category).to.deep.equal(["Breakfast"]);
     expect(requestResult.image_url).to.equal(
-      "https://images.ctfassets.net/uexfe9h31g3m/6QtnhruEFi8qgEyYAICkyS/ab01e9b1da656f35dd1a721c810162a0/Spaghetti_bolognese_4x3_V2_LOW_RES.jpg"
+      "https://bonabbetit.com/wp-content/uploads/2022/07/Avocado-toast-with-farmers-cheese-and-bacon-bits.jpg"
     );
     expect(requestResult.is_visible).to.be.true;
   });
