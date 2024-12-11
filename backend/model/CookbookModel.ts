@@ -57,32 +57,30 @@ class CookbookModel {
     }
   }
 
-  public async createCookbook(user_Id: string, title: string = "myCookbook"): Promise<void> {
+  public async createCookbook(userId: string, title: string = "myCookbook"): Promise<void> {
     try {
-      // Check if a cookbook already exists for the user
-      const existingCookbook = await this.model.findOne({ user_ID: user_Id }).exec();
-      
-      // Exit if a cookbook already exists
+      console.log(`Creating cookbook for user_ID: ${userId} with title: ${title}`);
+
+      const existingCookbook = await this.model.findOne({ user_ID: userId }).exec();
       if (existingCookbook) {
-        console.log(`Cookbook already exists for user: ${user_Id}`);
-        return; 
+        console.log(`Cookbook already exists for user_ID: ${userId}`);
+        return;
       }
-  
-      // Create a new cookbook
+
       const newCookbook = new this.model({
-        user_ID: user_Id,
+        user_ID: userId,
         title,
-        recipes: [],
+        modified_recipes: [],
       });
-  
-      await newCookbook.save();
-      console.log(`Cookbook "${title}" created for user: ${user_Id}`);
+
+      const savedCookbook = await newCookbook.save();
+      console.log("New cookbook created:", savedCookbook);
     } catch (error) {
       console.error("Error creating cookbook:", error);
       throw new Error("Cookbook creation failed.");
     }
   }
-  
+
 
   /**
    * Copies a recipe from the Discover collection and adds it to the user's cookbook.

@@ -1,7 +1,6 @@
 import * as mongoose from "mongoose";
 import { IUser } from "../interfaces/IUser";
-import { CookbookModel } from "./CookbookModel"; 
-import { DiscoverModel } from "./DiscoverModel";
+import { CookbookModel } from "./CookbookModel";
 
 class UserModel {
   public schema: mongoose.Schema;
@@ -9,29 +8,30 @@ class UserModel {
   public dbConnectionString: string;
   private cookbookModel: CookbookModel;
 
-  constructor(DB_CONNECTION_STRING: string) {
+  constructor(DB_CONNECTION_STRING: string, cookbookModel: CookbookModel) {
     this.dbConnectionString = DB_CONNECTION_STRING;
-    const discoverModel = new DiscoverModel(this.dbConnectionString);
-    this.cookbookModel = new CookbookModel(this.dbConnectionString, discoverModel); 
+    this.cookbookModel = cookbookModel; // Use the passed instance
     this.createSchema();
     this.createModel();
   }
 
-  public createSchema() {
+  private createSchema() {
     this.schema = new mongoose.Schema(
-      {
-        user_ID: { type: String, required: true, unique: true },
-        email: { type: String, required: true, unique: true },
-        displayName: { type: String, required: true },
-        color: { type: String, required: true },
-      },
-      { collection: "users", timestamps: true }
+        {
+          user_ID: { type: String, required: true, unique: true },
+          email: { type: String, required: true, unique: true },
+          displayName: { type: String, required: true },
+          color: { type: String, required: true, default: "#000000" },
+        },
+        { collection: "users", timestamps: true }
     );
   }
 
-  public async createModel() {
+  private async createModel() {
     try {
-      await mongoose.connect(this.dbConnectionString);
+      if (!mongoose.connection.readyState) {
+        await mongoose.connect(this.dbConnectionString);
+      }
       this.model = mongoose.model("User", this.schema);
       console.log("Connected to MongoDB and created User model.");
     } catch (error) {
@@ -39,24 +39,33 @@ class UserModel {
     }
   }
 
-  // Creates a user entry in the DB
+  private async ensureCookbookExists(userId: string): Promise<void> {
+    const cookbookExists = await this.cookbookModel.model
+        .findOne({ user_ID: userId })
+        .exec();
+    if (!cookbookExists) {
+      console.log(`No cookbook found for user_ID: ${userId}. Creating one.`);
+      await this.cookbookModel.createCookbook(userId);
+    } else {
+      console.log(`Cookbook already exists for user_ID: ${userId}`);
+    }
+  }
+
   public async createUser(userData: Partial<IUser>): Promise<mongoose.Document> {
     try {
-      const defaultColor = "#000000";
-  
+      console.log("Creating new user with data:", userData);
+
       const newUser = new this.model({
         user_ID: userData.user_ID,
         email: userData.email,
         displayName: userData.displayName,
-        color: defaultColor,
       });
-  
+
       const savedUser = await newUser.save();
       console.log("New user created:", savedUser);
-  
-      // Create a default cookbook for the user
-      await this.cookbookModel.createCookbook(userData.user_ID, "myCookbook");
-  
+
+      await this.ensureCookbookExists(savedUser.user_ID);
+
       return savedUser;
     } catch (error) {
       console.error("Error creating user:", error);
@@ -64,104 +73,94 @@ class UserModel {
     }
   }
 
-  // Looks for a user in the db and if doesn't have one calls to the create
-  public async findOrCreateUser(
-    userData: Partial<IUser>
-  ): Promise<mongoose.Document> {
-    try {
-      // Check if the user already exists in the database
-      const user = await this.model
-        .findOne({ user_ID: userData.user_ID })
-        .exec();
 
-      if (user) {
-        console.log("Existing user found:", user);
-        return user;
+  public async findOrCreateUser(userData: Partial<IUser>): Promise<mongoose.Document> {
+    try {
+      console.log("Finding or creating user with data:", userData);
+
+      let user = await this.model.findOne({ user_ID: userData.user_ID }).exec();
+
+      if (!user) {
+        console.log("User not found. Creating new user.");
+        user = await this.createUser(userData);
+      } else {
+        console.log("User already exists:", user);
       }
 
-      // If no user exists, create a new one
-      return await this.createUser(userData);
+      console.log(`Ensuring cookbook exists for user_ID: ${user.user_ID}`);
+      await this.ensureCookbookExists(user.user_ID);
+
+      return user;
     } catch (error) {
       console.error("Error during find or create user:", error);
       throw new Error("User lookup or creation failed.");
     }
   }
 
-  // Get user profile
-  public async getUserProfile(response: any, userId: string): Promise<void> {
+
+  public async updateUser(userId: string, updateData: Partial<IUser>): Promise<mongoose.Document | null> {
     try {
-      const user = await this.model
-        .findOne({ user_ID: userId })
-        .select("displayName email user_ID") // Only fetch displayName and email
-        .exec();
+      console.log("Updating user:", userId, "with data:", updateData);
 
-      if (!user) {
-        return response.status(404).json({ error: "User not found" });
-      }
-
-      response.json({
-        name: user.displayName,
-        email: user.email,
-        user_id: user.user_ID,
-      });
-    } catch (error) {
-      console.error("Error retrieving user profile:", error);
-      response
-        .status(500)
-        .json({ error: "Error retrieving profile. Please try again." });
-    }
-  }
-
-  public async updateUser(
-    response: any,
-    userId: string,
-    updateData: Partial<IUser>
-  ): Promise<void> {
-    try {
       const updatedUser = await this.model
-        .findOneAndUpdate({ user_ID: userId }, updateData, { new: true })
-        .exec();
+          .findOneAndUpdate({ user_ID: userId }, updateData, { new: true })
+          .exec();
 
       if (!updatedUser) {
-        return response.status(404).json({ error: "User not found" });
+        console.error("User not found for update.");
+        return null;
       }
 
-      response.json(updatedUser);
+      console.log("User updated:", updatedUser);
+      return updatedUser;
     } catch (error) {
       console.error("Error updating user:", error);
-      response
-        .status(500)
-        .json({ error: "Error updating profile. Please try again." });
+      throw new Error("Error updating user profile.");
     }
   }
 
-  public async deleteUser(response: any, userId: string): Promise<void> {
+  public async deleteUser(userId: string): Promise<boolean> {
     try {
+      console.log("Deleting user with ID:", userId);
+
       const result = await this.model.deleteOne({ user_ID: userId }).exec();
+
       if (result.deletedCount === 0) {
-        return response.status(404).json({ error: "User not found" });
+        console.error("User not found for deletion.");
+        return false;
       }
 
-      response.json({ message: "User deleted successfully" });
+      console.log("User deleted successfully.");
+      return true;
     } catch (error) {
       console.error("Error deleting user:", error);
-      response
-        .status(500)
-        .json({ error: "Error deleting profile. Please try again." });
+      throw new Error("Error deleting user.");
     }
   }
 
-  public async listAllUsers(response: any): Promise<void> {
+  public async listAllUsers(): Promise<mongoose.Document[]> {
     try {
-      const users = await this.model.find({}).exec();
-      response.json(users);
+      console.log("Listing all users.");
+      return await this.model.find({}).exec();
     } catch (error) {
       console.error("Error listing users:", error);
-      response
-        .status(500)
-        .json({ error: "Error retrieving users. Please try again." });
+      throw new Error("Error retrieving user list.");
     }
   }
+
+  public async getUserProfile(userId: string): Promise<mongoose.Document | null> {
+    try {
+      console.log("Fetching user profile for ID:", userId);
+      return await this.model
+          .findOne({ user_ID: userId })
+          .select("displayName email user_ID color")
+          .exec();
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+      throw new Error("User profile fetch failed.");
+    }
+  }
+
 }
 
 export { UserModel };
