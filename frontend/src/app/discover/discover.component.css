@@ -12,7 +12,18 @@
   overflow: hidden;
   background-color: #ffffff;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  opacity: 1; /* Start with fully hidden */
+  animation: fadeIn 1s ease-in forwards; /* Apply fade-in animation */
 }
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
 
 .recipe-card:hover {
   transform: scale(1.02);

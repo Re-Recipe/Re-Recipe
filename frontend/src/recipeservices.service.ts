@@ -8,7 +8,7 @@ import { IRecipeContents } from './app/model/IRecipeContents';
   providedIn: 'root',
 })
 export class RecipeservicesService {
-  hostUrl: string = 'https://re-recipe.azurewebsites.net/app/';
+  hostUrl: string = 'http://localhost:8080/app/';
   isAuthenticated: boolean = false;
 
   constructor(private http: HttpClient) {}
@@ -213,9 +213,10 @@ export class RecipeservicesService {
    * @param recipeIds - An array of recipe IDs to be added to the cookbook.
    * @returns An Observable that emits the response from the backend.
    */
-  addRecipesToCookbook(payload: any): Observable<any> {
-    return this.http.post(`${this.hostUrl}/cookbook/addRecipes`, payload, {
-      withCredentials: true,
-    });
-}
+
+  addRecipesToCookbook(recipe: any): Observable<any> {
+    return this.http.post<any>(`${this.hostUrl}cookbook`, recipe, { withCredentials: true });
+  }
+
+  
 }

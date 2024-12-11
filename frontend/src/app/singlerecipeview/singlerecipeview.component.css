@@ -22,12 +22,25 @@
     overflow-y: auto;
     padding-right: 1rem;
     flex-grow: 1;
+    opacity: 0.5; /* Start with fully hidden */
+  animation: fadeIn 1s ease-in forwards; /* Apply fade-in animation */
+  
+}
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
   .image-section h1 {
     font-family: 'Georgia', serif;
     color: #6c757d;
     font-size: 2rem;
+    
   }
+  
 
   .image-section img {
     max-width: 100%;

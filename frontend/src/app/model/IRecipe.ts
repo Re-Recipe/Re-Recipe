@@ -15,6 +15,7 @@ export interface IRecipe {
   recipe_name: string;            
   meal_category: MealCategory[];  
   recipe_versions: IRecipeContents[];
-  image_url?: string;             
+  image_url?: string;  
+         
   is_visible?: boolean;           
 }

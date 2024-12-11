@@ -58,7 +58,7 @@
           <a class="nav-link text-light" (click)="login()">Login</a>
         </li>
         <li class="nav-item" *ngIf="isLoggedIn">
-          <a class="nav-link text-light" (click)="logout()">Logout</a>
+          <a class="nav-link text-light" [routerLink]="['/logout']" (click)="logout()">Logout</a>
         </li>
       </ul>
     </div>

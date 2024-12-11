@@ -42,7 +42,7 @@ class DiscoverModel {
         } catch (e) {
             console.error("Error connecting to MongoDB or initializing Discover model:", e);
         }
-    }
+    } 
 
     public async createRecipe(response: any, recipeData: IRecipe) {
         try {

@@ -19,7 +19,10 @@ export class ProfileComponent implements OnInit {
   loadUserProfile(): void {
     this.recipeService.userProfile().subscribe(
       (data) => {
+        console.log(data)
+        console.log("userprofile", data.user_id)
         this.user = data;
+       
       },
       (error) => {
         console.error('Error fetching user profile:', error);

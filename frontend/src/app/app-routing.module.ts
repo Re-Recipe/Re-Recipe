@@ -6,6 +6,7 @@ import { CreaterecipeComponent } from './createrecipe/createrecipe.component';
 import { CookbookComponent } from './cookbook/cookbook.component';
 import { SinglerecipeviewComponent } from './singlerecipeview/singlerecipeview.component';
 import { ProfileComponent } from './profile/profile.component';
+import { LogoutpageComponent } from './logoutpage/logoutpage.component';
 const routes: Routes = [
   { path: '', component: HomepageComponent },
   { path: 'home', component: HomepageComponent },
@@ -13,7 +14,8 @@ const routes: Routes = [
   { path: 'createrecipe', component: CreaterecipeComponent},
   { path: 'cookbook',component:CookbookComponent},
   { path: 'discover/:recipeID', component: SinglerecipeviewComponent },
-  {path: 'profile', component:ProfileComponent}
+  {path: 'profile', component:ProfileComponent},
+  { path: 'logout', component:LogoutpageComponent}
 ];
 
 @NgModule({

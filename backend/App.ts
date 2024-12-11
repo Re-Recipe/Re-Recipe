@@ -195,6 +195,33 @@ class App {
         await this.Cookbook.copyRecipeFromDiscover(res, recipeId, userId);
       }
     );
+    router.post("/app/cookbook", this.validateAuth, async (req, res) => {
+      try {
+        const userId = JSON.stringify(req.user.id);  // Assuming you're using authentication middleware to validate the user
+        console.log("cookbook user id:" +userId);
+        console.log("cookbook...... userID to post",userId)
+        if (!userId) {
+          return res.status(401).json({ error: "Unauthorized" });
+        }
+    
+        const recipes = req.body;  // Array of recipes with user_ID
+        // Ensure that each recipe contains the user_ID
+        for (const recipe of recipes) {
+          if (!recipe.user_ID || !recipe.recipe_name) {
+            return res.status(400).json({ error: "Missing required fields in recipe" });
+          }
+        }
+     
+        // Add recipes to the user's cookbook (assuming Cookbook is a model)
+        await this.Cookbook.copyRecipeFromDiscover(res, userId, recipes);
+        
+        res.status(200).json({ message: "Recipes added successfully" });
+      } catch (error) {
+        console.error("Error adding recipes to cookbook:", error);
+        res.status(500).json({ error: "An error occurred while adding recipes." });
+      }
+    });
+    
 
     /**
      * ====================
@@ -230,7 +257,9 @@ class App {
     router.get("/app/profile", this.validateAuth, async (req, res) => {
       try {
         // Extract user_ID from req.user
+       
         const userId = req.user?.id;
+        console.log("app.ts user profile......", userId)
         if (!userId) {
           return res.status(401).json({ error: "Unauthorized" });
         }

@@ -94,51 +94,71 @@ class CookbookModel {
   public async copyRecipeFromDiscover(
     response: any,
     recipe_ID: string,
-    user_ID: string
+    user_ID: any,
   ): Promise<void> {
+    console.log("response", response);
+    console.log("recipe_ID", recipe_ID);
+    console.log("user_ID.....", user_ID);
+
+    // Ensure user_ID is a string, if it's an array, extract the string from the first element
+    const userID = Array.isArray(user_ID) ? user_ID[0].user_ID : user_ID;
+    console.log("user_ID..... extraction to sting ", userID);
     try {
       // Use the existing model from DiscoverModel to retrieve the recipe
       const originalRecipe = await this.discoverModel.model
         .findOne({ _id: recipe_ID })
         .exec();
+      console.log("originalRecipe............", originalRecipe);
       if (!originalRecipe) {
-        return response
-          .status(404)
-          .json({ error: "Recipe not found in Discover!" });
+        return response.status(404).json({ error: "Recipe not found in Discover!" });
       }
-
+  
       // Create a copy of the recipe and add user-specific data
       const newRecipeData: { user_ID: string } = {
         ...originalRecipe.toObject(),
-        user_ID,
+        user_ID: userID,
       };
-
+    
+      console.log("CookBookmodel USER_ID..................", newRecipeData);
+  
       // Create a new recipe document using RecipeModel
       const recipeModelInstance = new RecipeModel();
       const newRecipe = new recipeModelInstance.recipe(newRecipeData);
+      
+      console.log("new")
+      // Save the new recipe to the database
       await newRecipe.save();
-
+  
       // Find or create the user's cookbook
-      let cookbook = await this.model.findOne({ user_ID }).exec();
+      let cookbook = await this.model.findOne({ user_ID: userID }).exec();
       if (!cookbook) {
         cookbook = new this.model({
-          user_ID,
+          user_ID: userID,
           modified_recipes: [newRecipe._id],
         });
       } else {
         cookbook.modified_recipes.push(newRecipe._id);
       }
-
+  
       // Save the updated cookbook and respond
       const savedCookbook = await cookbook.save();
-      response.status(201).json(savedCookbook);
+      console.log("saved Cookbook", savedCookbook);
+  
+      // Ensure that only one response is sent
+      if (!response.headersSent) {
+        return response.status(201).json(savedCookbook);  // Return response early
+      }
     } catch (error) {
       console.error("Failed to copy recipe from Discover:", error);
-      response
-        .status(500)
-        .json({ error: "Failed to copy recipe from Discover" });
+  
+      // Check if the response has already been sent to avoid double responses
+      if (!response.headersSent) {
+        return response.status(500).json({ error: "Failed to copy recipe from Discover" });
+      }
     }
   }
+  
+  
 
   /**
    * Removes a recipe from the user's cookbook.
