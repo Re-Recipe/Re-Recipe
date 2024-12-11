@@ -116,23 +116,21 @@ class DiscoverModel {
         }
     }
 
-    public async retrieveAllRecipes(response: any): Promise<void> {
-        try {
-            console.log("Fetching all Discover documents with recipe_versions...");
-          
-            // Using the RecipeModel to aggregate request 
-            const recipes = await this.recipeModel.getRecipesWithContents(this.model, {
-                recipe_versions: { $exists: true, $ne: [] }  
-            });
-            
-            console.log("Matched and Populated Documents:", JSON.stringify(recipes, null, 2));
-            response.json(recipes);
-        } catch (error) {
-            console.error("Failed to retrieve all recipes with versions:", error);
-            response.status(500).json({ error: "Failed to retrieve recipes with versions." });
-        }
-    }
+    
+public async retrieveAllRecipes(response: any): Promise<void> {
+    try {
+        // Get all discover recipes and populate the 'recipe_versions' field
+        const discoverRecipes = await this.model
+            .find({})
+            .populate('recipe_versions') 
+            .exec();  
 
+        response.json(discoverRecipes);
+    } catch (error) {
+        console.error("Error retrieving populated recipe:", error);
+        response.status(500).json({ error: "Failed to fetch recipes." });
+    }
+}
     public async retrieveRecipe(response: any, recipe_ID: string) {
         try {
             console.log("Fetching Discover document for recipe_ID with populated recipe versions:", recipe_ID);
