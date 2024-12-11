@@ -213,9 +213,9 @@ export class RecipeservicesService {
    * @param recipeIds - An array of recipe IDs to be added to the cookbook.
    * @returns An Observable that emits the response from the backend.
    */
-  addRecipesToCookbook(payload: any): Observable<any> {
-    return this.http.post(`${this.hostUrl}/cookbook/addRecipes`, payload, {
-      withCredentials: true,
-    });
-}
+  createCookbookRecipes(recipeIds: string[]): Observable<any> {
+    const url = `${this.hostUrl}discover/transfer`;
+    console.log('recipe service', recipeIds);
+    return this.http.post<any[]>(url, { recipeIds }, { withCredentials: true });
+  }
 }

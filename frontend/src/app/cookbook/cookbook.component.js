@@ -44,12 +44,56 @@ let CookbookComponent = (() => {
     let _classDecorators = [(0, core_1.Component)({
             selector: 'app-cookbook',
             templateUrl: './cookbook.component.html',
-            styleUrl: './cookbook.component.css'
+            styleUrls: ['./cookbook.component.css'],
         })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;
     var CookbookComponent = _classThis = class {
+        constructor(recipeService) {
+            this.recipeService = recipeService;
+            this.recipeList = [];
+            this.recipeList_1 = [];
+            this.loading = true;
+            this.error = null;
+            this.searchQuery = '';
+            this.selectedCategory = '';
+            this.maxCookingDuration = null;
+        }
+        ngOnInit() {
+            this.getRecipes();
+            this.getRecipeContent();
+        }
+        getRecipes() {
+            this.recipeService.getAllCookbookRecipes().subscribe((data) => {
+                this.recipeList = data;
+                this.loading = false;
+            }, (error) => {
+                this.error = 'Failed to load recipes.';
+                this.loading = false;
+            });
+        }
+        getRecipeContent() {
+            this.recipeService.getRecipeContent().subscribe((data) => {
+                this.recipeList_1 = data.map((recipe) => (Object.assign(Object.assign({}, recipe), { recipe_versions: recipe.recipe_versions || [], meal_category: recipe.meal_category || [], image_url: recipe.image_url || 'assets/placeholder.png' })));
+            }, (error) => {
+                this.error = 'Failed to load additional recipes.';
+            });
+        }
+        get uniqueCategories() {
+            const categories = this.recipeList.flatMap((recipe) => recipe.meal_category || []);
+            return Array.from(new Set(categories)).sort();
+        }
+        filteredRecipes() {
+            return this.recipeList.filter((recipe) => {
+                var _a, _b;
+                const matchesSearch = (_a = recipe.recipe_name) === null || _a === void 0 ? void 0 : _a.toLowerCase().includes(this.searchQuery.toLowerCase());
+                const matchesCategory = this.selectedCategory
+                    ? (_b = recipe.meal_category) === null || _b === void 0 ? void 0 : _b.some((category) => category === this.selectedCategory)
+                    : true;
+                return matchesSearch && matchesCategory;
+            });
+        }
     };
     __setFunctionName(_classThis, "CookbookComponent");
     (() => {

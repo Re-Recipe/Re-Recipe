@@ -40,6 +40,7 @@ var __setFunctionName = (this && this.__setFunctionName) || function (f, name, p
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RecipeservicesService = void 0;
 const core_1 = require("@angular/core");
+const rxjs_1 = require("rxjs");
 let RecipeservicesService = (() => {
     let _classDecorators = [(0, core_1.Injectable)({
             providedIn: 'root',
@@ -51,6 +52,44 @@ let RecipeservicesService = (() => {
         constructor(http) {
             this.http = http;
             this.hostUrl = 'http://localhost:8080/app/';
+            this.isAuthenticated = false;
+        }
+        /**
+         * Logs in the user via Google SSO
+         */
+        login() {
+            window.location.href = `${this.hostUrl}auth/google`;
+        }
+        /**
+         * Logs out the user and updates `isAuthenticated`
+         */
+        logout() {
+            return this.http
+                .get(`${this.hostUrl}logout`, { withCredentials: true })
+                .pipe((0, rxjs_1.tap)(() => {
+                this.isAuthenticated = false; // Update authentication state
+            }));
+        }
+        /**
+         * Checks the user's session state and updates `isAuthenticated`
+         */
+        checkSession() {
+            return this.http
+                .get(`${this.hostUrl}auth/check`, { withCredentials: true })
+                .pipe((0, rxjs_1.tap)((response) => {
+                this.isAuthenticated = response.loggedIn;
+            }));
+        }
+        userProfile() {
+            return this.http.get(`${this.hostUrl}profile`, {
+                withCredentials: true,
+            });
+        }
+        /**
+         * Checks if the user is logged in
+         */
+        isLoggedIn() {
+            return this.isAuthenticated;
         }
         /**
          * ============================
@@ -177,8 +216,10 @@ let RecipeservicesService = (() => {
          * @returns An Observable that emits an array of IRecipe objects from the
          *          user's cookbook.
          */
-        getAllCookbookRecipes(userId) {
-            return this.http.get(`${this.hostUrl}listAllRecipes/${userId}`);
+        getAllCookbookRecipes() {
+            return this.http.get(`${this.hostUrl}Cookbook`, {
+                withCredentials: true,
+            });
         }
         /**
          * Adds selected recipes to the user's cookbook in the backend database.
@@ -186,8 +227,10 @@ let RecipeservicesService = (() => {
          * @param recipeIds - An array of recipe IDs to be added to the cookbook.
          * @returns An Observable that emits the response from the backend.
          */
-        addRecipesToCookbook(userId, recipeIds) {
-            return this.http.post(`${this.hostUrl}cookbooks/${userId}`, { recipeIds });
+        addRecipesToCookbook(payload) {
+            return this.http.post(`${this.hostUrl}/cookbook/addRecipes`, payload, {
+                withCredentials: true,
+            });
         }
     };
     __setFunctionName(_classThis, "RecipeservicesService");

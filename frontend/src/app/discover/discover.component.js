@@ -44,7 +44,7 @@ let DiscoverComponent = (() => {
     let _classDecorators = [(0, core_1.Component)({
             selector: 'app-discover',
             templateUrl: './discover.component.html',
-            styleUrls: ['./discover.component.css']
+            styleUrls: ['./discover.component.css',]
         })];
     let _classDescriptor;
     let _classExtraInitializers = [];
@@ -53,7 +53,7 @@ let DiscoverComponent = (() => {
         constructor(recipeService) {
             this.recipeService = recipeService;
             this.recipeList = [];
-            this.recipeList_1 = [];
+            this.selectedRecipes = new Set(); // Track selected recipes by their IDs
             this.loading = true;
             this.error = null;
             this.searchQuery = '';
@@ -62,7 +62,6 @@ let DiscoverComponent = (() => {
         }
         ngOnInit() {
             this.getRecipes();
-            this.getRecipeContent();
         }
         getRecipes() {
             this.recipeService.getRecipes().subscribe((data) => {
@@ -71,13 +70,6 @@ let DiscoverComponent = (() => {
             }, (error) => {
                 this.error = 'Failed to load recipes.';
                 this.loading = false;
-            });
-        }
-        getRecipeContent() {
-            this.recipeService.getRecipeContent().subscribe((data) => {
-                this.recipeList_1 = data.map((recipe) => (Object.assign(Object.assign({}, recipe), { recipe_versions: recipe.recipe_versions || [], meal_category: recipe.meal_category || [], image_url: recipe.image_url || 'assets/placeholder.png' })));
-            }, (error) => {
-                this.error = 'Failed to load additional recipes.';
             });
         }
         get uniqueCategories() {
@@ -93,6 +85,24 @@ let DiscoverComponent = (() => {
                     : true;
                 return matchesSearch && matchesCategory;
             });
+        }
+        toggleRecipeSelection(recipeId) {
+            if (this.selectedRecipes.has(recipeId)) {
+                this.selectedRecipes.delete(recipeId); // Remove from selection
+            }
+            else {
+                this.selectedRecipes.add(recipeId); // Add to selection
+            }
+        }
+        saveSelectedRecipes() {
+            const selectedRecipeList = this.recipeList.filter(recipe => this.selectedRecipes.has(recipe.recipe_ID));
+            console.log('Saving recipes:', selectedRecipeList);
+            // Placeholder for API call to save the selected recipes
+            // Example:
+            // this.recipeService.saveSelectedRecipes(selectedRecipeList).subscribe(
+            //   response => console.log('Save successful:', response),
+            //   error => console.error('Save failed:', error)
+            // );
         }
     };
     __setFunctionName(_classThis, "DiscoverComponent");

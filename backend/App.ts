@@ -140,6 +140,42 @@ class App {
         await this.DiscoverModel.createRecipe(res, newRecipeData);
       }
     );
+    // Add a new recipe to the cookbook collection from Discover
+    router.post(
+      "/app/discover/transfer",
+      this.validateAuth,
+      async (req: express.Request, res: express.Response) => {
+        console.log("here in app");
+        try {
+          const recipeIDs = Object.values(req.body)[0];
+
+          const userId = req.user?.id;
+
+          console.log("Request Body:", req.body);
+          console.log(typeof recipeIDs);
+          console.log(typeof Object.values(recipeIDs[0]));
+          console.log(recipeIDs[0]);
+
+          console.log(typeof recipeIDs[0][0]);
+
+          // console.log("recIDS:", recipeIDs.type());
+
+          // Validate input
+          if (!Array.isArray(recipeIDs) || recipeIDs.length === 0) {
+            return res.status(400).json({ error: "Invalid recipe IDs" });
+          }
+          // Extract user_ID from req.user
+
+          if (!userId) {
+            return res.status(401).json({ error: "Unauthorized" });
+          }
+          await this.Cookbook.copyRecipesFromDiscover(res, recipeIDs, userId);
+        } catch (error) {
+          console.error(error);
+          res.status(500).json({ error: "error adding recipes to cookbook" });
+        }
+      }
+    );
 
     // Delete a recipe from the Discover collection by recipeID
     router.delete(
@@ -164,10 +200,9 @@ class App {
         if (!userId) {
           return res.status(401).json({ error: "Unauthorized" });
         }
-        
-        // Get cookbook recipes 
-        await this.Cookbook.getAllCookbookRecipes(res, userId);
 
+        // Get cookbook recipes
+        await this.Cookbook.getAllCookbookRecipes(res, userId);
       } catch (error) {
         console.error("Error getting cookbook:", error);
         res
@@ -187,14 +222,14 @@ class App {
     );
 
     // Add a new recipe in a user's cookbook
-    router.post(
-      "/app/cookbook/:userId/recipes/:recipeId",
-      async (req: express.Request, res: express.Response): Promise<void> => {
-        const userId: string = req.params.userId;
-        const recipeId: string = req.params.recipeId;
-        await this.Cookbook.copyRecipeFromDiscover(res, recipeId, userId);
-      }
-    );
+    // router.post(
+    //   "/app/cookbook/:userId/recipes/:recipeId",
+    //   async (req: express.Request, res: express.Response): Promise<void> => {
+    //     const userId: string = req.params.userId;
+    //     const recipeId: string = req.params.recipeId;
+    //     await this.Cookbook.copyRecipeFromDiscover(res, recipeId, userId);
+    //   }
+    // );
 
     /**
      * ====================

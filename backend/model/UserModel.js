@@ -9,12 +9,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
-    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (g && (g = 0, op[0] && (_ = 0)), _) try {
+        while (_) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -35,12 +35,16 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-Object.defineProperty(exports, "__esModule", { value: true });
+exports.__esModule = true;
 exports.UserModel = void 0;
 var mongoose = require("mongoose");
+var CookbookModel_1 = require("./CookbookModel");
+var DiscoverModel_1 = require("./DiscoverModel");
 var UserModel = /** @class */ (function () {
     function UserModel(DB_CONNECTION_STRING) {
         this.dbConnectionString = DB_CONNECTION_STRING;
+        var discoverModel = new DiscoverModel_1.DiscoverModel(this.dbConnectionString);
+        this.cookbookModel = new CookbookModel_1.CookbookModel(this.dbConnectionString, discoverModel);
         this.createSchema();
         this.createModel();
     }
@@ -49,8 +53,7 @@ var UserModel = /** @class */ (function () {
             user_ID: { type: String, required: true, unique: true },
             email: { type: String, required: true, unique: true },
             displayName: { type: String, required: true },
-            color: { type: String, required: true },
-            recipeIDs: [{ type: mongoose.Schema.Types.ObjectId, ref: "Recipe" }],
+            color: { type: String, required: true }
         }, { collection: "users", timestamps: true });
     };
     UserModel.prototype.createModel = function () {
@@ -75,37 +78,41 @@ var UserModel = /** @class */ (function () {
             });
         });
     };
-    // Creates a user entry in the DB 
+    // Creates a user entry in the DB
     UserModel.prototype.createUser = function (userData) {
         return __awaiter(this, void 0, void 0, function () {
             var defaultColor, newUser, savedUser, error_2;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        _a.trys.push([0, 2, , 3]);
+                        _a.trys.push([0, 3, , 4]);
                         defaultColor = "#000000";
                         newUser = new this.model({
                             user_ID: userData.user_ID,
                             email: userData.email,
                             displayName: userData.displayName,
-                            color: defaultColor,
-                            recipeIDs: [],
+                            color: defaultColor
                         });
                         return [4 /*yield*/, newUser.save()];
                     case 1:
                         savedUser = _a.sent();
                         console.log("New user created:", savedUser);
-                        return [2 /*return*/, savedUser];
+                        // Create a default cookbook for the user
+                        return [4 /*yield*/, this.cookbookModel.createCookbook(userData.user_ID, "myCookbook")];
                     case 2:
+                        // Create a default cookbook for the user
+                        _a.sent();
+                        return [2 /*return*/, savedUser];
+                    case 3:
                         error_2 = _a.sent();
                         console.error("Error creating user:", error_2);
                         throw new Error("User creation failed.");
-                    case 3: return [2 /*return*/];
+                    case 4: return [2 /*return*/];
                 }
             });
         });
     };
-    // Looks for a user in the db and if doesn't have one calls to the create 
+    // Looks for a user in the db and if doesn't have one calls to the create
     UserModel.prototype.findOrCreateUser = function (userData) {
         return __awaiter(this, void 0, void 0, function () {
             var user, error_3;
@@ -113,7 +120,9 @@ var UserModel = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 3, , 4]);
-                        return [4 /*yield*/, this.model.findOne({ user_ID: userData.user_ID }).exec()];
+                        return [4 /*yield*/, this.model
+                                .findOne({ user_ID: userData.user_ID })
+                                .exec()];
                     case 1:
                         user = _a.sent();
                         if (user) {
@@ -133,7 +142,7 @@ var UserModel = /** @class */ (function () {
             });
         });
     };
-    // Get user profile 
+    // Get user profile
     UserModel.prototype.getUserProfile = function (response, userId) {
         return __awaiter(this, void 0, void 0, function () {
             var user, error_4;
@@ -141,7 +150,8 @@ var UserModel = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, this.model.findOne({ user_ID: userId })
+                        return [4 /*yield*/, this.model
+                                .findOne({ user_ID: userId })
                                 .select("displayName email user_ID") // Only fetch displayName and email
                                 .exec()];
                     case 1:
@@ -158,7 +168,9 @@ var UserModel = /** @class */ (function () {
                     case 2:
                         error_4 = _a.sent();
                         console.error("Error retrieving user profile:", error_4);
-                        response.status(500).json({ error: "Error retrieving profile. Please try again." });
+                        response
+                            .status(500)
+                            .json({ error: "Error retrieving profile. Please try again." });
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
                 }
@@ -172,7 +184,9 @@ var UserModel = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, this.model.findOneAndUpdate({ user_ID: userId }, updateData, { new: true }).exec()];
+                        return [4 /*yield*/, this.model
+                                .findOneAndUpdate({ user_ID: userId }, updateData, { "new": true })
+                                .exec()];
                     case 1:
                         updatedUser = _a.sent();
                         if (!updatedUser) {
@@ -183,7 +197,9 @@ var UserModel = /** @class */ (function () {
                     case 2:
                         error_5 = _a.sent();
                         console.error("Error updating user:", error_5);
-                        response.status(500).json({ error: "Error updating profile. Please try again." });
+                        response
+                            .status(500)
+                            .json({ error: "Error updating profile. Please try again." });
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
                 }
@@ -208,7 +224,9 @@ var UserModel = /** @class */ (function () {
                     case 2:
                         error_6 = _a.sent();
                         console.error("Error deleting user:", error_6);
-                        response.status(500).json({ error: "Error deleting profile. Please try again." });
+                        response
+                            .status(500)
+                            .json({ error: "Error deleting profile. Please try again." });
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
                 }
@@ -230,7 +248,9 @@ var UserModel = /** @class */ (function () {
                     case 2:
                         error_7 = _a.sent();
                         console.error("Error listing users:", error_7);
-                        response.status(500).json({ error: "Error retrieving users. Please try again." });
+                        response
+                            .status(500)
+                            .json({ error: "Error retrieving users. Please try again." });
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
                 }

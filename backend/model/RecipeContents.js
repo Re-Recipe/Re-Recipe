@@ -1,5 +1,5 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
+exports.__esModule = true;
 exports.RecipeContentsModel = void 0;
 var mongoose = require("mongoose");
 var RecipeContents = /** @class */ (function () {
@@ -11,7 +11,7 @@ var RecipeContents = /** @class */ (function () {
         var schemaDefinition = {
             user_ID: { type: String, required: true, unique: true },
             recipe_ID: { type: mongoose.Schema.Types.ObjectId, ref: 'Recipe', required: true },
-            version_number: { type: Number, default: 1, required: true },
+            version_number: { type: Number, "default": 1, required: true },
             cooking_duration: { type: Number, required: true },
             serving_size: { type: Number, required: true },
             ingredients: [
@@ -20,17 +20,17 @@ var RecipeContents = /** @class */ (function () {
                     quantity: { type: Number, required: true },
                     unit: {
                         type: String,
-                        enum: ["oz", "cup", "tbsp", "tsp", "g", "kg", "lb", "each"],
-                        required: true,
-                    },
+                        "enum": ["oz", "cup", "tbsp", "tsp", "g", "kg", "lb", "each"],
+                        required: true
+                    }
                 },
             ],
             directions: [
                 {
-                    step: { type: String, required: true },
+                    step: { type: String, required: true }
                 },
             ],
-            notes: { type: String },
+            notes: { type: String }
         };
         this.schema = new mongoose.Schema(schemaDefinition);
     };

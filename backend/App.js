@@ -9,12 +9,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
-    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (g && (g = 0, op[0] && (_ = 0)), _) try {
+        while (_) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -35,7 +35,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-Object.defineProperty(exports, "__esModule", { value: true });
+exports.__esModule = true;
 exports.App = void 0;
 var express = require("express");
 var bodyParser = require("body-parser"); // For parsing URL requests and JSON
@@ -59,7 +59,7 @@ var App = /** @class */ (function () {
      * @param {string} mongoDBConnection - The MongoDB connection string.
      */
     function App(mongoDBConnection) {
-        this.googlePassportObj = new GooglePassport_1.default();
+        this.googlePassportObj = new GooglePassport_1["default"]();
         this.expressApp = express();
         this.DiscoverModel = new DiscoverModel_1.DiscoverModel(mongoDBConnection);
         this.Cookbook = new CookbookModel_1.CookbookModel(mongoDBConnection, DiscoverModel_1.DiscoverModel);
@@ -85,15 +85,19 @@ var App = /** @class */ (function () {
         this.expressApp.use(function (req, res, next) {
             res.header("Access-Control-Allow-Origin", "http://localhost:4200");
             res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-            res.header('Access-Control-Allow-Credentials', 'true'); // Allow cookies
-            res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+            res.header("Access-Control-Allow-Credentials", "true"); // Allow cookies
+            res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
             next();
         });
         // Body parsing middleware
         this.expressApp.use(bodyParser.json());
         this.expressApp.use(bodyParser.urlencoded({ extended: false }));
         // Session and cookie parsing middleware
-        this.expressApp.use(session({ secret: "1234567890QWERTY", resave: false, saveUninitialized: true }));
+        this.expressApp.use(session({
+            secret: "1234567890QWERTY",
+            resave: false,
+            saveUninitialized: true
+        }));
         this.expressApp.use(cookieParser());
         // Passport initialization
         this.expressApp.use(passport.initialize());
@@ -150,8 +154,48 @@ var App = /** @class */ (function () {
                 }
             });
         }); });
+        // Add a new recipe to the cookbook collection from Discover
+        router.post("/app/discover/transfer", this.validateAuth, function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+            var recipeIDs, userId, error_1;
+            var _a;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        console.log("here in app");
+                        _b.label = 1;
+                    case 1:
+                        _b.trys.push([1, 3, , 4]);
+                        recipeIDs = Object.values(req.body)[0];
+                        userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+                        console.log("Request Body:", req.body);
+                        console.log(typeof recipeIDs);
+                        console.log(typeof Object.values(recipeIDs[0]));
+                        console.log(recipeIDs[0]);
+                        console.log(typeof recipeIDs[0][0]);
+                        // console.log("recIDS:", recipeIDs.type());
+                        // Validate input
+                        if (!Array.isArray(recipeIDs) || recipeIDs.length === 0) {
+                            return [2 /*return*/, res.status(400).json({ error: "Invalid recipe IDs" })];
+                        }
+                        // Extract user_ID from req.user
+                        if (!userId) {
+                            return [2 /*return*/, res.status(401).json({ error: "Unauthorized" })];
+                        }
+                        return [4 /*yield*/, this.Cookbook.copyRecipesFromDiscover(res, recipeIDs, userId)];
+                    case 2:
+                        _b.sent();
+                        return [3 /*break*/, 4];
+                    case 3:
+                        error_1 = _b.sent();
+                        console.error(error_1);
+                        res.status(500).json({ error: "error adding recipes to cookbook" });
+                        return [3 /*break*/, 4];
+                    case 4: return [2 /*return*/];
+                }
+            });
+        }); });
         // Delete a recipe from the Discover collection by recipeID
-        router.delete("/app/discover/:recipeID", function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+        router["delete"]("/app/discover/:recipeID", function (req, res) { return __awaiter(_this, void 0, void 0, function () {
             var recipeID;
             return __generator(this, function (_a) {
                 switch (_a.label) {
@@ -170,21 +214,36 @@ var App = /** @class */ (function () {
          * ========================
          */
         // Retrieve all recipes in a user's cookbook
-        router.get("/app/cookbook/:userId", function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-            var userId;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+        router.get("/app/cookbook", this.validateAuth, function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+            var userId, error_2;
+            var _a;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
-                        userId = req.params.userId;
-                        return [4 /*yield*/, this.Cookbook.listAllRecipes(res, userId)];
+                        _b.trys.push([0, 2, , 3]);
+                        userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+                        if (!userId) {
+                            return [2 /*return*/, res.status(401).json({ error: "Unauthorized" })];
+                        }
+                        // Get cookbook recipes
+                        return [4 /*yield*/, this.Cookbook.getAllCookbookRecipes(res, userId)];
                     case 1:
-                        _a.sent();
-                        return [2 /*return*/];
+                        // Get cookbook recipes
+                        _b.sent();
+                        return [3 /*break*/, 3];
+                    case 2:
+                        error_2 = _b.sent();
+                        console.error("Error getting cookbook:", error_2);
+                        res
+                            .status(500)
+                            .json({ error: "An error occurred while retrieving the cookbook." });
+                        return [3 /*break*/, 3];
+                    case 3: return [2 /*return*/];
                 }
             });
         }); });
         // Remove a specific recipe from a user's cookbook
-        router.delete("/app/cookbook/:userId/recipes/:recipeId", function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+        router["delete"]("/app/cookbook/:userId/recipes/:recipeId", function (req, res) { return __awaiter(_this, void 0, void 0, function () {
             var userId, recipeId;
             return __generator(this, function (_a) {
                 switch (_a.label) {
@@ -199,20 +258,14 @@ var App = /** @class */ (function () {
             });
         }); });
         // Add a new recipe in a user's cookbook
-        router.post("/app/cookbook/:userId/recipes/:recipeId", function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-            var userId, recipeId;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        userId = req.params.userId;
-                        recipeId = req.params.recipeId;
-                        return [4 /*yield*/, this.Cookbook.copyRecipeFromDiscover(res, recipeId, userId)];
-                    case 1:
-                        _a.sent();
-                        return [2 /*return*/];
-                }
-            });
-        }); });
+        // router.post(
+        //   "/app/cookbook/:userId/recipes/:recipeId",
+        //   async (req: express.Request, res: express.Response): Promise<void> => {
+        //     const userId: string = req.params.userId;
+        //     const recipeId: string = req.params.recipeId;
+        //     await this.Cookbook.copyRecipeFromDiscover(res, recipeId, userId);
+        //   }
+        // );
         /**
          * ====================
          * SECTION: USER ROUTES
@@ -237,17 +290,17 @@ var App = /** @class */ (function () {
                 }
             });
         }); });
-        router.get('/app/auth/check', function (req, res) {
+        router.get("/app/auth/check", function (req, res) {
             if (_this.validateAuth) {
-                console.log('User is authenticated:', req.user);
+                console.log("User is authenticated:", req.user);
                 return res.json({ loggedIn: true });
             }
-            console.log('User is not authenticated');
+            console.log("User is not authenticated");
             res.json({ loggedIn: false });
         });
-        // Get the user profile 
-        router.get('/app/profile', this.validateAuth, function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-            var userId, error_1;
+        // Get the user profile
+        router.get("/app/profile", this.validateAuth, function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+            var userId, error_3;
             var _a;
             return __generator(this, function (_b) {
                 switch (_b.label) {
@@ -264,9 +317,11 @@ var App = /** @class */ (function () {
                         _b.sent();
                         return [3 /*break*/, 3];
                     case 2:
-                        error_1 = _b.sent();
-                        console.error("Error retrieving profile:", error_1);
-                        res.status(500).json({ error: "An error occurred while retrieving the profile." });
+                        error_3 = _b.sent();
+                        console.error("Error retrieving profile:", error_3);
+                        res
+                            .status(500)
+                            .json({ error: "An error occurred while retrieving the profile." });
                         return [3 /*break*/, 3];
                     case 3: return [2 /*return*/];
                 }
@@ -274,15 +329,15 @@ var App = /** @class */ (function () {
         }); });
         // Google SSO Sign - In
         router.get("/app/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));
-        router.get('/app/auth/info', this.validateAuth, function (req, res) {
-            console.log('Query All list');
+        router.get("/app/auth/info", this.validateAuth, function (req, res) {
+            console.log("Query All list");
             console.log("user info:" + JSON.stringify(req.user));
             console.log("user id:" + JSON.stringify(req.user.id));
             console.log("user displayName:" + JSON.stringify(req.user.displayName));
-            res.json({ "username": req.user.displayName, "id": req.user.id });
+            res.json({ username: req.user.displayName, id: req.user.id });
         });
-        // Logs the user out 
-        router.get('/app/logout', function (req, res) {
+        // Logs the user out
+        router.get("/app/logout", function (req, res) {
             // Logs the user out using Passport's logout method
             req.logout(function (err) {
                 if (err) {
@@ -293,10 +348,12 @@ var App = /** @class */ (function () {
                 req.session.destroy(function (err) {
                     if (err) {
                         console.error("Error destroying session:", err);
-                        return res.status(500).json({ error: "Session destruction failed" });
+                        return res
+                            .status(500)
+                            .json({ error: "Session destruction failed" });
                     }
                     // Clear the session cookie from the client's browser
-                    res.clearCookie('connect.sid'); // Ensure this matches your session cookie name
+                    res.clearCookie("connect.sid"); // Ensure this matches your session cookie name
                     console.log("User successfully logged out");
                     res.json({ message: "Logged out successfully" });
                 });
@@ -318,7 +375,7 @@ var App = /** @class */ (function () {
             });
         }); });
         // Delete a user's profile by userId
-        router.delete("/app/user/profile/:userId", function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+        router["delete"]("/app/user/profile/:userId", function (req, res) { return __awaiter(_this, void 0, void 0, function () {
             var userId;
             return __generator(this, function (_a) {
                 switch (_a.label) {
@@ -336,7 +393,7 @@ var App = /** @class */ (function () {
         this.expressApp.use("/app/json/", express.static("".concat(__dirname, "/app/json")));
         this.expressApp.use("/images", express.static("".concat(__dirname, "/img")));
         //The static end point for angular and fallback
-        // Updated for root 
+        // Updated for root
         this.expressApp.use("/", express.static("".concat(__dirname, "/recipes/browser")));
         this.expressApp.get("*", function (req, res) {
             res.sendFile("".concat(__dirname, "/recipes/browser/index.html"));

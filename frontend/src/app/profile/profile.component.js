@@ -44,12 +44,30 @@ let ProfileComponent = (() => {
     let _classDecorators = [(0, core_1.Component)({
             selector: 'app-profile',
             templateUrl: './profile.component.html',
-            styleUrl: './profile.component.css'
+            styleUrls: ['./profile.component.css'],
         })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;
     var ProfileComponent = _classThis = class {
+        constructor(recipeService) {
+            this.recipeService = recipeService;
+            this.user = null; // Initialize user as null
+        }
+        ngOnInit() {
+            this.loadUserProfile(); // Load user profile data
+        }
+        // Function to load the user profile from the service
+        loadUserProfile() {
+            this.recipeService.userProfile().subscribe((data) => {
+                this.user = data;
+            }, (error) => {
+                console.error('Error fetching user profile:', error);
+            });
+        }
+        login() {
+            this.recipeService.login();
+        }
     };
     __setFunctionName(_classThis, "ProfileComponent");
     (() => {

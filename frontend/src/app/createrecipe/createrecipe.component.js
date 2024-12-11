@@ -41,6 +41,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreaterecipeComponent = void 0;
 const core_1 = require("@angular/core");
 const forms_1 = require("@angular/forms");
+const uuid_1 = require("uuid");
 let CreaterecipeComponent = (() => {
     let _classDecorators = [(0, core_1.Component)({
             selector: 'app-createrecipe',
@@ -51,58 +52,35 @@ let CreaterecipeComponent = (() => {
     let _classExtraInitializers = [];
     let _classThis;
     var CreaterecipeComponent = _classThis = class {
-        /**
-         * Constructs the CreaterecipeComponent and injects dependencies.
-         * @param fb - Angular's FormBuilder service for reactive forms.
-         * @param http - Angular's HttpClient service for HTTP requests.
-         */
-        constructor(fb, http) {
+        constructor(fb, http, // Keep HttpClient for direct API calls if needed
+        recipeService // Use the service for modular recipe-related API calls
+        ) {
             this.fb = fb;
             this.http = http;
-            /** Array of predefined categories for recipes */
+            this.recipeService = recipeService;
             this.categories = ['breakfast', 'lunch', 'dinner', 'dessert', 'vegetarian', 'vegan', 'gluten-free'];
         }
-        /**
-         * Lifecycle hook that initializes the recipe creation form.
-         */
         ngOnInit() {
-            console.log('CreateRecipeComponent initialized');
-            // Initialize the form group
             this.recipeForm = this.fb.group({
                 recipe_name: ['', forms_1.Validators.required],
                 category: ['', forms_1.Validators.required],
                 cooking_duration: [null, [forms_1.Validators.required, forms_1.Validators.min(1), forms_1.Validators.pattern('^[0-9]+$')]],
-                ingredients: this.fb.array([], this.minimumOneItemValidator), // Custom validator for at least one ingredient
-                directions: this.fb.array([], this.minimumOneItemValidator), // Custom validator for at least one direction
+                ingredients: this.fb.array([], this.minimumOneItemValidator),
+                directions: this.fb.array([], this.minimumOneItemValidator),
                 image_url: [''],
-                is_visible: [false] // Checkbox for publishing
+                is_visible: [false],
+                serving_size: [null, [forms_1.Validators.required, forms_1.Validators.min(1)]], // Add serving_size field
             });
         }
-        /**
-         * Getter for the `ingredients` FormArray.
-         * @returns The FormArray containing all the ingredients.
-         */
         get ingredients() {
             return this.recipeForm.get('ingredients');
         }
-        /**
-         * Getter for the `directions` FormArray.
-         * @returns The FormArray containing all the directions.
-         */
         get directions() {
             return this.recipeForm.get('directions');
         }
-        /**
-         * Custom validator to ensure the FormArray has at least one item.
-         * @param control - The AbstractControl to validate.
-         * @returns Null if valid, otherwise an object indicating the error.
-         */
         minimumOneItemValidator(control) {
             return control.length > 0 ? null : { required: true };
         }
-        /**
-         * Adds a new ingredient to the `ingredients` FormArray.
-         */
         addIngredient() {
             this.ingredients.push(this.fb.group({
                 name: ['', forms_1.Validators.required],
@@ -110,56 +88,64 @@ let CreaterecipeComponent = (() => {
                 unit: ['', forms_1.Validators.required]
             }));
         }
-        /**
-         * Removes an ingredient at the specified index from the `ingredients` FormArray.
-         * @param index - The index of the ingredient to remove.
-         */
         removeIngredient(index) {
             this.ingredients.removeAt(index);
         }
-        /**
-         * Adds a new direction step to the `directions` FormArray.
-         */
         addDirection() {
             this.directions.push(this.fb.group({
                 step: ['', forms_1.Validators.required]
             }));
         }
-        /**
-         * Removes a direction step at the specified index from the `directions` FormArray.
-         * @param index - The index of the direction to remove.
-         */
         removeDirection(index) {
             this.directions.removeAt(index);
         }
         /**
-         * Submits the form if it is valid. Sends a POST request to the API with the recipe data.
+         * Submits the recipe form using the RecipeservicesService
          */
         onSubmit() {
             if (this.recipeForm.valid) {
-                console.log('Submitting Recipe:', this.recipeForm.value);
-                this.http.post('/api/recipes', this.recipeForm.value).subscribe({
+                const recipeData = {
+                    recipe_ID: (0, uuid_1.v4)(),
+                    recipe_name: this.recipeForm.value.recipe_name,
+                    category: this.recipeForm.value.category,
+                    cooking_duration: this.recipeForm.value.cooking_duration,
+                    ingredients: this.recipeForm.value.ingredients,
+                    directions: this.recipeForm.value.directions,
+                    image_url: this.recipeForm.value.image_url,
+                    is_visible: this.recipeForm.value.is_visible,
+                    modified_flag: false,
+                    user_ID: 'placeholder-user-id', // Placeholder until authentication is handled
+                    meal_category: [this.recipeForm.value.category],
+                    recipe_versions: [],
+                    serving_size: this.recipeForm.value.serving_size, // Add serving_size to the data
+                };
+                console.log('Submitting recipe data:', recipeData);
+                this.recipeService.addRecipe(recipeData).subscribe({
                     next: (response) => {
-                        console.log('Recipe submitted successfully:', response);
-                        this.recipeForm.reset();
-                        this.ingredients.clear();
-                        this.directions.clear();
+                        console.log('Recipe added successfully:', response);
+                        this.onReset();
+                        window.location.reload();
                     },
                     error: (error) => {
-                        console.error('Error submitting recipe:', error);
-                    }
+                        console.error('Error adding recipe:', error);
+                    },
                 });
-            }
-            else {
-                console.error('Form is invalid');
             }
         }
         /**
-         * Resets the form to its initial state and clears all ingredients and directions.
+         * Example of making a direct API call using HttpClient
          */
+        makeDirectApiCall() {
+            this.http.get('/api/some-other-endpoint').subscribe({
+                next: (response) => {
+                    console.log('Direct API response:', response);
+                },
+                error: (error) => {
+                    console.error('Error during direct API call:', error);
+                }
+            });
+        }
         onReset() {
-            console.log('onReset method called');
-            // Reset the main form controls
             this.recipeForm.reset({
                 recipe_name: '',
                 category: '',
@@ -167,7 +153,6 @@ let CreaterecipeComponent = (() => {
                 image_url: '',
                 is_visible: false
             });
-            // Clear the FormArrays (ingredients and directions)
             this.ingredients.clear();
             this.directions.clear();
         }

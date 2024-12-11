@@ -46,6 +46,7 @@ const discover_component_1 = require("./discover/discover.component");
 const createrecipe_component_1 = require("./createrecipe/createrecipe.component");
 const cookbook_component_1 = require("./cookbook/cookbook.component");
 const singlerecipeview_component_1 = require("./singlerecipeview/singlerecipeview.component");
+const profile_component_1 = require("./profile/profile.component");
 const routes = [
     { path: '', component: homepage_component_1.HomepageComponent },
     { path: 'home', component: homepage_component_1.HomepageComponent },
@@ -53,10 +54,11 @@ const routes = [
     { path: 'createrecipe', component: createrecipe_component_1.CreaterecipeComponent },
     { path: 'cookbook', component: cookbook_component_1.CookbookComponent },
     { path: 'discover/:recipeID', component: singlerecipeview_component_1.SinglerecipeviewComponent },
+    { path: 'profile', component: profile_component_1.ProfileComponent }
 ];
 let AppRoutingModule = (() => {
     let _classDecorators = [(0, core_1.NgModule)({
-            imports: [router_1.RouterModule.forRoot(routes)],
+            imports: [router_1.RouterModule.forRoot(routes, { useHash: true })],
             exports: [router_1.RouterModule]
         })];
     let _classDescriptor;

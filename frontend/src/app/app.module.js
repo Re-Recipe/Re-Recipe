@@ -51,6 +51,7 @@ const singlerecipeview_component_1 = require("./singlerecipeview/singlerecipevie
 const forms_1 = require("@angular/forms");
 const http_1 = require("@angular/common/http");
 const homepage_component_1 = require("./homepage/homepage.component");
+const profile_component_1 = require("./profile/profile.component");
 let AppModule = (() => {
     let _classDecorators = [(0, core_1.NgModule)({
             declarations: [
@@ -60,6 +61,7 @@ let AppModule = (() => {
                 createrecipe_component_1.CreaterecipeComponent,
                 singlerecipeview_component_1.SinglerecipeviewComponent,
                 homepage_component_1.HomepageComponent,
+                profile_component_1.ProfileComponent,
             ],
             imports: [
                 platform_browser_1.BrowserModule,
