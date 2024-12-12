@@ -3,6 +3,7 @@ import { IRecipe } from "../interfaces/IRecipe";
 import { RecipeModel } from "./RecipeModel";
 import { IDiscover } from "../interfaces/IDiscover";
 import { RecipeContentsModel } from "./RecipeContents";
+const { ObjectId } = require('mongodb');
 
 class DiscoverModel {
     public schema: mongoose.Schema;
@@ -151,7 +152,9 @@ public async retrieveAllRecipes(response: any): Promise<void> {
     }
     public async deleteRecipe(response: any, recipe_ID: string) {
         try {
-            const result = await this.model.deleteOne({ recipe_ID }).exec();
+            const objectId = new ObjectId(recipe_ID);
+            const result = await this.model.deleteOne({ _id: objectId }).exec();
+    
             if (result.deletedCount > 0) {
                 response.json({ message: `Recipe ${recipe_ID} deleted successfully.` });
             } else {
@@ -163,5 +166,6 @@ public async retrieveAllRecipes(response: any): Promise<void> {
         }
     }
 }
+
 
 export { DiscoverModel };
