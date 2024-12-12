@@ -1,8 +1,8 @@
 <div *ngIf="user">
   <h2>Profile</h2>
-  <p><strong>Name:</strong> {{ user.name }}</p>
+  <p><strong>Name:</strong> {{ user.displayName }}</p>
   <p><strong>Email:</strong> {{ user.email }}</p>
-  <p><Strong>UserId:</Strong> {{user.user_id}}</p>
+  <p><Strong>UserId:</Strong> {{user.user_ID}}</p>
 </div>
 
 <div *ngIf="!user">

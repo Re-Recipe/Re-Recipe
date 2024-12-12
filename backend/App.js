@@ -45,8 +45,10 @@ var UserModel_1 = require("./model/UserModel"); // Import the UserModel
 var cookieParser = require("cookie-parser");
 var session = require("express-session");
 var passport = require("passport");
+var GooglePassport_1 = require("./GooglePassport");
 var App = /** @class */ (function () {
     function App(mongoDBConnection) {
+        this.googlePassportObj = new GooglePassport_1.default();
         this.expressApp = express();
         this.DiscoverModel = new DiscoverModel_1.DiscoverModel(mongoDBConnection); // Single instance
         this.Cookbook = new CookbookModel_1.CookbookModel(mongoDBConnection, this.DiscoverModel);
@@ -156,6 +158,7 @@ var App = /** @class */ (function () {
                 }
             });
         }); });
+        router.get("/app/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));
         router.get("/app/auth/google/callback", passport.authenticate("google", { failureRedirect: "/" }), function (req, res) { return __awaiter(_this, void 0, void 0, function () {
             var googleUser, user;
             return __generator(this, function (_a) {
@@ -171,7 +174,7 @@ var App = /** @class */ (function () {
                 }
             });
         }); });
-        router.get("/app/auth/check", function (req, res) {
+        router.get("/app/auth/check", this.validateAuth, function (req, res) {
             if (req.isAuthenticated()) {
                 res.json({ loggedIn: true });
             }

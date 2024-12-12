@@ -29,6 +29,7 @@ export class AppComponent implements OnInit {
 
   login(): void {
     this.recipeService.login();
+
   }
 
   logout(): void {

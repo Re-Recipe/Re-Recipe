@@ -6,7 +6,7 @@ import { UserModel } from "./model/UserModel"; // Import the UserModel
 import * as cookieParser from "cookie-parser";
 import * as session from "express-session";
 import * as passport from "passport";
-
+import GooglePassportObj from "./GooglePassport";
 declare global {
   namespace Express {
     interface User {
@@ -21,8 +21,10 @@ class App {
   public DiscoverModel: DiscoverModel;
   public Cookbook: CookbookModel;
   public UserModel: UserModel;
+  public googlePassportObj: GooglePassportObj;
 
   constructor(mongoDBConnection: string) {
+    this.googlePassportObj = new GooglePassportObj();
     this.expressApp = express();
     this.DiscoverModel = new DiscoverModel(mongoDBConnection); // Single instance
     this.Cookbook = new CookbookModel(mongoDBConnection, this.DiscoverModel);
@@ -117,6 +119,11 @@ class App {
     });
 
     router.get(
+      "/app/auth/google",
+      passport.authenticate("google", { scope: ["profile", "email"] })
+    );
+
+    router.get(
         "/app/auth/google/callback",
         passport.authenticate("google", { failureRedirect: "/" }),
         async (req, res) => {
@@ -127,7 +134,7 @@ class App {
         }
     );
 
-    router.get("/app/auth/check", (req, res) => {
+    router.get("/app/auth/check", this.validateAuth,(req, res) => {
       if (req.isAuthenticated()) {
         res.json({ loggedIn: true });
       } else {

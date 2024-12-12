@@ -8,7 +8,7 @@ import { IRecipeContents } from './app/model/IRecipeContents';
   providedIn: 'root',
 })
 export class RecipeservicesService {
-  hostUrl: string = 'https://re-recipe.azurewebsites.net/app/';
+  hostUrl: string = 'http://localhost:8080/app/';
   isAuthenticated: boolean = false;
 
   constructor(private http: HttpClient) {}
@@ -18,6 +18,7 @@ export class RecipeservicesService {
    */
   login(): void {
     window.location.href = `${this.hostUrl}auth/google`;
+    this.isAuthenticated = true;
   }
 
   /**
@@ -42,9 +43,11 @@ export class RecipeservicesService {
       .pipe(
         tap((response: any) => {
           this.isAuthenticated = response.loggedIn;
+          console.log("Recipeservice session check", this.isAuthenticated)
         })
       );
   }
+
   userProfile(): Observable<any> {
     return this.http.get<any>(`${this.hostUrl}profile`, {
       withCredentials: true,
