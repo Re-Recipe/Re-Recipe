@@ -1,21 +1,22 @@
 <body>
-  <div *ngIf="user" class="profile-container">
-    <h2 class="profile-header">My Recipe Profile</h2>
-    <div class="profile-details">
-      <p><strong>Name:</strong> {{ user.displayName }}</p>
-      <p><strong>Email:</strong> {{ user.email }}</p>
-      <p><strong>User ID:</strong> {{ user.user_ID }}</p>
+<div *ngIf="user" class="profile-container">
+  <h2 class="profile-header">My Recipe Profile</h2>
+  <div class="profile-content">
+    <!-- Left Column -->
+    <div class="profile-left">
+      <img src="{{ user.imageURL || 'https://i.ibb.co/y5tNhjP/ChefRiRi.png' }}" alt="User Avatar" class="profile-avatar" />
+      <p class="profile-username">{{ user.displayName }}</p>
+      <p class="profile-email">Email: {{ user.email }}</p>
+      <p class="profile-userid">User ID: {{ user.user_ID }}</p>
+    </div>
+    <!-- Right Column -->
+    <div class="profile-right">
+      <p><strong>Bio:</strong> Chef Rihanna is an internationally renowned artist and entrepreneur who brings her signature style and creativity to the kitchen.
+        Known for her vibrant energy and love of bold flavors, Rihanna delights in exploring global cuisines and creating dishes that reflect her Caribbean roots.
+        Whether curating recipes or hosting dinner parties, she approaches cooking with the same passion and artistry that have made her a global icon.</p>
+
+      <p><strong>Favorite Recipes:</strong> Macaroni Pie, Fried Plantains, Rum Punch</p>
     </div>
   </div>
-  
-  <div *ngIf="!user" class="login-container">
-    <p>
-      Please 
-      <span 
-        class="login-link" 
-        role="button" 
-        (click)="login()">log in</span> 
-      to view your profile and start creating delicious recipes!
-    </p>
-  </div>
+</div>
 </body>

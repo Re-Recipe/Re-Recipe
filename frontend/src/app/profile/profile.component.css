@@ -1,29 +1,73 @@
 
 /* General Styles for Profile */
-body {
-  background-size: cover;
-  background-attachment: fixed;
-  background-position: center;
-  font-family: 'Lora', serif; /* Use a recipe-like font */
-  margin: 0;
-  padding: 0;
-}
+ body {
+   background-image: url('https://www.foodandwine.com/thmb/TDK2MFuyi2mb4jH66Waf9i1XsNs=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/seared-scallops-with-pomegranate-and-meyer-lemon-FT-RECIPE0321-7189303d38de41449c6b501c8663541c.jpg');
+   background-size: cover;
+   background-attachment: fixed;
+   background-position: center;
+   font-family: 'Lora', serif;
+   margin: 0;
+   padding: 0;
+   color: #000000;
+ }
 
 .profile-container {
-  background-color: rgba(255, 255, 255, 0.95); /* Light peach with slight transparency */
-  border: 2px solid #e65100; /* Orange border for a warm feel */
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 2px solid #a91145;
   border-radius: 15px;
-  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2); /* Deep shadow for depth */
+  box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.1);
   padding: 40px;
   width: 60%;
   margin: 40px auto;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
 
+.profile-content {
+  display: flex;
+  justify-content: space-between;
+}
+
+.profile-left {
+  flex: 1;
+  text-align: center;
+  border-right: 2px solid #a91145;
+  padding-right: 20px;
+}
+
+.profile-right {
+  flex: 2;
+  padding-left: 20px;
+}
+
+.profile-avatar {
+  border-radius: 50%;
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+  margin-bottom: 20px;
+  border: 3px solid #a91145;
+}
+
+.profile-username {
+  font-size: 1.5rem;
+  color: #a91145;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.profile-email, .profile-userid {
+  font-size: 1rem;
+  color: #000000;
+  margin-bottom: 5px;
 }
 
 .profile-header {
-  font-family: 'Pacifico', cursive; /* A handwritten font for a cozy, recipe-book feel */
+  font-family: 'Pacifico', cursive;
   font-size: 2.5rem;
-  color: #d84315; /* Warm orange-brown */
+  color: #a91145;
   text-align: center;
   margin-bottom: 20px;
 }
@@ -31,7 +75,7 @@ body {
 .profile-details {
   font-family: 'Lora', serif;
   font-size: 1.2rem;
-  color: #4e342e; /* Dark chocolate brown */
+  color: #000000;
   line-height: 1.8;
 }
 
@@ -40,20 +84,19 @@ body {
 }
 
 .login-container {
-  background-color: rgba(246, 243, 237, 0.95); /* Soft yellow for login prompt */
-  border: 2px dashed #ff5722; /* Dashed border to indicate focus */
+  background-color: #ffffff;
+  border: 2px dashed #a91145;
   padding: 20px;
   border-radius: 15px;
   width: 60%;
   margin: 40px auto;
   text-align: center;
-  margin-left: 30%;
-  margin-top:15%;
-  font-size: x-large;
+  font-size: 1.2rem;
+  color: #000000;
 }
 
 .login-link {
-  color: #e65100;
+  color: #a91145;
   font-weight: bold;
   cursor: pointer;
   text-decoration: underline;
@@ -61,14 +104,13 @@ body {
 }
 
 .login-link:hover {
-  color: #ff7043; /* Slightly brighter orange for hover */
+  color: #870d36;
 }
 
-/* Additional Enhancements */
 p {
   margin: 0;
 }
 
 strong {
-  color: #bf360c; /* Highlighted dark orange for text labels */
+  color: #a91145;
 }
