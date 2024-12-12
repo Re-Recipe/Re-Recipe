@@ -58,7 +58,7 @@ var App = /** @class */ (function () {
     }
     App.prototype.validateAuth = function (req, res, next) {
         if (req.isAuthenticated()) {
-            console.log("User is authenticated");
+            // console.log("User is authenticated");
             return next();
         }
         console.log("User is not authenticated");

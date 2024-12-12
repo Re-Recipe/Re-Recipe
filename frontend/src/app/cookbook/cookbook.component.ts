@@ -27,6 +27,7 @@ export class CookbookComponent implements OnInit {
   getRecipes(): void {
     this.recipeService.getAllCookbookRecipes().subscribe(
       (data) => {
+        console.log('getrecipe: ', data);
         this.recipeList = data;
         this.loading = false;
       },
