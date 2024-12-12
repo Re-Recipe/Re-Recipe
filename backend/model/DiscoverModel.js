@@ -51,6 +51,7 @@ exports.DiscoverModel = void 0;
 var mongoose = require("mongoose");
 var RecipeModel_1 = require("./RecipeModel");
 var RecipeContents_1 = require("./RecipeContents");
+var ObjectId = require('mongodb').ObjectId;
 var DiscoverModel = /** @class */ (function () {
     function DiscoverModel(DB_CONNECTION_STRING) {
         this.recipeModel = new RecipeModel_1.RecipeModel();
@@ -228,12 +229,13 @@ var DiscoverModel = /** @class */ (function () {
     };
     DiscoverModel.prototype.deleteRecipe = function (response, recipe_ID) {
         return __awaiter(this, void 0, void 0, function () {
-            var result, e_3;
+            var objectId, result, e_3;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, this.model.deleteOne({ recipe_ID: recipe_ID }).exec()];
+                        objectId = new ObjectId(recipe_ID);
+                        return [4 /*yield*/, this.model.deleteOne({ _id: objectId }).exec()];
                     case 1:
                         result = _a.sent();
                         if (result.deletedCount > 0) {

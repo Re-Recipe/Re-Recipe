@@ -1,18 +1,21 @@
-<div *ngIf="user">
-  <h2>Profile</h2>
-  <p><strong>Name:</strong> {{ user.displayName }}</p>
-  <p><strong>Email:</strong> {{ user.email }}</p>
-  <p><Strong>UserId:</Strong> {{user.user_ID}}</p>
-</div>
-
-<div *ngIf="!user">
-  <p>
-    Please 
-    <span 
-      class="login-link" 
-      role="button" 
-      (click)="login()">log in</span> 
-    to view your profile!
-  </p>
-</div>
-
+<body>
+  <div *ngIf="user" class="profile-container">
+    <h2 class="profile-header">My Recipe Profile</h2>
+    <div class="profile-details">
+      <p><strong>Name:</strong> {{ user.displayName }}</p>
+      <p><strong>Email:</strong> {{ user.email }}</p>
+      <p><strong>User ID:</strong> {{ user.user_ID }}</p>
+    </div>
+  </div>
+  
+  <div *ngIf="!user" class="login-container">
+    <p>
+      Please 
+      <span 
+        class="login-link" 
+        role="button" 
+        (click)="login()">log in</span> 
+      to view your profile and start creating delicious recipes!
+    </p>
+  </div>
+</body>
