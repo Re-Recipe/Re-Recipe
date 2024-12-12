@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { RecipeservicesService } from '../../recipeservices.service';
 import { IRecipe } from '../model/IRecipe';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-discover',
@@ -16,7 +17,15 @@ export class DiscoverComponent implements OnInit {
   selectedCategory: string = '';
   maxCookingDuration: number | null = null;
 
-  constructor(private recipeService: RecipeservicesService) {}
+  constructor(private recipeService: RecipeservicesService, private snackBar: MatSnackBar) {}
+  
+  showSnackbar(message: string): void {
+    this.snackBar.open(message, 'Close', {
+      duration: 4000, 
+      horizontalPosition: 'center', // Horizontal position ('start', 'center', 'end', 'left', 'right')
+      verticalPosition: 'top', 
+    });
+  }
 
   ngOnInit(): void {
     this.getRecipes();
@@ -69,14 +78,30 @@ export class DiscoverComponent implements OnInit {
     const selectedRecipeIds = this.recipeList
       .filter((recipe) => this.selectedRecipes.has(recipe.recipe_ID))
       .map((recipe) => recipe.recipe_ID);
-
+  
     console.log('Saving recipes:', selectedRecipeIds);
+  
     this.recipeService.createCookbookRecipes(selectedRecipeIds).subscribe(
       (response) => {
         console.log('good job ben, you saved it!', response);
+  
+        // Show a success snackbar
+        const recipeCount = selectedRecipeIds.length;
+        const message =
+          recipeCount === 1
+            ? 'Added 1 recipe to your cookbook'
+            : `Added ${recipeCount} recipes to your cookbook`;
+  
+        this.showSnackbar(message);
+  
+        // Clear the selected recipes
+        this.selectedRecipes.clear();
       },
       (error) => {
         console.error('whoopsie', error);
+  
+        // Show an error snackbar
+        this.showSnackbar('Failed to save recipes. Please try again.');
       }
     );
   }

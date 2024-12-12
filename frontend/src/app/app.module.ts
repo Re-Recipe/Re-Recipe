@@ -12,6 +12,10 @@ import { provideHttpClient } from '@angular/common/http';
 import { HomepageComponent } from './homepage/homepage.component';
 import { ProfileComponent } from './profile/profile.component';
 import { LogoutComponent } from './logout/logout.component';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations'; // Import this
+
+
 
 @NgModule({
   declarations: [
@@ -30,6 +34,8 @@ import { LogoutComponent } from './logout/logout.component';
     AppRoutingModule,
     ReactiveFormsModule, // Add ReactiveFormsModule
     FormsModule,
+    MatSnackBarModule,
+    BrowserAnimationsModule
   ],
   providers: [
     provideClientHydration(),
