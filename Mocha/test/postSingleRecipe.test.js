@@ -5,10 +5,10 @@ const expect = chai.expect;
 chai.use(chaiHttp);
 
 describe("Test Recipe Creation and Cleanup", function () {
-  this.timeout(15000); 
-  
-  // Variable to store recipce_ID
-  let createdRecipeId; 
+  this.timeout(20000); // Increased timeout to handle potential delays
+
+  // Variable to store recipe_ID
+  let createdRecipeId;
 
   // Sample data for recipe creation
   const sampleFormData = {
@@ -23,10 +23,12 @@ describe("Test Recipe Creation and Cleanup", function () {
     is_visible: true,
   };
 
+  let response; // To store the POST response
+
   before(function (done) {
     // Create a recipe using POST request
     chai
-      .request("http://localhost:8080") // Replace with the correct base URL
+      .request("https://re-recipe.azurewebsites.net") // Replace with the correct base URL
       .post("/app/discover")
       .send(sampleFormData)
       .end(function (err, res) {
@@ -38,26 +40,25 @@ describe("Test Recipe Creation and Cleanup", function () {
 
           // Ensure the response contains the created recipe ID
           if (res && res.body && res.body.recipe_ID) {
-            console.log("Captured recipe_ID for cleanup:", res.body.recipe_ID);
-            createdRecipeId = res.body.recipe_ID; 
+            createdRecipeId = res.body.recipe_ID;
+            console.log("Captured recipe_ID for cleanup:", createdRecipeId);
           } else {
             console.warn("No recipe_ID found in the response body.");
           }
 
-          // Save response for later
           response = res;
           done();
         }
       });
   });
 
-  // 1. Make sure request was fine 
+  // 1. Check the status of the POST request
   it("Should return status 201 and a new recipe object", function () {
-    expect(response).to.have.status(201); 
-    expect(response.body).to.be.an("object"); 
+    expect(response).to.have.status(201);
+    expect(response.body).to.be.an("object");
   });
-   
-  // 2. Make sure the response body matches
+
+  // 2. Validate the keys in the response body
   it("Should include required keys in the response body", function () {
     const requiredKeys = [
       "_id",
@@ -69,36 +70,37 @@ describe("Test Recipe Creation and Cleanup", function () {
       "image_url",
       "is_visible",
     ];
-    expect(response.body).to.include.keys(...requiredKeys); // Check for required keys
+    expect(response.body).to.include.keys(...requiredKeys);
   });
-  
-  // 3. Get the right details 
+
+  // 3. Validate the details of the created recipe
   it("Should return the correct recipe details", function () {
     expect(response.body.recipe_name).to.equal(sampleFormData.recipe_name);
     expect(response.body.meal_category).to.deep.equal(sampleFormData.meal_category);
     expect(response.body.image_url).to.equal(sampleFormData.image_url);
     expect(response.body.is_visible).to.equal(sampleFormData.is_visible);
   });
-  
-  // Clean it up and leave no crumbs 
+
+  // Cleanup after tests
   after(function (done) {
     if (createdRecipeId) {
       // Delete the created recipe using DELETE request
       chai
-        .request("https://re-recipe.azurewebsites.net") 
+        .request("https://re-recipe.azurewebsites.net")
         .delete(`/app/discover/${createdRecipeId}`)
         .end(function (err, res) {
           if (err) {
             console.error("Error during DELETE request:", err);
-            done(err); 
+            return done(err); // Fail the cleanup if DELETE fails
           } else {
             console.log("Cleanup successful for recipe ID:", createdRecipeId);
-            expect(res).to.have.status(200); 
+            expect(res).to.have.status(200);
+            done(); // Ensure done is called after cleanup
           }
         });
     } else {
       console.warn("No recipe created, skipping cleanup.");
-      done();
+      done(); // Skip cleanup if no recipe was created
     }
   });
 });
