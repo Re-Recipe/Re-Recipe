@@ -16,7 +16,7 @@ class GooglePassport {
         // Dynamically set callback URL based on environment
         const callbackURL =
             process.env.NODE_ENV === "production"
-                ? "https://your-deployed-site.azurewebsites.net/app/auth/google/callback"
+                ? "https://re-recipe.azurewebsites.net/app/auth/google/callback"
                 : "http://localhost:8080/app/auth/google/callback";
 
         passport.use(

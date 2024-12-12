@@ -19,7 +19,7 @@ class GooglePassport {
     {
       clientID: this.clientId,
       clientSecret: this.secretId,
-      callbackURL: "http://localhost:8080/app/auth/google/callback",
+      callbackURL: "http://re-recipe.azurewebsites.net/app/auth/google/callback",
     },
     (accessToken, refreshToken, profile, done) => {
       console.log("Inside new passport Google strategy");
