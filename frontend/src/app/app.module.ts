@@ -11,6 +11,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { provideHttpClient } from '@angular/common/http';
 import { HomepageComponent } from './homepage/homepage.component';
 import { ProfileComponent } from './profile/profile.component';
+import { LogoutComponent } from './logout/logout.component';
 
 @NgModule({
   declarations: [
@@ -21,6 +22,7 @@ import { ProfileComponent } from './profile/profile.component';
     SinglerecipeviewComponent,
     HomepageComponent,
     ProfileComponent,
+    LogoutComponent,
 
   ],
   imports: [
