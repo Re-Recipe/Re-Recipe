@@ -29,6 +29,7 @@ export class CookbookComponent implements OnInit {
       (data) => {
         this.recipeList = data;
         this.loading = false;
+        console.log("Cookbook, recipeservice..... front", this.recipeList)
       },
       (error) => {
         this.error = 'Failed to load recipes.';

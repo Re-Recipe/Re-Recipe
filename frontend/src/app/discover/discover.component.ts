@@ -69,44 +69,17 @@ export class DiscoverComponent implements OnInit {
   }
 
   saveSelectedRecipes(): void {
-    this.recipeService.userProfile().subscribe(
-      (userProfile) => {
-        const userId = userProfile.user_id;  // Adjust to match your backend's property naming
-        console.log("Fetched user ID:", userId);
-  
-        if (!userId) {
-          console.error("User ID is missing from user profile.");
-          return;
-        }
-  
-        const selectedRecipeList = this.recipeList
-          .filter(recipe => this.selectedRecipes.has(recipe.recipe_ID))  // Filter selected recipes
-          .map(recipe => ({
-            ...recipe,
-            user_ID: userId  // Add user_ID to each recipe
-          }));
-  
-        console.log("Selected recipes to save:", selectedRecipeList);
-  
-        if (selectedRecipeList.length === 0) {
-          console.warn("No recipes selected to save.");
-          return;
-        }
-  
-        this.recipeService.addRecipesToCookbook(selectedRecipeList).subscribe(
-          (response) => {
-            console.log('Recipes added to cookbook successfully:', response);
-            // Update UI or show success message
-          },
-          (error) => {
-            console.error('Error adding recipes to cookbook:', error);
-            // Display appropriate error message to the user
-          }
-        );
+    const selectedRecipeIds = this.recipeList
+      .filter((recipe) => this.selectedRecipes.has(recipe.recipe_ID))
+      .map((recipe) => recipe.recipe_ID);
+
+    console.log('Saving recipes:', selectedRecipeIds);
+    this.recipeService.createCookbookRecipes(selectedRecipeIds).subscribe(
+      (response) => {
+        console.log('good job ben, you saved it!', response);
       },
-      (error: any) => {
-        console.error('Error fetching user profile:', error);
-        // Handle user profile fetch failure
+      (error) => {
+        console.error('whoopsie', error);
       }
     );
   }

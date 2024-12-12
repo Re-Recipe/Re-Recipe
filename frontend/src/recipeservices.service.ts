@@ -201,8 +201,8 @@ export class RecipeservicesService {
    * @returns An Observable that emits an array of IRecipe objects from the
    *          user's cookbook.
    */
-  getAllCookbookRecipes(): Observable<IRecipe[]> {
-    return this.http.get<any[]>(`${this.hostUrl}Cookbook`, {
+  getAllCookbookRecipes(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.hostUrl}cookbook`, {
       withCredentials: true,
     });
   }
@@ -214,8 +214,10 @@ export class RecipeservicesService {
    * @returns An Observable that emits the response from the backend.
    */
 
-  addRecipesToCookbook(recipe: any): Observable<any> {
-    return this.http.post<any>(`${this.hostUrl}cookbook`, recipe, { withCredentials: true });
+  createCookbookRecipes(recipeIds: string[]): Observable<any[]> {
+    const url = `${this.hostUrl}cookbook`;
+    console.log('recipe service', recipeIds);
+    return this.http.post<any[]>(url, { recipeIds }, { withCredentials: true });
   }
 
   

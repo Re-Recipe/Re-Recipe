@@ -1,6 +1,5 @@
 /* General Styles for Profile */
 body {
-  background-image: url('https://images.pexels.com/photos/1435895/pexels-photo-1435895.jpeg?cs=srgb&dl=pexels-enginakyurt-1435895.jpg&fm=jpg'); /* Use a food-themed image for the background */
   background-size: cover;
   background-attachment: fixed;
   background-position: center;
@@ -17,8 +16,7 @@ body {
   padding: 40px;
   width: 60%;
   margin: 40px auto;
-  margin-left: 30%;
-  margin-top:15%;
+
 }
 
 .profile-header {

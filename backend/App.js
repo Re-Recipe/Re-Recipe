@@ -175,7 +175,7 @@ var App = /** @class */ (function () {
          */
         // Retrieve all recipes in a user's cookbook
         router.get("/app/cookbook", this.validateAuth, function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-            var userId, error_1;
+            var userId, recipes, error_1;
             var _a;
             return __generator(this, function (_b) {
                 switch (_b.label) {
@@ -185,11 +185,10 @@ var App = /** @class */ (function () {
                         if (!userId) {
                             return [2 /*return*/, res.status(401).json({ error: "Unauthorized" })];
                         }
-                        // Get cookbook recipes 
                         return [4 /*yield*/, this.Cookbook.getAllCookbookRecipes(res, userId)];
                     case 1:
-                        // Get cookbook recipes 
-                        _b.sent();
+                        recipes = _b.sent();
+                        res.json(recipes);
                         return [3 /*break*/, 3];
                     case 2:
                         error_1 = _b.sent();
@@ -218,53 +217,44 @@ var App = /** @class */ (function () {
             });
         }); });
         // Add a new recipe in a user's cookbook
-        router.post("/app/cookbook/:userId/recipes/:recipeId", function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-            var userId, recipeId;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        userId = req.params.userId;
-                        recipeId = req.params.recipeId;
-                        return [4 /*yield*/, this.Cookbook.copyRecipeFromDiscover(res, recipeId, userId)];
-                    case 1:
-                        _a.sent();
-                        return [2 /*return*/];
-                }
-            });
-        }); });
+        // router.post(
+        //   "/app/cookbook/:userId/recipes/:recipeId",
+        //   async (req: express.Request, res: express.Response): Promise<void> => {
+        //     const userId: string = req.params.userId;
+        //     const recipeId: string = req.params.recipeId;
+        //     await this.Cookbook.copyRecipeFromDiscover(res, recipeId, userId);
+        //   }
+        // );
         router.post("/app/cookbook", this.validateAuth, function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-            var userId, recipes, _i, recipes_1, recipe, error_2;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            var recipeIds, userId, error_2;
+            var _a;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
-                        _a.trys.push([0, 2, , 3]);
-                        userId = JSON.stringify(req.user.id);
-                        console.log("cookbook user id:" + userId);
-                        console.log("cookbook...... userID to post", userId);
+                        console.log("Here in app");
+                        _b.label = 1;
+                    case 1:
+                        _b.trys.push([1, 3, , 4]);
+                        recipeIds = req.body.recipeIds;
+                        userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+                        console.log("cookbook route userid.......", userId);
+                        // Validate input
+                        if (!Array.isArray(recipeIds) || recipeIds.length === 0) {
+                            return [2 /*return*/, res.status(400).json({ error: "Invalid recipe IDs" })];
+                        }
                         if (!userId) {
                             return [2 /*return*/, res.status(401).json({ error: "Unauthorized" })];
                         }
-                        recipes = req.body;
-                        // Ensure that each recipe contains the user_ID
-                        for (_i = 0, recipes_1 = recipes; _i < recipes_1.length; _i++) {
-                            recipe = recipes_1[_i];
-                            if (!recipe.user_ID || !recipe.recipe_name) {
-                                return [2 /*return*/, res.status(400).json({ error: "Missing required fields in recipe" })];
-                            }
-                        }
-                        // Add recipes to the user's cookbook (assuming Cookbook is a model)
-                        return [4 /*yield*/, this.Cookbook.copyRecipeFromDiscover(res, userId, recipes)];
-                    case 1:
-                        // Add recipes to the user's cookbook (assuming Cookbook is a model)
-                        _a.sent();
-                        res.status(200).json({ message: "Recipes added successfully" });
-                        return [3 /*break*/, 3];
+                        return [4 /*yield*/, this.Cookbook.copyRecipesFromDiscover(res, recipeIds, userId)];
                     case 2:
-                        error_2 = _a.sent();
-                        console.error("Error adding recipes to cookbook:", error_2);
-                        res.status(500).json({ error: "An error occurred while adding recipes." });
-                        return [3 /*break*/, 3];
-                    case 3: return [2 /*return*/];
+                        _b.sent();
+                        return [3 /*break*/, 4];
+                    case 3:
+                        error_2 = _b.sent();
+                        console.error("Error in /app/cookbook:", error_2);
+                        res.status(500).json({ error: "Failed to copy recipes from Discover" });
+                        return [3 /*break*/, 4];
+                    case 4: return [2 /*return*/];
                 }
             });
         }); });
