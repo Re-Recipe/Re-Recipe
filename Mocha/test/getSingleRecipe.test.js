@@ -27,16 +27,17 @@ describe("Test Single Recipe Retrieval", function () {
   // Test 1: Ensure the response is a single object
   it("Should return a single recipe object with expected properties", function () {
     expect(response).to.have.status(200); // Ensure a successful response
-    expect(response.body).to.be.an("object"); // The response should be an object
-    expect(response.body).to.include.keys(
-      'recipeList',
-      '_id',
+    expect(requestResult).to.be.an("object"); // The response should be an object
+    expect(requestResult).to.include.keys(
+      "_id",
+      "user_ID",
       "recipe_ID",
       "recipe_name",
       "meal_category",
       "recipe_versions",
       "image_url",
-      "is_visible"
+      "is_visible",
+      "modified_flag"
     );
   });
 
@@ -82,7 +83,7 @@ describe("Test Single Recipe Retrieval", function () {
     });
   });
 
-  // Test 4: Does it match expected written content in DB? (for this specific recipe) 
+  // Test 4: Does it match expected written content in DB? (for this specific recipe)
   it("Should match the unique fields for 6758fde40425bcc380f4d640", function () {
     expect(requestResult.recipe_ID).to.equal("6758fde40425bcc380f4d640");
     expect(requestResult.recipe_name).to.equal("Avocado Toast");
@@ -92,5 +93,4 @@ describe("Test Single Recipe Retrieval", function () {
     );
     expect(requestResult.is_visible).to.be.true;
   });
-  
 });
